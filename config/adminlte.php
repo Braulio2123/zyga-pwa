@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
+    'title' => 'Zyga Admin',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo' => '<b>Zyga</b>Admin',
+    'logo_img' => null,
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Admin Logo',
+    'logo_img_alt' => 'Zyga Admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -154,10 +154,10 @@ return [
 
     'layout_topnav' => null,
     'layout_boxed' => null,
-    'layout_fixed_sidebar' => null,
-    'layout_fixed_navbar' => null,
-    'layout_fixed_footer' => null,
-    'layout_dark_mode' => null,
+    'layout_fixed_sidebar' => true,
+    'layout_fixed_navbar' => true,
+    'layout_fixed_footer' => false,
+    'layout_dark_mode' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -190,17 +190,17 @@ return [
     |
     */
 
-    'classes_body' => '',
-    'classes_brand' => '',
-    'classes_brand_text' => '',
+    'classes_body' => 'hold-transition sidebar-mini layout-fixed',
+    'classes_brand' => 'bg-white',
+    'classes_brand_text' => 'font-weight-bold text-dark',
     'classes_content_wrapper' => '',
     'classes_content_header' => '',
-    'classes_content' => '',
-    'classes_sidebar' => 'sidebar-dark-primary elevation-4',
-    'classes_sidebar_nav' => '',
+    'classes_content' => 'px-3',
+    'classes_sidebar' => 'sidebar-light-primary elevation-3',
+    'classes_sidebar_nav' => 'nav-child-indent nav-compact',
     'classes_topnav' => 'navbar-white navbar-light',
     'classes_topnav_nav' => 'navbar-expand',
-    'classes_topnav_container' => 'container',
+    'classes_topnav_container' => 'container-fluid',
 
     /*
     |--------------------------------------------------------------------------
@@ -299,10 +299,10 @@ return [
     */
 
     'menu' => [
-        // Navbar items:
+        // NAVBAR
         [
             'type' => 'navbar-search',
-            'text' => 'search',
+            'text' => 'buscar',
             'topnav_right' => true,
         ],
         [
@@ -310,87 +310,75 @@ return [
             'topnav_right' => true,
         ],
 
-        // Sidebar items:
+        // SIDEBAR - PERFIL
         [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
+            'text' => 'Panel Admin',
+            'icon' => 'fas fa-user-shield',
+            'url'  => 'admin',
+        ],
+
+        // SIDEBAR - NAVEGACIÓN PRINCIPAL
+        [
+            'header' => 'ADMINISTRACIÓN',
         ],
         [
-            'text' => 'blog',
-            'url' => 'admin/blog',
-            'can' => 'manage-blog',
+            'text' => 'Dashboard',
+            'url'  => 'admin',
+            'icon' => 'fas fa-home',
         ],
         [
-            'text' => 'pages',
-            'url' => 'admin/pages',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
-        ],
-        ['header' => 'account_settings'],
-        [
-            'text' => 'profile',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user',
+            'text' => 'Usuarios',
+            'url'  => 'admin/usuarios',
+            'icon' => 'fas fa-users',
         ],
         [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-lock',
+            'text' => 'Conductores',
+            'url'  => 'admin/conductores',
+            'icon' => 'fas fa-id-card',
         ],
         [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
-            'submenu' => [
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                        ],
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                            'submenu' => [
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
-            ],
-        ],
-        ['header' => 'labels'],
-        [
-            'text' => 'important',
-            'icon_color' => 'red',
-            'url' => '#',
+            'text' => 'Servicios',
+            'url'  => 'admin/servicios',
+            'icon' => 'fas fa-concierge-bell',
         ],
         [
-            'text' => 'warning',
-            'icon_color' => 'yellow',
-            'url' => '#',
+            'text' => 'Solicitudes',
+            'url'  => 'admin/solicitudes',
+            'icon' => 'fas fa-truck-pickup',
         ],
         [
-            'text' => 'information',
-            'icon_color' => 'cyan',
-            'url' => '#',
+            'text' => 'Pagos',
+            'url'  => 'admin/pagos',
+            'icon' => 'fas fa-credit-card',
+        ],
+        [
+            'text' => 'Reportes',
+            'url'  => 'admin/reportes',
+            'icon' => 'fas fa-chart-bar',
+        ],
+
+        [
+            'header' => 'CONFIGURACIÓN',
+        ],
+        [
+            'text' => 'Perfil',
+            'url'  => 'admin/perfil',
+            'icon' => 'fas fa-user-cog',
+        ],
+        [
+            'text' => 'Configuración',
+            'url'  => 'admin/configuracion',
+            'icon' => 'fas fa-cogs',
+        ],
+
+        [
+            'header' => 'SESIÓN',
+        ],
+        [
+            'text' => 'Cerrar sesión',
+            'route' => 'logout',
+            'method' => 'post',
+            'icon' => 'fas fa-sign-out-alt',
         ],
     ],
 
