@@ -2,12 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\ClientPortalController;
+use App\Http\Controllers\Admin\ServiceController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// IMPORTANTE:
+// Si Auth::routes(); te está metiendo conflicto con tu login personalizado,
+// coméntalo. Si no te genera problema, puedes dejarlo.
 Auth::routes();
 
 Route::middleware('api.auth')->group(function () {
@@ -17,7 +22,12 @@ Route::middleware('api.auth')->group(function () {
 });
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
+
 
 Route::get('/admin', function () {
     if (!session('user') || session('user')['role'] !== 'admin') {
@@ -44,13 +54,8 @@ Route::prefix('admin')->group(function () {
         return view('admin.conductores.index');
     })->name('admin.conductores.index');
 
-    Route::get('/servicios', function () {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
-        }
-
-        return view('admin.servicios.index');
-    })->name('admin.servicios.index');
+    Route::get('/servicios', [ServiceController::class, 'index'])
+    ->name('admin.servicios.index');
 
     Route::get('/solicitudes', function () {
         if (!session('user') || session('user')['role'] !== 'admin') {
