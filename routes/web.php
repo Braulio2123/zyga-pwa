@@ -10,16 +10,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// IMPORTANTE:
-// Si Auth::routes(); te está metiendo conflicto con tu login personalizado,
-// coméntalo. Si no te genera problema, puedes dejarlo.
-Auth::routes();
-
-Route::middleware('api.auth')->group(function () {
-    Route::get('/home', function () {
-        return view('home');
-    })->name('home');
-});
+// Si te da conflicto con tu login personalizado, mejor déjalo comentado.
+// Auth::routes();
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
@@ -28,10 +20,17 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
 
+Route::get('/home', function () {
+    if (!session('user')) {
+        return redirect()->route('login');
+    }
+
+    return redirect()->route('user.dashboard');
+})->name('home');
 
 Route::get('/admin', function () {
-    if (!session('user') || session('user')['role'] !== 'admin') {
-        return redirect('/login');
+    if (!session('user') || (session('user')['role'] ?? null) !== 'admin') {
+        return redirect()->route('login');
     }
 
     return view('admin.dashboard');
@@ -39,59 +38,59 @@ Route::get('/admin', function () {
 
 Route::prefix('admin')->group(function () {
     Route::get('/usuarios', function () {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
+        if (!session('user') || (session('user')['role'] ?? null) !== 'admin') {
+            return redirect()->route('login');
         }
 
         return view('admin.usuarios.index');
     })->name('admin.usuarios.index');
 
     Route::get('/conductores', function () {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
+        if (!session('user') || (session('user')['role'] ?? null) !== 'admin') {
+            return redirect()->route('login');
         }
 
         return view('admin.conductores.index');
     })->name('admin.conductores.index');
 
     Route::get('/servicios', [ServiceController::class, 'index'])
-    ->name('admin.servicios.index');
+        ->name('admin.servicios.index');
 
     Route::get('/solicitudes', function () {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
+        if (!session('user') || (session('user')['role'] ?? null) !== 'admin') {
+            return redirect()->route('login');
         }
 
         return view('admin.solicitudes.index');
     })->name('admin.solicitudes.index');
 
     Route::get('/pagos', function () {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
+        if (!session('user') || (session('user')['role'] ?? null) !== 'admin') {
+            return redirect()->route('login');
         }
 
         return view('admin.pagos.index');
     })->name('admin.pagos.index');
 
     Route::get('/reportes', function () {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
+        if (!session('user') || (session('user')['role'] ?? null) !== 'admin') {
+            return redirect()->route('login');
         }
 
         return view('admin.reportes.index');
     })->name('admin.reportes.index');
 
     Route::get('/perfil', function () {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
+        if (!session('user') || (session('user')['role'] ?? null) !== 'admin') {
+            return redirect()->route('login');
         }
 
         return view('admin.perfil.index');
     })->name('admin.perfil.index');
 
     Route::get('/configuracion', function () {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
+        if (!session('user') || (session('user')['role'] ?? null) !== 'admin') {
+            return redirect()->route('login');
         }
 
         return view('admin.configuracion.index');
@@ -99,8 +98,35 @@ Route::prefix('admin')->group(function () {
 });
 
 Route::prefix('user')->group(function () {
-    Route::get('/', [ClientPortalController::class, 'dashboard'])->name('user.dashboard');
-    Route::get('/historial', [ClientPortalController::class, 'historial'])->name('user.historial');
-    Route::get('/billetera', [ClientPortalController::class, 'billetera'])->name('user.billetera');
-    Route::get('/cuenta', [ClientPortalController::class, 'cuenta'])->name('user.cuenta');
+    Route::get('/', function () {
+        if (!session('user')) {
+            return redirect()->route('login');
+        }
+
+        return app(ClientPortalController::class)->dashboard();
+    })->name('user.dashboard');
+
+    Route::get('/historial', function () {
+        if (!session('user')) {
+            return redirect()->route('login');
+        }
+
+        return app(ClientPortalController::class)->historial();
+    })->name('user.historial');
+
+    Route::get('/billetera', function () {
+        if (!session('user')) {
+            return redirect()->route('login');
+        }
+
+        return app(ClientPortalController::class)->billetera();
+    })->name('user.billetera');
+
+    Route::get('/cuenta', function () {
+        if (!session('user')) {
+            return redirect()->route('login');
+        }
+
+        return app(ClientPortalController::class)->cuenta();
+    })->name('user.cuenta');
 });

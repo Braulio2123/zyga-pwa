@@ -14,61 +14,76 @@ class LoginController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+{
+    // 🔹 Validación
+    $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required', 'string'],
+    ]);
 
-        $baseUrl = rtrim(env('URL_BASE_API', 'http://127.0.0.1:8000'), '/');
+    // 🔹 Base URL de la API
+    $baseUrl = rtrim(env('URL_BASE_API'));
 
-        try {
-            $response = Http::acceptJson()
-                ->post($baseUrl . '/api/v1/auth/login', [
-                    'email' => $request->email,
-                    'password' => $request->password,
-                ]);
+    try {
+        // 🔹 Petición al endpoint real
+        $response = Http::acceptJson()
+            ->post($baseUrl . '/api/v1/auth/login', [
+                'email' => $request->email,
+                'password' => $request->password,
+            ]);
 
-            if ($response->successful()) {
-                $responseData = $response->json();
+        // 🔹 Si login fue exitoso
+        if ($response->successful()) {
+            $responseData = $response->json();
 
-                $user = $responseData['data']['user'] ?? $responseData['user'] ?? null;
-                $roles = $responseData['data']['roles'] ?? $responseData['roles'] ?? [];
-                $token = $responseData['data']['token'] ?? $responseData['token'] ?? null;
+            $user = $responseData['data']['user'] ?? null;
+            $roles = $responseData['data']['roles'] ?? [];
+            $token = $responseData['data']['token'] ?? null;
 
-                $role = $this->extractPrimaryRole($roles);
+            // 🔹 Extraer rol correctamente desde la API
+            $role = 'client'; // default
 
-                session([
-                    'user' => [
-                        'name' => $user['name'] ?? ($user['email'] ?? 'Usuario'),
-                        'email' => $user['email'] ?? $request->email,
-                        'role' => $role,
-                        'roles' => $roles,
-                    ],
-                    'api_token' => $token,
-                ]);
-
-                if ($role === 'admin') {
-                    return redirect()->route('admin.dashboard');
-                }
-
-                return redirect()->route('user.dashboard');
+            if (!empty($roles) && isset($roles[0]['code'])) {
+                $role = strtolower(trim($roles[0]['code']));
             }
 
-            $errorMessage =
-                $response->json('message')
-                ?? $response->json('error')
-                ?? 'Credenciales incorrectas o respuesta inválida del servidor.';
+            // 🔹 Guardar sesión
+            session([
+                'user' => [
+                    'name' => $user['name'] ?? ($user['email'] ?? 'Usuario'),
+                    'email' => $user['email'] ?? $request->email,
+                    'role' => $role,
+                    'roles' => $roles,
+                ],
+                'api_token' => $token,
+            ]);
 
-            return back()->withErrors([
-                'email' => $errorMessage,
-            ])->withInput();
-        } catch (\Throwable $e) {
-            return back()->withErrors([
-                'email' => 'No fue posible conectar con la API. Verifica URL_BASE_API y que el servidor esté encendido.',
-            ])->withInput();
+            // 🔥 Redirección según rol
+            if ($role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            // 👉 Todos los demás (client) van aquí
+            return redirect()->route('user.dashboard');
         }
+
+        // 🔹 Manejo de error de la API
+        $errorMessage =
+            $response->json('message')
+            ?? $response->json('error')
+            ?? 'Credenciales incorrectas o respuesta inválida del servidor.';
+
+        return back()->withErrors([
+            'email' => $errorMessage,
+        ])->withInput();
+
+    } catch (\Throwable $e) {
+        // 🔹 Error de conexión
+        return back()->withErrors([
+            'email' => 'No fue posible conectar con la API. Verifica URL_BASE_API y que el servidor esté encendido.',
+        ])->withInput();
     }
+}
 
     public function logout()
     {
