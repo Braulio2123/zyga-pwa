@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\ApiAuth;
+use App\Http\Middleware\ProviderMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,13 +13,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
         $middleware->alias([
-        'api.auth' => ApiAuth::class,
-        'admin.session' => \App\Http\Middleware\AdminSessionMiddleware::class,
-    ]);
+            'api.auth' => ApiAuth::class,
+            'admin.session' => \App\Http\Middleware\AdminSessionMiddleware::class,
+            'provider' => ProviderMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
-    

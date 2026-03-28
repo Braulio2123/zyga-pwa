@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\User\ClientPortalController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Provider\ProviderPortalController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ProfileController;
 
@@ -169,4 +170,19 @@ Route::prefix('user')->group(function () {
 
         return app(ClientPortalController::class)->cuenta();
     })->name('user.cuenta');
+});
+
+//PROVIDER ROUTES
+Route::prefix('provider')->middleware('provider')->group(function () {
+    Route::get('/', [ProviderPortalController::class, 'dashboard'])->name('provider.dashboard');
+    Route::get('/perfil', [ProviderPortalController::class, 'perfil'])->name('provider.perfil');
+    Route::get('/servicios', [ProviderPortalController::class, 'servicios'])->name('provider.servicios');
+
+    Route::get('/horarios', [ProviderPortalController::class, 'horarios'])->name('provider.horarios');
+    Route::post('/horarios', [ProviderPortalController::class, 'guardarHorario'])->name('provider.horarios.store');
+    Route::patch('/horarios/{id}', [ProviderPortalController::class, 'actualizarHorario'])->name('provider.horarios.update');
+    Route::delete('/horarios/{id}', [ProviderPortalController::class, 'eliminarHorario'])->name('provider.horarios.delete');
+
+    Route::get('/documentos', [ProviderPortalController::class, 'documentos'])->name('provider.documentos');
+    Route::get('/asistencias', [ProviderPortalController::class, 'asistencias'])->name('provider.asistencias');
 });
