@@ -228,7 +228,7 @@ return [
         ],
         [
             'text' => 'Usuarios',
-            'url'  => 'admin/usuarios',
+            'url'  => 'admin/users',
             'icon' => 'fas fa-users',
         ],
         [
@@ -238,7 +238,7 @@ return [
         ],
         [
             'text' => 'Servicios',
-            'url'  => 'admin/servicios',
+            'url'  => 'admin/services',
             'icon' => 'fas fa-concierge-bell',
         ],
         [
@@ -262,12 +262,12 @@ return [
         ],
         [
             'text' => 'Perfil',
-            'url'  => 'admin/perfil',
-            'icon' => 'fas fa-user-cog',
+            'url'  => 'admin/profile',
+            'icon' => 'fas fa-user-circle',
         ],
         [
             'text' => 'Configuración',
-            'url'  => 'admin/configuracion',
+            'url'  => 'admin/settings',
             'icon' => 'fas fa-cogs',
         ],
 
