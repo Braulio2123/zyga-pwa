@@ -8,12 +8,12 @@
 <section class="hero-card">
     <div>
         <p class="hero-kicker">Bienvenido</p>
-        <h2>Hola, Proveedor</h2>
+        <h2>Hola, Grúas Express GDL</h2>
         <p class="muted">
             Administra tus servicios, revisa solicitudes disponibles y gestiona tus asistencias.
         </p>
     </div>
-    <div class="hero-badge">Proveedor</div>
+    <div class="hero-badge">Provedor</div>
 </section>
 
 <section class="section-block">

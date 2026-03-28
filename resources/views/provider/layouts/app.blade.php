@@ -17,7 +17,7 @@
     <div class="app-shell">
         <header class="topbar">
             <div>
-                <p class="eyebrow">Zyga proveedor</p>
+                <p class="eyebrow">Zyga Provedor</p>
                 <h1 class="page-title">@yield('page-title', 'Panel')</h1>
             </div>
 
