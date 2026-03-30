@@ -75,12 +75,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     })->name('conductores.index');
 
     // =========================
-    // SERVICIOS
-    // =========================
-    Route::get('/servicios', [ServiceController::class, 'index'])
-        ->name('servicios.index');
-
-    // =========================
     // SOLICITUDES
     // =========================
     Route::get('/solicitudes', function () {
