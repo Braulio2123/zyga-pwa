@@ -110,12 +110,23 @@ Route::prefix('user')->group(function () {
 
 Route::prefix('provider')->middleware('provider')->group(function () {
     Route::get('/', [ProviderPortalController::class, 'dashboard'])->name('provider.dashboard');
+
     Route::get('/perfil', [ProviderPortalController::class, 'perfil'])->name('provider.perfil');
+    Route::patch('/perfil', [ProviderPortalController::class, 'actualizarPerfil'])->name('provider.perfil.update');
+
     Route::get('/servicios', [ProviderPortalController::class, 'servicios'])->name('provider.servicios');
+    Route::put('/servicios', [ProviderPortalController::class, 'actualizarServicios'])->name('provider.servicios.update');
+
     Route::get('/horarios', [ProviderPortalController::class, 'horarios'])->name('provider.horarios');
     Route::post('/horarios', [ProviderPortalController::class, 'guardarHorario'])->name('provider.horarios.store');
     Route::patch('/horarios/{id}', [ProviderPortalController::class, 'actualizarHorario'])->name('provider.horarios.update');
     Route::delete('/horarios/{id}', [ProviderPortalController::class, 'eliminarHorario'])->name('provider.horarios.delete');
+
     Route::get('/documentos', [ProviderPortalController::class, 'documentos'])->name('provider.documentos');
+    Route::post('/documentos', [ProviderPortalController::class, 'guardarDocumento'])->name('provider.documentos.store');
+    Route::delete('/documentos/{id}', [ProviderPortalController::class, 'eliminarDocumento'])->name('provider.documentos.delete');
+
     Route::get('/asistencias', [ProviderPortalController::class, 'asistencias'])->name('provider.asistencias');
+    Route::patch('/asistencias/{id}/accept', [ProviderPortalController::class, 'aceptarAsistencia'])->name('provider.asistencias.accept');
+    Route::patch('/asistencias/{id}/status', [ProviderPortalController::class, 'actualizarEstadoAsistencia'])->name('provider.asistencias.status');
 });
