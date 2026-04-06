@@ -1,65 +1,54 @@
 @extends('adminlte::page')
 
-@section('title', 'Solicitudes')
+@section('title', 'Detalle de solicitud')
 
 @section('content_header')
     <div>
-        <h1 class="m-0">Solicitudes de asistencia</h1>
-        <p class="zyga-muted mb-0">Seguimiento administrativo del flujo operativo de asistencia vial.</p>
+        <h1 class="m-0">Solicitud #{{ $requestData['id'] ?? '—' }}</h1>
+        <p class="zyga-muted mb-0">Ajustes administrativos sobre estado, proveedor y cancelación.</p>
     </div>
 @stop
 
 @section('content')
     @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
     @if(session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
-    @if($apiError) <div class="alert alert-warning">{{ $apiError }}</div> @endif
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ route('admin.assistance.index') }}" class="zyga-toolbar">
-                <input type="text" name="public_id" class="form-control" placeholder="Folio público" value="{{ $filters['public_id'] ?? '' }}">
-                <input type="text" name="user_id" class="form-control" placeholder="User ID" value="{{ $filters['user_id'] ?? '' }}">
-                <select name="status" class="form-control">
-                    <option value="">Todos los estados</option>
-                    @foreach(['created','assigned','in_progress','completed','cancelled'] as $status)
-                        <option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ $status }}</option>
-                    @endforeach
-                </select>
-                <button class="btn btn-primary">Filtrar</button>
-                <a href="{{ route('admin.assistance.index') }}" class="btn btn-light">Limpiar</a>
-            </form>
-        </div>
-    </div>
-
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="zyga-section-title">Solicitudes</h3>
-            <span class="badge badge-pill badge-soft-dark">{{ count($requests) }} resultados</span>
-        </div>
-        <div class="card-body p-0">
-            @if(empty($requests))
-                <div class="zyga-empty">No hay solicitudes para los filtros seleccionados.</div>
-            @else
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead><tr><th>ID</th><th>Folio</th><th>Cliente</th><th>Servicio</th><th>Proveedor</th><th>Estado</th><th></th></tr></thead>
-                        <tbody>
-                            @foreach($requests as $request)
-                                @php $status = $request['status'] ?? '—'; @endphp
-                                <tr>
-                                    <td>{{ $request['id'] ?? '—' }}</td>
-                                    <td class="zyga-code">{{ $request['public_id'] ?? '—' }}</td>
-                                    <td>{{ $request['user']['email'] ?? '—' }}</td>
-                                    <td>{{ $request['service']['name'] ?? '—' }}</td>
-                                    <td>{{ $request['provider']['display_name'] ?? 'Sin asignar' }}</td>
-                                    <td><span class="badge badge-pill {{ $status === 'completed' ? 'badge-soft-success' : ($status === 'cancelled' ? 'badge-soft-danger' : 'badge-soft-warning') }}">{{ $status }}</span></td>
-                                    <td><a href="{{ route('admin.assistance.show', $request['id']) }}" class="btn btn-sm btn-outline-primary">Detalle</a></td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+    <div class="row">
+        <div class="col-lg-5 mb-4">
+            <div class="card">
+                <div class="card-header"><h3 class="zyga-section-title">Actualizar solicitud</h3></div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('admin.assistance.update', $requestData['id']) }}">
+                        @csrf @method('PATCH')
+                        <div class="form-group"><label>Status</label>
+                            <select name="status" class="form-control" required>
+                                @foreach(['created','assigned','in_progress','completed','cancelled'] as $status)
+                                    <option value="{{ $status }}" @selected(($requestData['status'] ?? '') === $status)>{{ $status }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Provider ID</label><input type="number" name="provider_id" class="form-control" value="{{ old('provider_id', $requestData['provider_id'] ?? '') }}"></div>
+                        <div class="form-group"><label>Motivo de cancelación</label><textarea name="cancel_reason" class="form-control" rows="3">{{ old('cancel_reason', $requestData['cancel_reason'] ?? '') }}</textarea></div>
+                        <button class="btn btn-primary" type="submit">Guardar cambios</button>
+                    </form>
                 </div>
-            @endif
+            </div>
+        </div>
+        <div class="col-lg-7 mb-4">
+            <div class="card">
+                <div class="card-header"><h3 class="zyga-section-title">Resumen operativo</h3></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><strong>Folio:</strong><br><span class="zyga-code">{{ $requestData['public_id'] ?? '—' }}</span></div>
+                        <div class="col-md-6 mb-3"><strong>Estado:</strong><br>{{ $requestData['status'] ?? '—' }}</div>
+                        <div class="col-md-6 mb-3"><strong>Cliente:</strong><br>{{ $requestData['user']['email'] ?? '—' }}</div>
+                        <div class="col-md-6 mb-3"><strong>Proveedor:</strong><br>{{ $requestData['provider']['display_name'] ?? 'Sin asignar' }}</div>
+                        <div class="col-md-6 mb-3"><strong>Servicio:</strong><br>{{ $requestData['service']['name'] ?? '—' }}</div>
+                        <div class="col-md-6 mb-3"><strong>Vehículo:</strong><br>{{ $requestData['vehicle']['plate'] ?? $requestData['vehicle']['id'] ?? '—' }}</div>
+                        <div class="col-12 mb-3"><strong>Dirección:</strong><br>{{ $requestData['pickup_address'] ?? '—' }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @stop
