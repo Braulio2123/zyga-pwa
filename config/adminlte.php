@@ -125,14 +125,14 @@ return [
     */
 
     'classes_body' => 'hold-transition sidebar-mini layout-fixed',
-    'classes_brand' => 'bg-white',
-    'classes_brand_text' => 'font-weight-bold text-dark',
-    'classes_content_wrapper' => 'bg-light',
+    'classes_brand' => 'zyga-brand-gradient',
+    'classes_brand_text' => 'font-weight-bold text-white',
+    'classes_content_wrapper' => 'zyga-content-shell',
     'classes_content_header' => '',
-    'classes_content' => 'px-3',
-    'classes_sidebar' => 'sidebar-light-warning elevation-4',
-    'classes_sidebar_nav' => 'nav-child-indent nav-compact',
-    'classes_topnav' => 'navbar-white navbar-light border-bottom',
+    'classes_content' => 'px-3 pb-4',
+    'classes_sidebar' => 'sidebar-dark-primary elevation-4 zyga-sidebar',
+    'classes_sidebar_nav' => 'nav-child-indent nav-compact text-sm',
+    'classes_topnav' => 'navbar-white navbar-light border-bottom zyga-topnav',
     'classes_topnav_nav' => 'navbar-expand',
     'classes_topnav_container' => 'container-fluid',
 
@@ -173,7 +173,7 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'dashboard_url' => 'admin',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -199,7 +199,6 @@ return [
     */
 
     'menu' => [
-        // NAVBAR
         [
             'type' => 'navbar-search',
             'text' => 'buscar',
@@ -209,68 +208,62 @@ return [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
-
-        // SIDEBAR - PERFIL
         [
-            'text' => 'Panel Admin',
-            'icon' => 'fas fa-user-shield',
+            'text' => 'Panel ZYGA',
             'url'  => 'admin',
+            'icon' => 'fas fa-shield-alt',
         ],
-
-        // SIDEBAR - NAVEGACIÓN PRINCIPAL
         [
-            'header' => 'ADMINISTRACIÓN',
+            'header' => 'OPERACIÓN',
         ],
         [
             'text' => 'Dashboard',
-            'url'  => 'admin',
-            'icon' => 'fas fa-home',
+            'route' => 'admin.dashboard',
+            'icon' => 'fas fa-chart-line',
         ],
         [
             'text' => 'Usuarios',
-            'url'  => 'admin/users',
+            'route' => 'admin.users.index',
             'icon' => 'fas fa-users',
         ],
         [
-            'text' => 'Conductores',
-            'url'  => 'admin/conductores',
-            'icon' => 'fas fa-id-card',
+            'text' => 'Proveedores',
+            'route' => 'admin.providers.index',
+            'icon' => 'fas fa-people-carry',
         ],
         [
             'text' => 'Servicios',
-            'url'  => 'admin/services',
+            'route' => 'admin.services.index',
             'icon' => 'fas fa-concierge-bell',
         ],
         [
             'text' => 'Solicitudes',
-            'url'  => 'admin/solicitudes',
+            'route' => 'admin.assistance.index',
             'icon' => 'fas fa-truck-pickup',
         ],
         [
-            'text' => 'Pagos',
-            'url'  => 'admin/pagos',
+            'text' => 'Pagos y finanzas',
+            'route' => 'admin.finance.index',
             'icon' => 'fas fa-credit-card',
         ],
         [
             'text' => 'Reportes',
-            'url'  => 'admin/reportes',
-            'icon' => 'fas fa-chart-bar',
-        ],
-
-        [
-            'header' => 'CONFIGURACIÓN',
+            'route' => 'admin.reportes.index',
+            'icon' => 'fas fa-chart-pie',
         ],
         [
-            'text' => 'Perfil',
-            'url'  => 'admin/profile',
+            'header' => 'CUENTA Y SISTEMA',
+        ],
+        [
+            'text' => 'Mi perfil',
+            'route' => 'admin.profile.index',
             'icon' => 'fas fa-user-circle',
         ],
         [
             'text' => 'Configuración',
-            'url'  => 'admin/settings',
+            'route' => 'admin.configuracion.index',
             'icon' => 'fas fa-cogs',
         ],
-
         [
             'header' => 'SESIÓN',
         ],

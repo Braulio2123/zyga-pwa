@@ -2,136 +2,67 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 
-class ProfileController extends Controller
+class ProfileController extends BaseAdminController
 {
-    public function index()
+    public function index(): View|RedirectResponse
     {
-        $baseUrl = env('URL_BASE_API');
-        $token = session('api_token');
-        $sessionUser = session('user', []);
-
-        if (!$token || !$baseUrl) {
-            return view('admin.profile.index', [
-                'profile' => $sessionUser,
-                'apiError' => 'No existe token de sesión o la variable URL_BASE_API no está configurada.',
-            ]);
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
         }
 
-        try {
-            $response = Http::acceptJson()
-                ->withToken($token)
-                ->get($baseUrl . '/api/v1/me');
+        $response = $this->api('GET', '/api/v1/me');
 
-            if (!$response->successful()) {
-                return view('admin.profile.index', [
-                    'profile' => $sessionUser,
-                    'apiError' => $response->json('message') ?? 'No fue posible obtener la información del perfil.',
-                ]);
-            }
-
-            $data = $response->json('data', []);
-            $user = $data['user'] ?? $data ?? $sessionUser;
-
-            return view('admin.profile.index', [
-                'profile' => $user,
-                'apiError' => null,
-            ]);
-        } catch (\Throwable $e) {
-            return view('admin.profile.index', [
-                'profile' => $sessionUser,
-                'apiError' => 'Error al conectar con la API: ' . $e->getMessage(),
-            ]);
-        }
+        return view('admin.profile.index', [
+            'profile' => $response['ok'] ? ($response['data']['user'] ?? $response['data'] ?? session('user', [])) : session('user', []),
+            'apiError' => $response['ok'] ? null : $response['message'],
+        ]);
     }
 
-    public function updateEmail(Request $request)
+    public function updateEmail(Request $request): RedirectResponse
     {
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
+        }
+
         $request->validate([
             'email' => ['required', 'email', 'max:255'],
         ]);
 
-        $baseUrl = env('URL_BASE_API');
-        $token = session('api_token');
-
-        if (!$token || !$baseUrl) {
-            return redirect()
-                ->route('admin.profile.index')
-                ->with('error', 'No existe token de sesión o URL_BASE_API no está configurada.');
-        }
-
-        try {
-            $response = Http::acceptJson()
-                ->withToken($token)
-                ->put($baseUrl . '/api/v1/me', [
-                    'email' => $request->email,
-                ]);
-
-            if (!$response->successful()) {
-                return redirect()
-                    ->route('admin.profile.index')
-                    ->with('error', $response->json('message') ?? 'No fue posible actualizar el correo.');
-            }
-
-            $updatedUser = $response->json('data.user')
-                ?? $response->json('data')
-                ?? [];
-
-            $currentSessionUser = session('user', []);
-            $currentSessionUser['email'] = $updatedUser['email'] ?? $request->email;
-            session(['user' => $currentSessionUser]);
-
-            return redirect()
-                ->route('admin.profile.index')
-                ->with('success', 'Correo actualizado correctamente.');
-        } catch (\Throwable $e) {
-            return redirect()
-                ->route('admin.profile.index')
-                ->with('error', 'Error al conectar con la API: ' . $e->getMessage());
-        }
-    }
-
-    public function updatePassword(Request $request)
-    {
-        $request->validate([
-            'current_password' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        $response = $this->api('PUT', '/api/v1/me', [
+            'email' => $request->email,
         ]);
 
-        $baseUrl = env('URL_BASE_API');
-        $token = session('api_token');
-
-        if (!$token || !$baseUrl) {
-            return redirect()
-                ->route('admin.profile.index')
-                ->with('error', 'No existe token de sesión o URL_BASE_API no está configurada.');
+        if ($response['ok']) {
+            $user = session('user', []);
+            $user['email'] = $request->email;
+            session(['user' => $user]);
         }
 
-        try {
-            $response = Http::acceptJson()
-                ->withToken($token)
-                ->patch($baseUrl . '/api/v1/me', [
-                    'current_password' => $request->current_password,
-                    'password' => $request->password,
-                    'password_confirmation' => $request->password_confirmation,
-                ]);
+        return $response['ok']
+            ? redirect()->route('admin.profile.index')->with('success', $response['message'])
+            : back()->withInput()->with('error', $response['message']);
+    }
 
-            if (!$response->successful()) {
-                return redirect()
-                    ->route('admin.profile.index')
-                    ->with('error', $response->json('message') ?? 'No fue posible actualizar la contraseña.');
-            }
-
-            return redirect()
-                ->route('admin.profile.index')
-                ->with('success', 'Contraseña actualizada correctamente.');
-        } catch (\Throwable $e) {
-            return redirect()
-                ->route('admin.profile.index')
-                ->with('error', 'Error al conectar con la API: ' . $e->getMessage());
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
         }
+
+        $request->validate([
+            'password' => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
+        ]);
+
+        $response = $this->api('PATCH', '/api/v1/me', [
+            'password' => $request->password,
+        ]);
+
+        return $response['ok']
+            ? redirect()->route('admin.profile.index')->with('success', $response['message'])
+            : back()->with('error', $response['message']);
     }
 }
