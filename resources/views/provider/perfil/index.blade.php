@@ -1,115 +1,82 @@
 @extends('provider.layouts.app')
 
-@section('title', 'Zyga | Perfil del proveedor')
+@section('title', 'ZYGA | Perfil provider')
 @section('page-title', 'Perfil')
 
 @section('content')
+@php
+    $data = $perfilResult['data'] ?? null;
+    $hasProfile = is_array($data) && !empty($data);
+    $statusName = $data['status']['name'] ?? 'Sin estado';
+    $isVerified = $data['is_verified'] ?? false;
+@endphp
 
-    @if(!empty($perfil['error']))
-        <section class="section-block">
-            <div class="panel-card">
-                <h3>Error de conexión</h3>
-                <p>{{ $perfil['message'] ?? 'No se pudo cargar la información del perfil.' }}</p>
-
-                @if(!empty($perfil['details']))
-                    <p class="muted">{{ $perfil['details'] }}</p>
-                @endif
-            </div>
-        </section>
-    @endif
-
-    @php
-        $data = $perfil['data'] ?? [];
-        $displayName = $data['display_name'] ?? 'Proveedor sin nombre';
-        $providerKind = $data['provider_kind'] ?? 'No definido';
-        $statusId = $data['status_id'] ?? null;
-        $isVerified = $data['is_verified'] ?? null;
-
-        $statusText = match((int) $statusId) {
-            1 => 'Activo',
-            2 => 'En revisión',
-            3 => 'Suspendido',
-            default => 'Sin estado',
-        };
-
-        $verificationText = is_null($isVerified)
-            ? 'Sin validar'
-            : ($isVerified ? 'Verificado' : 'Pendiente');
-
-        $verificationClass = is_null($isVerified)
-            ? 'pill'
-            : ($isVerified ? 'pill pill-success' : 'pill pill-warning');
-    @endphp
-
+@if(!$hasProfile)
+    <section class="section-block">
+        <div class="panel-card">
+            <h3>Perfil de proveedor no disponible</h3>
+            <p>{{ $perfilResult['message'] ?? 'No se encontró un perfil de proveedor para la cuenta autenticada.' }}</p>
+            <p class="muted">Este panel ya quedó alineado con la API real. Para continuar, la cuenta debe tener un perfil registrado en <code>/api/v1/provider/profile</code>.</p>
+        </div>
+    </section>
+@else
     <section class="hero-card">
         <div>
-            <p class="hero-kicker">Perfil del proveedor</p>
-            <h2>{{ $displayName }}</h2>
-            <p class="muted">
-                Consulta la información principal de tu cuenta de proveedor dentro de Zyga.
-            </p>
+            <p class="hero-kicker">Información principal</p>
+            <h2>{{ $data['display_name'] ?? 'Proveedor' }}</h2>
+            <p class="muted">Actualiza únicamente los campos que la API provider permite modificar desde el panel web.</p>
         </div>
-
-        <div class="{{ $verificationClass }}">
-            {{ $verificationText }}
+        <div class="{{ $isVerified ? 'pill pill-success' : 'pill pill-warning' }}">
+            {{ $isVerified ? 'Verificado' : 'Pendiente de validación' }}
         </div>
     </section>
 
     <section class="section-block">
         <div class="section-head">
-            <h3>Información general</h3>
-            <span class="pill">{{ $statusText }}</span>
+            <h3>Editar perfil</h3>
+            <span class="pill">PATCH /provider/profile</span>
         </div>
 
-        <div class="panel-card form-grid">
+        <form action="{{ route('provider.perfil.update') }}" method="POST" class="panel-card form-grid">
+            @csrf
+            @method('PATCH')
+
             <div class="form-field">
-                <label>Nombre comercial</label>
-                <input type="text" value="{{ $displayName }}" readonly>
+                <label for="display_name">Nombre comercial</label>
+                <input type="text" id="display_name" name="display_name" value="{{ old('display_name', $data['display_name'] ?? '') }}" required>
             </div>
 
             <div class="form-field">
-                <label>Tipo de proveedor</label>
-                <input type="text" value="{{ $providerKind }}" readonly>
+                <label for="provider_kind">Tipo de proveedor</label>
+                <input type="text" id="provider_kind" name="provider_kind" value="{{ old('provider_kind', $data['provider_kind'] ?? '') }}" placeholder="Ej. grua, paso_corriente, cerrajeria">
             </div>
 
-            <div class="form-field">
-                <label>Estado</label>
-                <input type="text" value="{{ $statusText }}" readonly>
+            <div class="form-actions form-field-full">
+                <button type="submit" class="btn-primary">Guardar cambios</button>
             </div>
-
-            <div class="form-field">
-                <label>Verificación</label>
-                <input type="text" value="{{ $verificationText }}" readonly>
-            </div>
-
-            <div class="form-field form-field-full">
-                <label>Correo electrónico</label>
-                <input type="text" value="{{ session('user.email') }}" readonly>
-            </div>
-        </div>
+        </form>
     </section>
 
     <section class="section-block">
         <div class="section-head">
-            <h3>Resumen de cuenta</h3>
+            <h3>Estado de la cuenta</h3>
             <span class="pill">Solo lectura</span>
         </div>
 
         <div class="stack-list">
             <article class="list-card">
-                <h4>Nombre del usuario</h4>
-                <p>{{ session('user.name') }}</p>
+                <h4>Estatus del proveedor</h4>
+                <p>{{ $statusName }}</p>
             </article>
-
             <article class="list-card">
-                <h4>Rol actual</h4>
-                <p>{{ session('user.role') }}</p>
+                <h4>Servicios asociados</h4>
+                <p>{{ count($data['services'] ?? []) }}</p>
             </article>
-
             <article class="list-card">
-                <h4>Proveedor registrado como</h4>
-                <p>{{ $providerKind }}</p>
+                <h4>Horarios registrados</h4>
+                <p>{{ count($data['schedules'] ?? []) }}</p>
             </article>
         </div>
     </section>
+@endif
 @endsection

@@ -1,120 +1,72 @@
 @extends('provider.layouts.app')
 
-@section('title', 'Zyga | Servicios del proveedor')
+@section('title', 'ZYGA | Servicios provider')
 @section('page-title', 'Servicios')
 
 @section('content')
+@php
+    $current = $providerServicesResult['data']['services'] ?? [];
+    $catalog = $catalogServicesResult['data'] ?? [];
+    $selectedIds = collect($current)->pluck('id')->map(fn ($id) => (int) $id)->all();
+@endphp
 
-    @php
-        $hasApiError = !empty($servicios['error']);
-        $items = $servicios['data']['services'] ?? $servicios['data'] ?? [];
+<section class="hero-card">
+    <div>
+        <p class="hero-kicker">Cobertura operativa</p>
+        <h2>Servicios del proveedor</h2>
+        <p class="muted">Selecciona los servicios activos del catálogo general que realmente puedes atender.</p>
+    </div>
+    <div class="hero-badge">{{ count($selectedIds) }} seleccionados</div>
+</section>
 
-        if (!is_array($items)) {
-            $items = [];
-        }
-
-        $totalServicios = count($items);
-    @endphp
-
-    @if($hasApiError)
-        <section class="section-block">
-            <div class="panel-card">
-                <h3>Error de conexión</h3>
-                <p>{{ $servicios['message'] ?? 'No se pudieron cargar los servicios.' }}</p>
-
-                @if(!empty($servicios['details']))
-                    <p class="muted">{{ $servicios['details'] }}</p>
-                @endif
-            </div>
-        </section>
-    @endif
-
-    <section class="hero-card">
-        <div>
-            <p class="hero-kicker">Servicios del proveedor</p>
-            <h2>Administra tus servicios</h2>
-            <p class="muted">
-                Consulta los servicios registrados en tu cuenta y verifica cuáles están disponibles para ofrecer en Zyga.
-            </p>
-        </div>
-
-        <div class="hero-badge">
-            {{ $totalServicios }} {{ $totalServicios === 1 ? 'servicio' : 'servicios' }}
+@if(!$providerServicesResult['ok'] && ($providerServicesResult['status'] ?? null) !== 404)
+    <section class="section-block">
+        <div class="panel-card">
+            <h3>No se pudieron cargar tus servicios actuales</h3>
+            <p>{{ $providerServicesResult['message'] }}</p>
         </div>
     </section>
+@endif
 
-    <section class="section-block">
-        <div class="section-head">
-            <h3>Servicios registrados</h3>
-            <span class="pill">
-                {{ $totalServicios }} activos
-            </span>
+<section class="section-block">
+    <div class="section-head">
+        <h3>Actualizar servicios</h3>
+        <span class="pill">PUT /provider/services</span>
+    </div>
+
+    @if(empty($catalog))
+        <div class="panel-card">
+            <h4>Catálogo no disponible</h4>
+            <p class="muted">La API no devolvió servicios públicos activos en este momento.</p>
         </div>
+    @else
+        <form action="{{ route('provider.servicios.update') }}" method="POST" class="panel-card">
+            @csrf
+            @method('PUT')
 
-        @if(empty($items))
-            <div class="panel-card">
-                <h4>Sin servicios disponibles</h4>
-                <p class="muted">
-                    Aún no hay servicios asociados a este proveedor o no fue posible recuperarlos desde la API.
-                </p>
-            </div>
-        @else
-            <div class="services-grid">
-                @foreach($items as $servicio)
+            <div class="checkbox-grid">
+                @foreach($catalog as $servicio)
                     @php
-                        $nombre = $servicio['name'] ?? $servicio['service_name'] ?? 'Servicio sin nombre';
-                        $descripcion = $servicio['description'] ?? 'Sin descripción disponible.';
-                        $activo = $servicio['is_active'] ?? true;
-                        $codigo = $servicio['code'] ?? null;
+                        $id = (int) ($servicio['id'] ?? 0);
+                        $checked = in_array($id, old('service_ids', $selectedIds), true);
                     @endphp
-
-                    <article class="service-card">
-                        <div class="service-icon">
-                            🛠️
-                        </div>
-
-                        <h4>{{ $nombre }}</h4>
-                        <p>{{ $descripcion }}</p>
-
-                        <div style="margin-top: 12px;">
-                            <span class="{{ $activo ? 'pill pill-success' : 'pill pill-warning' }}">
-                                {{ $activo ? 'Activo' : 'Inactivo' }}
-                            </span>
-
-                            @if($codigo)
-                                <span class="pill" style="margin-left: 8px;">
-                                    {{ $codigo }}
-                                </span>
+                    <label class="check-card">
+                        <input type="checkbox" name="service_ids[]" value="{{ $id }}" {{ $checked ? 'checked' : '' }}>
+                        <div>
+                            <strong>{{ $servicio['name'] ?? 'Servicio sin nombre' }}</strong>
+                            <p>{{ $servicio['description'] ?? 'Sin descripción.' }}</p>
+                            @if(!empty($servicio['code']))
+                                <span class="pill">{{ $servicio['code'] }}</span>
                             @endif
                         </div>
-                    </article>
+                    </label>
                 @endforeach
             </div>
-        @endif
-    </section>
 
-    <section class="section-block">
-        <div class="section-head">
-            <h3>Resumen</h3>
-            <span class="pill">Solo lectura</span>
-        </div>
-
-        <div class="stack-list">
-            <article class="list-card">
-                <h4>Total de servicios</h4>
-                <p>{{ $totalServicios }}</p>
-            </article>
-
-            <article class="list-card">
-                <h4>Proveedor</h4>
-                <p>{{ session('user.name') }}</p>
-            </article>
-
-            <article class="list-card">
-                <h4>Correo</h4>
-                <p>{{ session('user.email') }}</p>
-            </article>
-        </div>
-    </section>
-
+            <div class="form-actions" style="margin-top:16px;">
+                <button type="submit" class="btn-primary">Guardar servicios</button>
+            </div>
+        </form>
+    @endif
+</section>
 @endsection
