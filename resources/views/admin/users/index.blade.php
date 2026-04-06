@@ -3,97 +3,79 @@
 @section('title', 'Usuarios')
 
 @section('content_header')
-    <h1>Usuarios</h1>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+        <div>
+            <h1 class="m-0">Usuarios</h1>
+            <p class="zyga-muted mb-0">Administración de cuentas reales registradas en ZYGA.</p>
+        </div>
+    </div>
 @stop
 
 @section('content')
-    <div class="container-fluid">
+    @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+    @if(session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
+    @if($apiError) <div class="alert alert-warning">{{ $apiError }}</div> @endif
 
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('admin.users.index') }}" class="zyga-toolbar">
+                <input type="text" name="email" class="form-control" placeholder="Filtrar por correo" value="{{ $filters['email'] ?? '' }}">
+                <select name="role" class="form-control">
+                    <option value="">Todos los roles</option>
+                    <option value="admin" @selected(($filters['role'] ?? '') === 'admin')>Admin</option>
+                    <option value="client" @selected(($filters['role'] ?? '') === 'client')>Client</option>
+                    <option value="provider" @selected(($filters['role'] ?? '') === 'provider')>Provider</option>
+                </select>
+                <button class="btn btn-primary" type="submit"><i class="fas fa-search mr-1"></i> Filtrar</button>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-light">Limpiar</a>
+            </form>
+        </div>
+    </div>
 
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
-
-        @if(!empty($apiError))
-            <div class="alert alert-danger">
-                {{ $apiError }}
-            </div>
-        @endif
-
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Listado de usuarios</h3>
-            </div>
-
-            <div class="card-body table-responsive p-0">
-                <table class="table table-hover table-striped mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Correo</th>
-                            <th>Roles</th>
-                            <th>Creado</th>
-                            <th>Actualizado</th>
-                            <th width="180">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($users as $user)
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="zyga-section-title">Listado de usuarios</h3>
+            <span class="badge badge-pill badge-soft-dark">{{ count($users) }} registros</span>
+        </div>
+        <div class="card-body p-0">
+            @if(empty($users))
+                <div class="zyga-empty">No se encontraron usuarios con los filtros actuales.</div>
+            @else
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
                             <tr>
-                                <td>{{ $user['id'] ?? 'N/A' }}</td>
-                                <td>{{ $user['email'] ?? 'Sin correo' }}</td>
-                                <td>
-                                    @php
-                                        $roles = $user['roles'] ?? [];
-                                    @endphp
-
-                                    @if(!empty($roles))
-                                        @foreach($roles as $role)
-                                            <span class="badge badge-primary mr-1">
-                                                {{ $role['name'] ?? $role['code'] ?? 'Rol' }}
-                                            </span>
-                                        @endforeach
-                                    @else
-                                        <span class="badge badge-secondary">Sin roles</span>
-                                    @endif
-                                </td>
-                                <td>{{ $user['created_at'] ?? 'N/A' }}</td>
-                                <td>{{ $user['updated_at'] ?? 'N/A' }}</td>
-                                <td>
-                                    @if(isset($user['id']))
-                                        <a href="{{ route('admin.users.show', $user['id']) }}" class="btn btn-info btn-sm">
-                                            Ver
-                                        </a>
-
-                                        <a href="{{ route('admin.users.edit', $user['id']) }}" class="btn btn-warning btn-sm">
-                                            Editar
-                                        </a>
-                                    @else
-                                        <span class="text-muted">Sin acciones</span>
-                                    @endif
-                                </td>
+                                <th>ID</th>
+                                <th>Correo</th>
+                                <th>Roles</th>
+                                <th>Proveedor vinculado</th>
+                                <th>Acciones</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="text-center">No hay usuarios para mostrar.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @foreach($users as $user)
+                                <tr>
+                                    <td>{{ $user['id'] ?? '—' }}</td>
+                                    <td>{{ $user['email'] ?? '—' }}</td>
+                                    <td>
+                                        @php $roles = $user['roles'] ?? []; @endphp
+                                        @forelse($roles as $role)
+                                            <span class="badge badge-pill badge-soft-primary mr-1">{{ $role['code'] ?? $role['name'] ?? 'rol' }}</span>
+                                        @empty
+                                            <span class="badge badge-pill badge-soft-dark">Sin rol</span>
+                                        @endforelse
+                                    </td>
+                                    <td>{{ !empty($user['provider']) ? 'Sí' : 'No' }}</td>
+                                    <td>
+                                        <a href="{{ route('admin.users.show', $user['id']) }}" class="btn btn-sm btn-light">Ver</a>
+                                        <a href="{{ route('admin.users.edit', $user['id']) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
     </div>
 @stop
