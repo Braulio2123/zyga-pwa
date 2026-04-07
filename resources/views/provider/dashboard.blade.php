@@ -5,6 +5,33 @@
 
 @section('content')
 
+@php
+    $popupRequest = [
+        'service' => 'Servicio de grúa',
+        'location' => 'Av. Vallarta, Guadalajara',
+        'time' => 'Hace 2 minutos',
+        'folio' => 'ZYGA-P-0021',
+    ];
+@endphp
+
+<div class="floating-request-card" id="requestPopup">
+    <div class="floating-request-card__top">
+        <div class="floating-request-card__icon">🚨</div>
+        <button type="button" class="floating-request-card__close" onclick="closeRequestPopup()">×</button>
+    </div>
+
+    <p class="floating-request-card__eyebrow">Nueva solicitud disponible</p>
+    <h3>{{ $popupRequest['service'] }}</h3>
+    <p class="muted"><strong>Ubicación:</strong> {{ $popupRequest['location'] }}</p>
+    <p class="muted"><strong>Folio:</strong> {{ $popupRequest['folio'] }}</p>
+    <span class="meta-text">{{ $popupRequest['time'] }}</span>
+
+    <div class="floating-request-card__actions">
+        <a href="{{ route('provider.asistencias') }}" class="btn-primary">Ver solicitud</a>
+        <button type="button" class="btn-secondary" onclick="closeRequestPopup()">Cerrar</button>
+    </div>
+</div>
+
 <section class="hero-card">
     <div>
         <p class="hero-kicker">Bienvenido</p>
@@ -13,7 +40,7 @@
             Administra tus servicios, revisa solicitudes disponibles y gestiona tus asistencias.
         </p>
     </div>
-    <div class="hero-badge">Provedor</div>
+    <div class="hero-badge">Proveedor</div>
 </section>
 
 <section class="section-block">
@@ -72,5 +99,14 @@
 
     </div>
 </section>
+
+<script>
+    function closeRequestPopup() {
+        const popup = document.getElementById('requestPopup');
+        if (popup) {
+            popup.classList.add('floating-request-card--hidden');
+        }
+    }
+</script>
 
 @endsection

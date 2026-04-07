@@ -5,25 +5,14 @@
 
 @section('content')
 
-    @if(!empty($perfil['error']))
-        <section class="section-block">
-            <div class="panel-card">
-                <h3>Error de conexión</h3>
-                <p>{{ $perfil['message'] ?? 'No se pudo cargar la información del perfil.' }}</p>
-
-                @if(!empty($perfil['details']))
-                    <p class="muted">{{ $perfil['details'] }}</p>
-                @endif
-            </div>
-        </section>
-    @endif
-
     @php
         $data = $perfil['data'] ?? [];
+
         $displayName = $data['display_name'] ?? 'Proveedor sin nombre';
         $providerKind = $data['provider_kind'] ?? 'No definido';
         $statusId = $data['status_id'] ?? null;
         $isVerified = $data['is_verified'] ?? null;
+        $email = $data['email'] ?? session('user.email') ?? 'Sin correo';
 
         $statusText = match((int) $statusId) {
             1 => 'Activo',
@@ -40,6 +29,19 @@
             ? 'pill'
             : ($isVerified ? 'pill pill-success' : 'pill pill-warning');
     @endphp
+
+    @if(!empty($fallback))
+        <section class="section-block">
+            <div class="panel-card">
+                <h3>Modo temporal</h3>
+                <p>{{ $apiError['message'] ?? 'No se pudo cargar la información desde la API.' }}</p>
+
+                @if(!empty($apiError['details']))
+                    <p class="muted">{{ $apiError['details'] }}</p>
+                @endif
+            </div>
+        </section>
+    @endif
 
     <section class="hero-card">
         <div>
@@ -84,7 +86,7 @@
 
             <div class="form-field form-field-full">
                 <label>Correo electrónico</label>
-                <input type="text" value="{{ session('user.email') }}" readonly>
+                <input type="text" value="{{ $email }}" readonly>
             </div>
         </div>
     </section>

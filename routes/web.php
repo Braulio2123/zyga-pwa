@@ -8,7 +8,7 @@ use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Provider\ProviderPortalController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('landing');
 });
 
 // Si te da conflicto con tu login personalizado, mejor déjalo comentado.

@@ -54,18 +54,28 @@ class ProviderPortalController extends Controller
     {
         $perfil = $this->request('/api/v1/provider/profile');
 
-        if (!empty($perfil['error'])) {
+        $fallback = false;
+        $apiError = null;
+
+        if (!empty($perfil['error']) || empty($perfil['data'])) {
+            $fallback = true;
+            $apiError = [
+                'message' => $perfil['message'] ?? 'No se pudo cargar el perfil desde la API.',
+                'details' => $perfil['details'] ?? null,
+            ];
+
             $perfil = [
                 'data' => [
-                    'display_name' => 'Grúas Express GDL',
-                    'provider_kind' => 'Grua',
+                    'display_name' => session('user.name') ?? 'Proveedor sin nombre',
+                    'provider_kind' => 'grua',
                     'status_id' => 1,
-                    'is_verified' => true,
+                    'is_verified' => false,
+                    'email' => session('user.email') ?? 'Sin correo',
                 ]
             ];
         }
 
-        return view('provider.perfil.index', compact('perfil'));
+        return view('provider.perfil.index', compact('perfil', 'fallback', 'apiError'));
     }
 
     public function servicios()
