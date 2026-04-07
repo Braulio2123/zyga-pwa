@@ -40,6 +40,11 @@ Route::get('/home', function () {
     };
 })->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -74,6 +79,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/configuracion', [SettingController::class, 'index'])->name('configuracion.index');
 });
 
+/*
+|--------------------------------------------------------------------------
+| USER / CLIENT
+|--------------------------------------------------------------------------
+*/
 Route::prefix('user')->group(function () {
     Route::get('/', function () {
         if (!session('user')) {
@@ -108,6 +118,11 @@ Route::prefix('user')->group(function () {
     })->name('user.cuenta');
 });
 
+/*
+|--------------------------------------------------------------------------
+| PROVIDER
+|--------------------------------------------------------------------------
+*/
 Route::prefix('provider')->middleware('provider')->group(function () {
     Route::get('/', [ProviderPortalController::class, 'dashboard'])->name('provider.dashboard');
 
@@ -131,6 +146,11 @@ Route::prefix('provider')->middleware('provider')->group(function () {
     Route::patch('/asistencias/{id}/status', [ProviderPortalController::class, 'actualizarEstadoAsistencia'])->name('provider.asistencias.status');
 });
 
+/*
+|--------------------------------------------------------------------------
+| RUTAS SUELTAS USER
+|--------------------------------------------------------------------------
+*/
 Route::get('/user/safe-driving', function () {
     return view('user.safe-driving');
 })->name('user.safe-driving');
