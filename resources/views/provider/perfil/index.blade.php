@@ -4,6 +4,45 @@
 @section('page-title', 'Perfil')
 
 @section('content')
+
+    @php
+        $data = $perfil['data'] ?? [];
+
+        $displayName = $data['display_name'] ?? 'Proveedor sin nombre';
+        $providerKind = $data['provider_kind'] ?? 'No definido';
+        $statusId = $data['status_id'] ?? null;
+        $isVerified = $data['is_verified'] ?? null;
+        $email = $data['email'] ?? session('user.email') ?? 'Sin correo';
+
+        $statusText = match((int) $statusId) {
+            1 => 'Activo',
+            2 => 'En revisión',
+            3 => 'Suspendido',
+            default => 'Sin estado',
+        };
+
+        $verificationText = is_null($isVerified)
+            ? 'Sin validar'
+            : ($isVerified ? 'Verificado' : 'Pendiente');
+
+        $verificationClass = is_null($isVerified)
+            ? 'pill'
+            : ($isVerified ? 'pill pill-success' : 'pill pill-warning');
+    @endphp
+
+    @if(!empty($fallback))
+        <section class="section-block">
+            <div class="panel-card">
+                <h3>Modo temporal</h3>
+                <p>{{ $apiError['message'] ?? 'No se pudo cargar la información desde la API.' }}</p>
+
+                @if(!empty($apiError['details']))
+                    <p class="muted">{{ $apiError['details'] }}</p>
+                @endif
+            </div>
+        </section>
+    @endif
+
 @php
     $data = $perfilResult['data'] ?? null;
     $hasProfile = is_array($data) && !empty($data);
@@ -55,6 +94,12 @@
                 <button type="submit" class="btn-primary">Guardar cambios</button>
             </div>
         </form>
+
+            <div class="form-field form-field-full">
+                <label>Correo electrónico</label>
+                <input type="text" value="{{ $email }}" readonly>
+            </div>
+        </div>
     </section>
 
     <section class="section-block">
