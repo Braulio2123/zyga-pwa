@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Zyga</title>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     <style>
         :root {
             --zyga-orange: #ff6a00;
