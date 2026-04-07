@@ -180,3 +180,11 @@ Route::prefix('provider')->middleware('provider')->group(function () {
     Route::get('/documentos', [ProviderPortalController::class, 'documentos'])->name('provider.documentos');
     Route::get('/asistencias', [ProviderPortalController::class, 'asistencias'])->name('provider.asistencias');
 });
+
+Route::get('/user/safe-driving', function () {
+    return view('user.safe-driving');
+})->name('user.safe-driving');
+
+Route::get('/user/service-request', function () {
+    return view('user.service-request');
+});
