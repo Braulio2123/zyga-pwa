@@ -2,32 +2,86 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
-class ServiceController extends Controller
+class ServiceController extends BaseAdminController
 {
-    public function index()
+    public function index(): View|RedirectResponse
     {
-        if (!session('user') || session('user')['role'] !== 'admin') {
-            return redirect('/login');
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
         }
 
-        $baseUrl = rtrim(env('URL_BASE_API', 'http://127.0.0.1:8000'), '/');
+        $response = $this->api('GET', '/api/v1/admin/services');
 
-        try {
-            $response = Http::acceptJson()
-                ->get($baseUrl . '/api/v1/services');
+        return view('admin.services.index', [
+            'services' => $response['ok'] ? $this->toList($response['data']) : [],
+            'apiError' => $response['ok'] ? null : $response['message'],
+        ]);
+    }
 
-            if ($response->successful()) {
-                $services = $response->json('data') ?? [];
-
-                return view('admin.servicios.index', compact('services'));
-            }
-
-            return back()->with('error', 'No se pudieron obtener los servicios.');
-        } catch (\Throwable $e) {
-            return back()->with('error', 'Error al conectar con la API.');
+    public function store(Request $request): RedirectResponse
+    {
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
         }
+
+        $request->validate([
+            'code' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $response = $this->api('POST', '/api/v1/admin/services', [
+            'code' => $request->code,
+            'name' => $request->name,
+            'description' => $request->description,
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        return $response['ok']
+            ? redirect()->route('admin.services.index')->with('success', $response['message'])
+            : back()->withInput()->with('error', $response['message']);
+    }
+
+    public function update(Request $request, int $id): RedirectResponse
+    {
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
+        }
+
+        $request->validate([
+            'code' => ['required', 'string', 'max:100'],
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $response = $this->api('PATCH', "/api/v1/admin/services/{$id}", [
+            'code' => $request->code,
+            'name' => $request->name,
+            'description' => $request->description,
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        return $response['ok']
+            ? redirect()->route('admin.services.index')->with('success', $response['message'])
+            : back()->withInput()->with('error', $response['message']);
+    }
+
+    public function destroy(int $id): RedirectResponse
+    {
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
+        }
+
+        $response = $this->api('DELETE', "/api/v1/admin/services/{$id}");
+
+        return $response['ok']
+            ? redirect()->route('admin.services.index')->with('success', $response['message'])
+            : back()->with('error', $response['message']);
     }
 }
