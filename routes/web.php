@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('landing');
 });
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -40,6 +40,11 @@ Route::get('/home', function () {
     };
 })->name('home');
 
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -74,6 +79,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/configuracion', [SettingController::class, 'index'])->name('configuracion.index');
 });
 
+/*
+|--------------------------------------------------------------------------
+| USER / CLIENT
+|--------------------------------------------------------------------------
+*/
 Route::prefix('user')->group(function () {
     Route::get('/', function () {
         if (!session('user')) {
@@ -108,14 +118,43 @@ Route::prefix('user')->group(function () {
     })->name('user.cuenta');
 });
 
+/*
+|--------------------------------------------------------------------------
+| PROVIDER
+|--------------------------------------------------------------------------
+*/
 Route::prefix('provider')->middleware('provider')->group(function () {
     Route::get('/', [ProviderPortalController::class, 'dashboard'])->name('provider.dashboard');
+
     Route::get('/perfil', [ProviderPortalController::class, 'perfil'])->name('provider.perfil');
+    Route::patch('/perfil', [ProviderPortalController::class, 'actualizarPerfil'])->name('provider.perfil.update');
+
     Route::get('/servicios', [ProviderPortalController::class, 'servicios'])->name('provider.servicios');
+    Route::put('/servicios', [ProviderPortalController::class, 'actualizarServicios'])->name('provider.servicios.update');
+
     Route::get('/horarios', [ProviderPortalController::class, 'horarios'])->name('provider.horarios');
     Route::post('/horarios', [ProviderPortalController::class, 'guardarHorario'])->name('provider.horarios.store');
     Route::patch('/horarios/{id}', [ProviderPortalController::class, 'actualizarHorario'])->name('provider.horarios.update');
     Route::delete('/horarios/{id}', [ProviderPortalController::class, 'eliminarHorario'])->name('provider.horarios.delete');
+
     Route::get('/documentos', [ProviderPortalController::class, 'documentos'])->name('provider.documentos');
+    Route::post('/documentos', [ProviderPortalController::class, 'guardarDocumento'])->name('provider.documentos.store');
+    Route::delete('/documentos/{id}', [ProviderPortalController::class, 'eliminarDocumento'])->name('provider.documentos.delete');
+
     Route::get('/asistencias', [ProviderPortalController::class, 'asistencias'])->name('provider.asistencias');
+    Route::patch('/asistencias/{id}/accept', [ProviderPortalController::class, 'aceptarAsistencia'])->name('provider.asistencias.accept');
+    Route::patch('/asistencias/{id}/status', [ProviderPortalController::class, 'actualizarEstadoAsistencia'])->name('provider.asistencias.status');
+});
+
+/*
+|--------------------------------------------------------------------------
+| RUTAS SUELTAS USER
+|--------------------------------------------------------------------------
+*/
+Route::get('/user/safe-driving', function () {
+    return view('user.safe-driving');
+})->name('user.safe-driving');
+
+Route::get('/user/service-request', function () {
+    return view('user.service-request');
 });

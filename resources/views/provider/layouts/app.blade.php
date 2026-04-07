@@ -12,36 +12,52 @@
     <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
-    <title>@yield('title', 'Zyga Proveedor')</title>
+    <title>@yield('title', 'ZYGA | Provider')</title>
 
     <link rel="stylesheet" href="{{ asset('css/user-portal.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     @php
-        $sessionUser = session('user');
-        $userName = is_array($sessionUser) ? ($sessionUser['name'] ?? 'Proveedor') : 'Proveedor';
-        $userEmail = is_array($sessionUser) ? ($sessionUser['email'] ?? '') : '';
+        $sessionUser = session('user', []);
+        $userName = $sessionUser['name'] ?? 'Proveedor';
+        $userEmail = $sessionUser['email'] ?? '';
         $avatarLetter = strtoupper(substr($userName ?: $userEmail, 0, 1));
     @endphp
 
     <div class="app-shell">
         <header class="topbar">
             <div>
-                <p class="eyebrow">Zyga Provedor</p>
-                <h1 class="page-title">@yield('page-title', 'Panel')</h1>
+                <p class="eyebrow">ZYGA Provider</p>
+                <h1 class="page-title">@yield('page-title', 'Panel de proveedor')</h1>
             </div>
 
-            <div class="avatar-circle">
-                {{ $avatarLetter }}
-            </div>
+            <div class="avatar-circle">{{ $avatarLetter }}</div>
         </header>
+
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <strong>Revisa la información capturada.</strong>
+                <ul class="error-list">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <main class="page-content">
             @yield('content')
         </main>
 
-        {{-- Puedes reutilizar el mismo bottom nav o crear uno nuevo --}}
         @include('provider.partials.bottom-nav')
     </div>
 </body>

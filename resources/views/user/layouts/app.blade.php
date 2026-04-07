@@ -16,6 +16,7 @@
 
     <link rel="stylesheet" href="{{ asset('css/user-portal.css') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAB2Ygoji1BBEDcAvpJulJvuHSMT4eKjc0&libraries=places"></script>
 </head>
 <body>
     @php
