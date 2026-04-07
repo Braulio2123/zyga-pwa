@@ -7,6 +7,10 @@
 
     <title>Zyga</title>
 
+    <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
@@ -159,12 +163,8 @@
 
 <body>
 
-    <!-- HERO -->
-
     <section class="hero">
-
         <div class="overlay">
-
             <div class="logo-lines">
                 <div class="line"></div>
                 <div class="line"></div>
@@ -178,7 +178,6 @@
             </div>
 
             <div class="actions">
-
                 <a href="{{ route('login') }}" class="btn-main">
                     Solicitar asistencia
                 </a>
@@ -186,22 +185,14 @@
                 <a href="{{ route('register') }}" class="btn-outline">
                     Registrarse
                 </a>
-
             </div>
-
         </div>
-
     </section>
 
-
-    <!-- FEATURES -->
-
     <section class="features">
-
         <h2>¿Qué puedes hacer con Zyga?</h2>
 
         <div class="feature-grid">
-
             <div class="card">
                 <h3>Asistencia vial inmediata</h3>
                 <p>Solicita ayuda para llantas ponchadas, batería descargada, falta de combustible o fallas mecánicas
@@ -222,19 +213,12 @@
 
             <div class="card">
                 <h3>Costos claros y seguros</h3>
-                <p>Conoce el precio del servicio desde el inicio y evita sorpresas o servicios informales sin garantías.
-                </p>
+                <p>Conoce el precio del servicio desde el inicio y evita sorpresas o servicios informales sin garantías.</p>
             </div>
-
         </div>
-
     </section>
 
-
-    <!-- ABOUT -->
-
     <section class="about">
-
         <h2>Una nueva forma de recibir auxilio vial</h2>
 
         <p>
@@ -250,11 +234,7 @@
             de urgencia. Además, ZYGA ofrece un modelo de suscripción que permite acceder
             a ciertos servicios sin costos adicionales.
         </p>
-
     </section>
-
-
-    <!-- FOOTER -->
 
     <footer class="footer">
         © {{ date('Y') }} Zyga · Plataforma digital de asistencia vial
