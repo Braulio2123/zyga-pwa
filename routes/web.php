@@ -130,3 +130,11 @@ Route::prefix('provider')->middleware('provider')->group(function () {
     Route::patch('/asistencias/{id}/accept', [ProviderPortalController::class, 'aceptarAsistencia'])->name('provider.asistencias.accept');
     Route::patch('/asistencias/{id}/status', [ProviderPortalController::class, 'actualizarEstadoAsistencia'])->name('provider.asistencias.status');
 });
+
+Route::get('/user/safe-driving', function () {
+    return view('user.safe-driving');
+})->name('user.safe-driving');
+
+Route::get('/user/service-request', function () {
+    return view('user.service-request');
+});
