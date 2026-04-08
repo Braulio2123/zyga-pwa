@@ -15,74 +15,63 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        // 🔹 Validación
         $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        // 🔹 Base URL de la API
-        $baseUrl = rtrim(env('URL_BASE_API'), '/');
+        $baseUrl = rtrim((string) env('URL_BASE_API', 'http://127.0.0.1:8000'), '/');
 
         try {
-            // 🔹 Petición al endpoint real
             $response = Http::acceptJson()
+                ->timeout(20)
                 ->post($baseUrl . '/api/v1/auth/login', [
                     'email' => $request->email,
                     'password' => $request->password,
                 ]);
 
-            // 🔹 Si login fue exitoso
-            if ($response->successful()) {
-                $responseData = $response->json();
+            if (!$response->successful()) {
+                $errorMessage = $response->json('message')
+                    ?? $response->json('error')
+                    ?? 'Credenciales incorrectas o respuesta inválida del servidor.';
 
-                $user = $responseData['data']['user'] ?? null;
-                $roles = $responseData['data']['roles'] ?? [];
-                $token = $responseData['data']['token'] ?? null;
-
-                // 🔹 Extraer rol correctamente desde la API
-                $role = 'client'; // default
-
-                if (!empty($roles) && isset($roles[0]['code'])) {
-                    $role = strtolower(trim($roles[0]['code']));
-                }
-
-                // 🔹 Guardar sesión
-                session([
-                    'user' => [
-                        'name' => $user['name'] ?? ($user['email'] ?? 'Usuario'),
-                        'email' => $user['email'] ?? $request->email,
-                        'role' => $role,
-                        'roles' => $roles,
-                    ],
-                    'api_token' => $token,
-                ]);
-
-                // 🔥 Redirección según rol
-                if ($role === 'admin') {
-                    return redirect()->route('admin.dashboard');
-                }
-
-                // 👉 Redireccion Provedor
-                if ($role === 'provider') {
-                    return redirect()->route('provider.dashboard');
-                }
-
-                // 👉 Todos los demás (client) van aquí
-                return redirect()->route('user.dashboard');
+                return back()->withErrors([
+                    'email' => $errorMessage,
+                ])->withInput();
             }
 
-            // 🔹 Manejo de error de la API
-            $errorMessage =
-                $response->json('message')
-                ?? $response->json('error')
-                ?? 'Credenciales incorrectas o respuesta inválida del servidor.';
+            $payload = $response->json('data') ?? [];
+            $user = $payload['user'] ?? [];
+            $roles = $payload['roles'] ?? [];
+            $token = $payload['token'] ?? null;
+            $role = $this->extractPrimaryRole($roles);
 
-            return back()->withErrors([
-                'email' => $errorMessage,
-            ])->withInput();
+            session([
+                'user' => [
+                    'name' => $user['name'] ?? ($user['email'] ?? 'Usuario'),
+                    'email' => $user['email'] ?? $request->email,
+                    'role' => $role,
+                    'roles' => $roles,
+                ],
+                'api_token' => $token,
+            ]);
+
+            if ($role === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+
+            if ($role === 'provider') {
+                if (!$this->providerHasProfile($baseUrl, (string) $token)) {
+                    return redirect()
+                        ->route('provider.perfil')
+                        ->with('success', 'Tu cuenta de proveedor ya inició sesión. Ahora completa tu perfil para activar el portal.');
+                }
+
+                return redirect()->route('provider.dashboard');
+            }
+
+            return redirect()->route('user.dashboard');
         } catch (\Throwable $e) {
-            // 🔹 Error de conexión
             return back()->withErrors([
                 'email' => 'No fue posible conectar con la API. Verifica URL_BASE_API y que el servidor esté encendido.',
             ])->withInput();
@@ -91,10 +80,42 @@ class LoginController extends Controller
 
     public function logout()
     {
+        $baseUrl = rtrim((string) env('URL_BASE_API', 'http://127.0.0.1:8000'), '/');
+        $token = session('api_token');
+
+        if ($token) {
+            try {
+                Http::withToken($token)
+                    ->acceptJson()
+                    ->timeout(15)
+                    ->post($baseUrl . '/api/v1/auth/logout');
+            } catch (\Throwable $e) {
+                // Se limpia la sesión web aunque la API no haya respondido.
+            }
+        }
+
         session()->forget(['user', 'api_token']);
         session()->flush();
 
-        return redirect('/login');
+        return redirect()->route('login');
+    }
+
+    private function providerHasProfile(string $baseUrl, string $token): bool
+    {
+        if ($token === '') {
+            return false;
+        }
+
+        try {
+            $response = Http::withToken($token)
+                ->acceptJson()
+                ->timeout(15)
+                ->get($baseUrl . '/api/v1/provider/profile');
+
+            return $response->successful();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     private function extractPrimaryRole($roles): string
@@ -125,6 +146,6 @@ class LoginController extends Controller
             }
         }
 
-        return 'user';
+        return 'client';
     }
 }
