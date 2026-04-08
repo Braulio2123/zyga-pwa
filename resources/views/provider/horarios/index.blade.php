@@ -8,7 +8,7 @@
     <section class="hero">
         <p class="eyebrow">Disponibilidad declarada</p>
         <h2 style="margin:0 0 12px; font-size:2rem;">Horarios de operación</h2>
-        <p class="muted" style="margin:0; line-height:1.6;">El backend ya soporta horarios del provider. En este portal los usamos además como criterio de “listo para operar” para no aparentar que un proveedor está disponible cuando no configuró disponibilidad.</p>
+        <p class="muted" style="margin:0; line-height:1.6;">Define tus horarios de atención para organizar tu disponibilidad operativa.</p>
     </section>
 
     @if(!$context['hasProfile'])

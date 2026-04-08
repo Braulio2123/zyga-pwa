@@ -8,7 +8,7 @@
     <section class="hero">
         <p class="eyebrow">Expediente</p>
         <h2 style="margin:0 0 12px; font-size:2rem;">Documentos del provider</h2>
-        <p class="muted" style="margin:0; line-height:1.6;">La API sí soporta CRUD de documentos, pero hoy no los usa todavía como criterio duro de operación. Por eso este módulo permanece en el MVP como expediente informativo y administrativo, no como falsa verificación automática.</p>
+        <p class="muted" style="margin:0; line-height:1.6;">Administra tu expediente documental y mantén tu información disponible para revisión.</p>
     </section>
 
     @if(!$context['hasProfile'])

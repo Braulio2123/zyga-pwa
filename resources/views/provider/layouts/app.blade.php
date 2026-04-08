@@ -157,7 +157,7 @@
             <div>
                 <p class="eyebrow">ZYGA · Provider portal</p>
                 <h1 class="page-title">@yield('page-title', 'Portal provider')</h1>
-                <p class="helper" style="color: rgba(255,255,255,.75); margin:8px 0 0;">Consola operativa conectada al flujo oficial de <strong>assistance_requests</strong>.</p>
+                <p class="helper" style="color: rgba(255,255,255,.75); margin:8px 0 0;">Panel operativo para atención y seguimiento de servicios.</p>
             </div>
             <div class="topbar-right">
                 <div class="user-meta">

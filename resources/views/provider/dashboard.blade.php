@@ -10,11 +10,11 @@
             <p class="eyebrow">Operación real</p>
             <h2 style="margin:0 0 12px; font-size:2rem;">Consola operativa del provider</h2>
             <p class="muted" style="margin:0 0 16px; line-height:1.6;">
-                Este portal ya no gira sobre CRUDs sueltos. Tu flujo operativo se concentra en completar onboarding, habilitar tu disponibilidad y atender solicitudes vivas de <strong>assistance_requests</strong>.
+                Gestiona tu perfil, disponibilidad y atención de servicios desde un solo panel.
             </p>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
                 <span class="chip {{ $r['portal_ready'] ? 'success' : 'warning' }}">{{ $r['portal_ready'] ? 'Listo para operar' : 'Onboarding incompleto' }}</span>
-                <span class="chip {{ $r['backend_can_operate'] ? 'success' : 'info' }}">Backend: {{ $r['backend_can_operate'] ? 'puede operar' : 'aún bloqueado' }}</span>
+                <span class="chip {{ $r['backend_can_operate'] ? 'success' : 'info' }}">Operación: {{ $r['backend_can_operate'] ? 'habilitada' : 'pendiente' }}</span>
                 <span class="chip {{ $r['checks']['is_verified'] ? 'success' : 'warning' }}">{{ $r['verification_text'] }}</span>
                 <span class="chip {{ $r['checks']['status_active'] ? 'success' : 'warning' }}">Estado: {{ $r['status_name'] }}</span>
             </div>
@@ -99,7 +99,7 @@
                 @if(!$context['hasProfile'])
                     <div class="item">
                         <h4>1. Crear perfil de proveedor</h4>
-                        <p>Sin perfil no existe contexto provider en la API.</p>
+                        <p>Completa tu perfil para habilitar tu operación en el portal.</p>
                         <div style="margin-top:12px;"><a class="btn" href="{{ route('provider.perfil') }}">Completar perfil</a></div>
                     </div>
                 @elseif($r['services_count'] === 0)
@@ -117,7 +117,7 @@
                 @elseif(!$r['checks']['is_verified'] || !$r['checks']['status_active'])
                     <div class="item">
                         <h4>4. Esperar habilitación administrativa</h4>
-                        <p>La API real bloquea operación mientras tu provider no esté verificado y en estado activo.</p>
+                        <p>Tu cuenta debe cumplir validación y estado operativo para habilitar la atención de servicios.</p>
                     </div>
                 @else
                     <div class="item">
@@ -139,7 +139,7 @@
             <div class="meta-grid">
                 <div class="meta-box"><span>Perfil</span><strong>{{ $context['hasProfile'] ? 'Creado' : 'Sin crear' }}</strong></div>
                 <div class="meta-box"><span>Verificación</span><strong>{{ $r['verification_text'] }}</strong></div>
-                <div class="meta-box"><span>Estado backend</span><strong>{{ $r['status_name'] }}</strong></div>
+                <div class="meta-box"><span>Estado actual</span><strong>{{ $r['status_name'] }}</strong></div>
                 <div class="meta-box"><span>Documentos</span><strong>{{ $r['documents_count'] }}</strong></div>
             </div>
         </section>
@@ -157,8 +157,8 @@
 
             @if(!$r['backend_can_operate'])
                 <div class="empty">
-                    <h4>Bandeja cerrada por backend</h4>
-                    <p>Mientras la API no considere operativo al provider, no tiene sentido mostrar aceptación activa.</p>
+                    <h4>Bandeja cerrada</h4>
+                    <p>Tu cuenta aún no cumple las condiciones necesarias para aceptar solicitudes.</p>
                 </div>
             @elseif(empty($availableRequests))
                 <div class="empty">

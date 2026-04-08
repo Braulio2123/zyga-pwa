@@ -8,7 +8,7 @@
     <section class="hero">
         <p class="eyebrow">Identidad operativa</p>
         <h2 style="margin:0 0 12px; font-size:2rem;">Perfil base del proveedor</h2>
-        <p class="muted" style="margin:0; line-height:1.6;">Aquí defines la identidad real del provider dentro del backend: nombre visible, tipo y estado operativo actual.</p>
+        <p class="muted" style="margin:0; line-height:1.6;">Administra la información principal de tu perfil operativo.</p>
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
             <span class="chip {{ $r['checks']['has_profile'] ? 'success' : 'warning' }}">{{ $r['checks']['has_profile'] ? 'Perfil creado' : 'Perfil pendiente' }}</span>
             <span class="chip {{ $r['checks']['is_verified'] ? 'success' : 'warning' }}">{{ $r['verification_text'] }}</span>
@@ -50,7 +50,7 @@
         <section class="card">
             <div class="section-head">
                 <div>
-                    <p class="eyebrow">Estado del backend</p>
+                    <p class="eyebrow">Estado actual</p>
                     <h3>Resumen del provider</h3>
                 </div>
             </div>

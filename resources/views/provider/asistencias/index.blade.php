@@ -9,10 +9,10 @@
         <div>
             <p class="eyebrow">Marketplace operativo</p>
             <h2 style="margin:0 0 12px; font-size:2rem;">Solicitudes disponibles y seguimiento</h2>
-            <p class="muted" style="margin:0; line-height:1.6;">Aquí vive la operación real del provider: ver solicitudes compatibles, aceptarlas y moverlas únicamente por las transiciones permitidas por la API.</p>
+            <p class="muted" style="margin:0; line-height:1.6;">Consulta solicitudes disponibles, da seguimiento a servicios activos y revisa tu historial.</p>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
                 <span class="chip {{ $r['portal_ready'] ? 'success' : 'warning' }}">Portal: {{ $r['portal_ready'] ? 'listo' : 'bloqueado' }}</span>
-                <span class="chip {{ $r['backend_can_operate'] ? 'success' : 'warning' }}">Backend: {{ $r['backend_can_operate'] ? 'habilitado' : 'bloqueado' }}</span>
+                <span class="chip {{ $r['backend_can_operate'] ? 'success' : 'warning' }}">Operación: {{ $r['backend_can_operate'] ? 'habilitada' : 'bloqueada' }}</span>
             </div>
         </div>
         <div class="hero-panel">
@@ -51,7 +51,7 @@
             @if(!$r['backend_can_operate'])
                 <div class="empty">
                     <h4>Bandeja no operativa</h4>
-                    <p>La API no debería permitir aceptación mientras tu provider no cumpla verificación, estado activo y servicios asociados.</p>
+                    <p>Completa tu configuración operativa para poder aceptar solicitudes.</p>
                 </div>
             @elseif(empty($availableRequests))
                 <div class="empty">

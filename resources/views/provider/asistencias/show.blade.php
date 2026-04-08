@@ -96,7 +96,7 @@
             <div>
                 <h4 style="margin-top:0;">Request history</h4>
                 @if(empty($requestRaw['history']))
-                    <div class="empty"><h4>Sin historial</h4><p>La API no devolvió entradas en <code>history</code> para esta solicitud.</p></div>
+                    <div class="empty"><h4>Sin historial</h4><p>Aún no hay movimientos registrados para esta solicitud.</p></div>
                 @else
                     <div class="timeline">
                         @foreach($requestRaw['history'] as $history)
@@ -111,7 +111,7 @@
             <div>
                 <h4 style="margin-top:0;">Request events</h4>
                 @if(empty($requestRaw['events']))
-                    <div class="empty"><h4>Sin eventos</h4><p>La API no devolvió eventos para esta solicitud.</p></div>
+                    <div class="empty"><h4>Sin eventos</h4><p>Aún no hay eventos disponibles para esta solicitud.</p></div>
                 @else
                     <div class="timeline">
                         @foreach($requestRaw['events'] as $event)
