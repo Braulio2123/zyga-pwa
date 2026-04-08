@@ -4,151 +4,103 @@
 @section('page-title', 'Horarios')
 
 @section('content')
-@php
-    $items = $horariosResult['data']['schedules'] ?? [];
-    $dias = [1 => 'Lunes', 2 => 'Martes', 3 => 'Miércoles', 4 => 'Jueves', 5 => 'Viernes', 6 => 'Sábado', 7 => 'Domingo'];
-@endphp
-
-<section class="hero-card">
-    <div>
-        <p class="hero-kicker">Disponibilidad</p>
-        <h2>Gestiona tus horarios</h2>
-        <p class="muted">Registra un horario por día y mantén actualizada tu disponibilidad operativa.</p>
-    </div>
-    <div class="hero-badge">{{ count($items) }} registros</div>
-</section>
-
-<section class="section-block">
-    <div class="section-head">
-        <h3>Nuevo horario</h3>
-        <span class="pill">POST /provider/schedules</span>
-    </div>
-
-    <form action="{{ route('provider.horarios.store') }}" method="POST" class="panel-card form-grid">
-        @csrf
-
-        <div class="form-field">
-            <label for="day_of_week">Día</label>
-            <select name="day_of_week" id="day_of_week" required>
-                <option value="">Selecciona un día</option>
-                @foreach($dias as $valor => $texto)
-                    <option value="{{ $valor }}" {{ old('day_of_week') == $valor ? 'selected' : '' }}>{{ $texto }}</option>
-                @endforeach
-            </select>
+    <section class="hero-card">
+        <div>
+            <p class="hero-kicker">Paso 3 de 3</p>
+            <h2 style="margin:0 0 8px;">Disponibilidad operativa</h2>
+            <p class="muted">Configura un horario por día para que la API conozca tu disponibilidad.</p>
         </div>
-
-        <div class="form-field">
-            <label for="timezone">Zona horaria</label>
-            <input type="text" id="timezone" name="timezone" value="{{ old('timezone', 'America/Mexico_City') }}">
+        <div class="hero-stat summary-card">
+            <span class="helper-text">Registros</span>
+            <strong>{{ count($schedules) }}</strong>
         </div>
+    </section>
 
-        <div class="form-field">
-            <label for="start_time">Hora de inicio</label>
-            <input type="time" id="start_time" name="start_time" value="{{ old('start_time') }}" required>
-        </div>
-
-        <div class="form-field">
-            <label for="end_time">Hora de fin</label>
-            <input type="time" id="end_time" name="end_time" value="{{ old('end_time') }}" required>
-        </div>
-
-        <div class="form-field form-field-full">
-            <label style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" name="is_active" value="1" {{ old('is_active', 1) ? 'checked' : '' }}>
-                Horario activo
-            </label>
-        </div>
-
-        <div class="form-actions form-field-full">
-            <button type="submit" class="btn-primary">Guardar horario</button>
-        </div>
-    </form>
-</section>
-
-<section class="section-block">
-    <div class="section-head">
-        <h3>Horarios registrados</h3>
-        <span class="pill">{{ count($items) }} configurados</span>
-    </div>
-
-    @if(empty($items))
-        <div class="panel-card">
-            <h4>Sin horarios registrados</h4>
-            <p class="muted">Aún no hay disponibilidad capturada para este proveedor.</p>
-        </div>
+    @if(!$hasProfile)
+        <section class="locked-module">
+            <h3>Módulo bloqueado temporalmente</h3>
+            <p>Primero debes crear tu perfil de proveedor para poder registrar horarios.</p>
+            <a href="{{ route('provider.perfil') }}" class="btn-primary">Ir a crear perfil</a>
+        </section>
     @else
-        <div class="stack-list">
-            @foreach($items as $horario)
-                @php
-                    $id = $horario['id'] ?? null;
-                    $dayOfWeek = (int) ($horario['day_of_week'] ?? 0);
-                    $inicio = substr((string) ($horario['start_time'] ?? '--:--'), 0, 5);
-                    $fin = substr((string) ($horario['end_time'] ?? '--:--'), 0, 5);
-                    $activo = (bool) ($horario['is_active'] ?? false);
-                @endphp
+        <section class="section-card">
+            <div class="section-head">
+                <div>
+                    <p class="dashboard-card__eyebrow">Nuevo horario</p>
+                    <h3>Agregar disponibilidad</h3>
+                </div>
+            </div>
 
-                <article class="list-card">
-                    <div class="inline-between gap-12" style="align-items:flex-start;">
-                        <div style="flex:1; min-width:220px;">
-                            <h4>{{ $dias[$dayOfWeek] ?? 'No definido' }}</h4>
-                            <p><strong>Horario:</strong> {{ $inicio }} - {{ $fin }}</p>
-                            <p><strong>Zona horaria:</strong> {{ $horario['timezone'] ?? 'America/Mexico_City' }}</p>
-                            <span class="{{ $activo ? 'pill pill-success' : 'pill pill-warning' }}">
-                                {{ $activo ? 'Activo' : 'Inactivo' }}
-                            </span>
-                        </div>
+            <form action="{{ route('provider.horarios.store') }}" method="POST" class="form-grid">
+                @csrf
+                <div class="form-field">
+                    <label for="day_of_week" class="label">Día</label>
+                    <select name="day_of_week" id="day_of_week" required>
+                        <option value="">Selecciona un día</option>
+                        @foreach($dayOptions as $value => $label)
+                            <option value="{{ $value }}" {{ (string) old('day_of_week') === (string) $value ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="start_time" class="label">Hora de inicio</label>
+                    <input type="time" name="start_time" id="start_time" value="{{ old('start_time') }}" required>
+                </div>
+                <div class="form-field">
+                    <label for="end_time" class="label">Hora de fin</label>
+                    <input type="time" name="end_time" id="end_time" value="{{ old('end_time') }}" required>
+                </div>
+                <div class="form-field" style="align-self:end;">
+                    <button type="submit" class="btn-primary">Guardar horario</button>
+                </div>
+            </form>
+        </section>
 
-                        <div style="flex:1; min-width:280px;">
-                            <form action="{{ route('provider.horarios.update', $id) }}" method="POST" class="form-grid">
-                                @csrf
-                                @method('PATCH')
+        <section class="section-card">
+            <div class="section-head">
+                <div>
+                    <p class="dashboard-card__eyebrow">Disponibilidad cargada</p>
+                    <h3>Horarios actuales</h3>
+                </div>
+            </div>
 
-                                <div class="form-field">
-                                    <label>Día</label>
-                                    <select name="day_of_week">
-                                        @foreach($dias as $valor => $texto)
-                                            <option value="{{ $valor }}" {{ $dayOfWeek === $valor ? 'selected' : '' }}>{{ $texto }}</option>
-                                        @endforeach
-                                    </select>
+            @if(empty($schedules))
+                <div class="empty-state">
+                    <h4>Aún no tienes horarios registrados</h4>
+                    <p>Agrega al menos un horario para mostrar tu disponibilidad operativa.</p>
+                </div>
+            @else
+                <div class="stack-list">
+                    @foreach($schedules as $schedule)
+                        <article class="list-card">
+                            <div class="list-card-grid">
+                                <div>
+                                    <h4>{{ $dayOptions[(int) ($schedule['day_of_week'] ?? 0)] ?? 'Día no definido' }}</h4>
+                                    <p>{{ $schedule['start_time'] ?? '--:--' }} - {{ $schedule['end_time'] ?? '--:--' }}</p>
                                 </div>
 
-                                <div class="form-field">
-                                    <label>Zona horaria</label>
-                                    <input type="text" name="timezone" value="{{ $horario['timezone'] ?? 'America/Mexico_City' }}">
+                                <div class="list-card-actions">
+                                    <form action="{{ route('provider.horarios.update', $schedule['id']) }}" method="POST" class="inline-form">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="time" name="start_time" value="{{ $schedule['start_time'] ?? '' }}" required>
+                                        <input type="time" name="end_time" value="{{ $schedule['end_time'] ?? '' }}" required>
+                                        <button type="submit" class="btn-primary btn-sm">Actualizar</button>
+                                    </form>
                                 </div>
 
-                                <div class="form-field">
-                                    <label>Inicio</label>
-                                    <input type="time" name="start_time" value="{{ $inicio }}" required>
+                                <div>
+                                    <form action="{{ route('provider.horarios.delete', $schedule['id']) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-secondary btn-sm">Eliminar</button>
+                                    </form>
                                 </div>
-
-                                <div class="form-field">
-                                    <label>Fin</label>
-                                    <input type="time" name="end_time" value="{{ $fin }}" required>
-                                </div>
-
-                                <div class="form-field form-field-full">
-                                    <label style="display:flex; align-items:center; gap:10px;">
-                                        <input type="checkbox" name="is_active" value="1" {{ $activo ? 'checked' : '' }}>
-                                        Horario activo
-                                    </label>
-                                </div>
-
-                                <div class="form-actions form-field-full">
-                                    <button type="submit" class="btn-primary">Actualizar</button>
-                                </div>
-                            </form>
-
-                            <form action="{{ route('provider.horarios.delete', $id) }}" method="POST" style="margin-top:10px;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-secondary">Eliminar</button>
-                            </form>
-                        </div>
-                    </div>
-                </article>
-            @endforeach
-        </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
+        </section>
     @endif
-</section>
 @endsection

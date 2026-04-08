@@ -1,127 +1,119 @@
 @extends('provider.layouts.app')
 
-@section('title', 'ZYGA | Perfil provider')
+@section('title', 'ZYGA | Perfil proveedor')
 @section('page-title', 'Perfil')
 
 @section('content')
-
     @php
-        $data = $perfil['data'] ?? [];
-
-        $displayName = $data['display_name'] ?? 'Proveedor sin nombre';
-        $providerKind = $data['provider_kind'] ?? 'No definido';
-        $statusId = $data['status_id'] ?? null;
-        $isVerified = $data['is_verified'] ?? null;
-        $email = $data['email'] ?? session('user.email') ?? 'Sin correo';
-
-        $statusText = match((int) $statusId) {
-            1 => 'Activo',
-            2 => 'En revisión',
-            3 => 'Suspendido',
-            default => 'Sin estado',
-        };
-
-        $verificationText = is_null($isVerified)
-            ? 'Sin validar'
-            : ($isVerified ? 'Verificado' : 'Pendiente');
-
-        $verificationClass = is_null($isVerified)
-            ? 'pill'
-            : ($isVerified ? 'pill pill-success' : 'pill pill-warning');
+        $statusName = $badgeData['statusName'] ?? 'Sin estado';
+        $verificationText = $badgeData['verificationText'] ?? 'Pendiente';
+        $isVerified = $badgeData['isVerified'] ?? false;
     @endphp
 
-    @if(!empty($fallback))
-        <section class="section-block">
-            <div class="panel-card">
-                <h3>Modo temporal</h3>
-                <p>{{ $apiError['message'] ?? 'No se pudo cargar la información desde la API.' }}</p>
-
-                @if(!empty($apiError['details']))
-                    <p class="muted">{{ $apiError['details'] }}</p>
-                @endif
-            </div>
-        </section>
-    @endif
-
-@php
-    $data = $perfilResult['data'] ?? null;
-    $hasProfile = is_array($data) && !empty($data);
-    $statusName = $data['status']['name'] ?? 'Sin estado';
-    $isVerified = $data['is_verified'] ?? false;
-@endphp
-
-@if(!$hasProfile)
-    <section class="section-block">
-        <div class="panel-card">
-            <h3>Perfil de proveedor no disponible</h3>
-            <p>{{ $perfilResult['message'] ?? 'No se encontró un perfil de proveedor para la cuenta autenticada.' }}</p>
-            <p class="muted">Este panel ya quedó alineado con la API real. Para continuar, la cuenta debe tener un perfil registrado en <code>/api/v1/provider/profile</code>.</p>
-        </div>
-    </section>
-@else
     <section class="hero-card">
         <div>
-            <p class="hero-kicker">Información principal</p>
-            <h2>{{ $data['display_name'] ?? 'Proveedor' }}</h2>
-            <p class="muted">Actualiza únicamente los campos que la API provider permite modificar desde el panel web.</p>
-        </div>
-        <div class="{{ $isVerified ? 'pill pill-success' : 'pill pill-warning' }}">
-            {{ $isVerified ? 'Verificado' : 'Pendiente de validación' }}
-        </div>
-    </section>
-
-    <section class="section-block">
-        <div class="section-head">
-            <h3>Editar perfil</h3>
-            <span class="pill">PATCH /provider/profile</span>
+            <p class="hero-kicker">Onboarding y cuenta operativa</p>
+            <h2 style="margin:0 0 8px;">{{ $hasProfile ? 'Tu perfil de proveedor' : 'Activa tu perfil provider' }}</h2>
+            <p class="muted">
+                {{ $hasProfile
+                    ? 'Mantén actualizada tu identidad comercial y tu tipo de servicio para operar con coherencia dentro del portal.'
+                    : 'Este es el primer paso real para desbloquear el portal provider. Sin este registro la API no te permitirá operar.' }}
+            </p>
         </div>
 
-        <form action="{{ route('provider.perfil.update') }}" method="POST" class="panel-card form-grid">
-            @csrf
-            @method('PATCH')
-
-            <div class="form-field">
-                <label for="display_name">Nombre comercial</label>
-                <input type="text" id="display_name" name="display_name" value="{{ old('display_name', $data['display_name'] ?? '') }}" required>
+        <div class="hero-stats">
+            <div class="hero-stat summary-card">
+                <span class="helper-text">Estado</span>
+                <strong>{{ $statusName }}</strong>
             </div>
-
-            <div class="form-field">
-                <label for="provider_kind">Tipo de proveedor</label>
-                <input type="text" id="provider_kind" name="provider_kind" value="{{ old('provider_kind', $data['provider_kind'] ?? '') }}" placeholder="Ej. grua, paso_corriente, cerrajeria">
-            </div>
-
-            <div class="form-actions form-field-full">
-                <button type="submit" class="btn-primary">Guardar cambios</button>
-            </div>
-        </form>
-
-            <div class="form-field form-field-full">
-                <label>Correo electrónico</label>
-                <input type="text" value="{{ $email }}" readonly>
+            <div class="hero-stat summary-card">
+                <span class="helper-text">Validación</span>
+                <strong>{{ $verificationText }}</strong>
             </div>
         </div>
     </section>
 
-    <section class="section-block">
-        <div class="section-head">
-            <h3>Estado de la cuenta</h3>
-            <span class="pill">Solo lectura</span>
-        </div>
+    @if(!$hasProfile)
+        <section class="section-card">
+            <div class="section-head">
+                <div>
+                    <p class="dashboard-card__eyebrow">Paso 1 de 3</p>
+                    <h3>Crear perfil de proveedor</h3>
+                </div>
+            </div>
 
-        <div class="stack-list">
-            <article class="list-card">
-                <h4>Estatus del proveedor</h4>
-                <p>{{ $statusName }}</p>
+            <form action="{{ route('provider.perfil.store') }}" method="POST" class="form-grid">
+                @csrf
+                <div class="form-field full">
+                    <label for="display_name" class="label">Nombre comercial</label>
+                    <input type="text" name="display_name" id="display_name" value="{{ old('display_name') }}" placeholder="Ej. Grúas Express Guadalajara" required>
+                </div>
+
+                <div class="form-field full">
+                    <label for="provider_kind" class="label">Tipo de proveedor</label>
+                    <input type="text" name="provider_kind" id="provider_kind" value="{{ old('provider_kind') }}" placeholder="Ej. grua, cerrajeria, bateria, gasolina">
+                    <small class="helper-text">Se enviará a la API junto con el estado inicial del proveedor.</small>
+                </div>
+
+                <div class="form-field full">
+                    <div class="helper-box">
+                        <strong>Qué ocurrirá al guardar</strong>
+                        <p class="muted" style="margin-top:6px;">
+                            Se creará tu <code>provider/profile</code> en la API real. Después podrás elegir servicios, cargar horarios y operar en asistencias.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-field full">
+                    <button type="submit" class="btn-primary">Crear perfil y continuar</button>
+                </div>
+            </form>
+        </section>
+    @else
+        <section class="profile-summary-grid">
+            <article class="summary-card">
+                <span class="status-chip dark">Cuenta</span>
+                <strong>{{ $profile['display_name'] ?? 'Sin nombre' }}</strong>
+                <p class="muted">Nombre comercial activo en el portal.</p>
             </article>
-            <article class="list-card">
-                <h4>Servicios asociados</h4>
-                <p>{{ count($data['services'] ?? []) }}</p>
+            <article class="summary-card">
+                <span class="status-chip info">Tipo</span>
+                <strong>{{ $profile['provider_kind'] ?? 'Sin definir' }}</strong>
+                <p class="muted">Clasificación actual del proveedor.</p>
             </article>
-            <article class="list-card">
-                <h4>Horarios registrados</h4>
-                <p>{{ count($data['schedules'] ?? []) }}</p>
+            <article class="summary-card">
+                <span class="status-chip {{ $isVerified ? 'success' : 'warning' }}">Validación</span>
+                <strong>{{ $verificationText }}</strong>
+                <p class="muted">Estado de revisión administrativa.</p>
             </article>
-        </div>
-    </section>
-@endif
+        </section>
+
+        <section class="section-card">
+            <div class="section-head">
+                <div>
+                    <p class="dashboard-card__eyebrow">Mantenimiento de cuenta</p>
+                    <h3>Actualizar perfil</h3>
+                </div>
+            </div>
+
+            <form action="{{ route('provider.perfil.update') }}" method="POST" class="form-grid">
+                @csrf
+                @method('PATCH')
+
+                <div class="form-field full">
+                    <label for="display_name" class="label">Nombre comercial</label>
+                    <input type="text" name="display_name" id="display_name" value="{{ old('display_name', $profile['display_name'] ?? '') }}" required>
+                </div>
+
+                <div class="form-field full">
+                    <label for="provider_kind" class="label">Tipo de proveedor</label>
+                    <input type="text" name="provider_kind" id="provider_kind" value="{{ old('provider_kind', $profile['provider_kind'] ?? '') }}">
+                </div>
+
+                <div class="form-field full">
+                    <button type="submit" class="btn-primary">Guardar cambios</button>
+                </div>
+            </form>
+        </section>
+    @endif
 @endsection

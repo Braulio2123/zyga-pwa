@@ -4,69 +4,67 @@
 @section('page-title', 'Servicios')
 
 @section('content')
-@php
-    $current = $providerServicesResult['data']['services'] ?? [];
-    $catalog = $catalogServicesResult['data'] ?? [];
-    $selectedIds = collect($current)->pluck('id')->map(fn ($id) => (int) $id)->all();
-@endphp
-
-<section class="hero-card">
-    <div>
-        <p class="hero-kicker">Cobertura operativa</p>
-        <h2>Servicios del proveedor</h2>
-        <p class="muted">Selecciona los servicios activos del catálogo general que realmente puedes atender.</p>
-    </div>
-    <div class="hero-badge">{{ count($selectedIds) }} seleccionados</div>
-</section>
-
-@if(!$providerServicesResult['ok'] && ($providerServicesResult['status'] ?? null) !== 404)
-    <section class="section-block">
-        <div class="panel-card">
-            <h3>No se pudieron cargar tus servicios actuales</h3>
-            <p>{{ $providerServicesResult['message'] }}</p>
+    <section class="hero-card">
+        <div>
+            <p class="hero-kicker">Paso 2 de 3</p>
+            <h2 style="margin:0 0 8px;">Servicios que atiendes</h2>
+            <p class="muted">Selecciona únicamente los servicios que realmente puede cubrir tu operación.</p>
+        </div>
+        <div class="hero-stat summary-card">
+            <span class="helper-text">Seleccionados</span>
+            <strong>{{ count($selectedIds) }}</strong>
         </div>
     </section>
-@endif
 
-<section class="section-block">
-    <div class="section-head">
-        <h3>Actualizar servicios</h3>
-        <span class="pill">PUT /provider/services</span>
-    </div>
-
-    @if(empty($catalog))
-        <div class="panel-card">
-            <h4>Catálogo no disponible</h4>
-            <p class="muted">La API no devolvió servicios públicos activos en este momento.</p>
-        </div>
+    @if(!$hasProfile)
+        <section class="locked-module">
+            <h3>Módulo bloqueado temporalmente</h3>
+            <p>Primero debes crear tu perfil de proveedor para poder seleccionar servicios.</p>
+            <a href="{{ route('provider.perfil') }}" class="btn-primary">Ir a crear perfil</a>
+        </section>
     @else
-        <form action="{{ route('provider.servicios.update') }}" method="POST" class="panel-card">
-            @csrf
-            @method('PUT')
+        @if(!$catalogResponse['ok'])
+            <section class="section-card"><div class="alert danger">{{ $catalogResponse['message'] ?? 'No se pudo cargar el catálogo general de servicios.' }}</div></section>
+        @endif
 
-            <div class="checkbox-grid">
-                @foreach($catalog as $servicio)
-                    @php
-                        $id = (int) ($servicio['id'] ?? 0);
-                        $checked = in_array($id, old('service_ids', $selectedIds), true);
-                    @endphp
-                    <label class="check-card">
-                        <input type="checkbox" name="service_ids[]" value="{{ $id }}" {{ $checked ? 'checked' : '' }}>
-                        <div>
-                            <strong>{{ $servicio['name'] ?? 'Servicio sin nombre' }}</strong>
-                            <p>{{ $servicio['description'] ?? 'Sin descripción.' }}</p>
-                            @if(!empty($servicio['code']))
-                                <span class="pill">{{ $servicio['code'] }}</span>
-                            @endif
-                        </div>
-                    </label>
-                @endforeach
+        <section class="section-card">
+            <div class="section-head">
+                <div>
+                    <p class="dashboard-card__eyebrow">Catálogo público</p>
+                    <h3>Selecciona tus servicios activos</h3>
+                </div>
             </div>
 
-            <div class="form-actions" style="margin-top:16px;">
-                <button type="submit" class="btn-primary">Guardar servicios</button>
-            </div>
-        </form>
+            @if(empty($catalog))
+                <div class="empty-state">
+                    <h4>No hay servicios disponibles en el catálogo</h4>
+                    <p>La API no devolvió servicios activos para mostrar.</p>
+                </div>
+            @else
+                <form action="{{ route('provider.servicios.update') }}" method="POST" class="stack-list">
+                    @csrf
+                    @method('PUT')
+
+                    @foreach($catalog as $service)
+                        <label class="list-card" style="display:block; cursor:pointer;">
+                            <div style="display:flex; justify-content:space-between; gap:14px; align-items:flex-start;">
+                                <div>
+                                    <h4>{{ $service['name'] ?? 'Servicio' }}</h4>
+                                    <p>{{ $service['description'] ?? 'Servicio disponible en el catálogo general.' }}</p>
+                                </div>
+                                <div>
+                                    <input type="checkbox" name="service_ids[]" value="{{ $service['id'] ?? 0 }}" {{ in_array((int) ($service['id'] ?? 0), $selectedIds, true) ? 'checked' : '' }} style="width:20px; height:20px; margin:0;">
+                                </div>
+                            </div>
+                        </label>
+                    @endforeach
+
+                    <div class="cta-row">
+                        <button type="submit" class="btn-primary">Guardar servicios</button>
+                        <a href="{{ route('provider.horarios') }}" class="btn-secondary">Continuar con horarios</a>
+                    </div>
+                </form>
+            @endif
+        </section>
     @endif
-</section>
 @endsection
