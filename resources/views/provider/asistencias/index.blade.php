@@ -1,126 +1,168 @@
 @extends('provider.layouts.app')
 
 @section('title', 'ZYGA | Asistencias provider')
-@section('page-title', 'Asistencias')
+@section('page-title', 'Asistencias provider')
 
 @section('content')
-    <section class="hero-card">
+    @php($r = $context['readiness'])
+    <section class="hero hero-split">
         <div>
-            <p class="hero-kicker">Operación diaria</p>
-            <h2 style="margin:0 0 8px;">Solicitudes y asistencias</h2>
-            <p class="muted">Acepta solicitudes compatibles con tus servicios y actualiza su estatus solo con transiciones válidas según la API.</p>
+            <p class="eyebrow">Marketplace operativo</p>
+            <h2 style="margin:0 0 12px; font-size:2rem;">Solicitudes disponibles y seguimiento</h2>
+            <p class="muted" style="margin:0; line-height:1.6;">Aquí vive la operación real del provider: ver solicitudes compatibles, aceptarlas y moverlas únicamente por las transiciones permitidas por la API.</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+                <span class="chip {{ $r['portal_ready'] ? 'success' : 'warning' }}">Portal: {{ $r['portal_ready'] ? 'listo' : 'bloqueado' }}</span>
+                <span class="chip {{ $r['backend_can_operate'] ? 'success' : 'warning' }}">Backend: {{ $r['backend_can_operate'] ? 'habilitado' : 'bloqueado' }}</span>
+            </div>
         </div>
-
-        <div class="hero-stats">
-            <div class="hero-stat summary-card">
-                <span class="helper-text">Disponibles</span>
-                <strong>{{ count($availableRequests) }}</strong>
-            </div>
-            <div class="hero-stat summary-card">
-                <span class="helper-text">Asignadas</span>
-                <strong>{{ count($myRequests) }}</strong>
-            </div>
+        <div class="hero-panel">
+            <div class="summary"><span class="helper">Disponibles</span><strong>{{ count($availableRequests) }}</strong></div>
+            <div class="summary"><span class="helper">Activas</span><strong>{{ count($activeRequests) }}</strong></div>
+            <div class="summary"><span class="helper">Histórico</span><strong>{{ count($historicalRequests) }}</strong></div>
         </div>
     </section>
 
-    @if(!$hasProfile)
-        <section class="locked-module">
-            <h3>Módulo bloqueado temporalmente</h3>
-            <p>Primero debes crear tu perfil de proveedor para poder ver y gestionar asistencias.</p>
-            <a href="{{ route('provider.perfil') }}" class="btn-primary">Ir a crear perfil</a>
+    @if(!$context['hasProfile'])
+        <section class="lockbox">
+            <h3>Módulo bloqueado</h3>
+            <p class="muted">Primero debes crear tu perfil provider.</p>
+            <a href="{{ route('provider.perfil') }}" class="btn">Ir a perfil</a>
         </section>
-    @else
-        @if(!$availableResponse['ok'] && !$mineResponse['ok'])
-            <section class="section-card">
-                <div class="alert danger">No se pudo cargar la información de asistencias desde la API.</div>
-            </section>
-        @endif
+    @elseif(!$r['portal_ready'])
+        <section class="lockbox">
+            <h3>No debes operar solicitudes todavía</h3>
+            <div class="checklist">
+                @foreach($r['blockers'] as $blocker)
+                    <div class="check"><span>{{ $blocker }}</span><span class="chip warning">Pendiente</span></div>
+                @endforeach
+            </div>
+        </section>
+    @endif
 
-        <section class="split-grid">
-            <section class="section-card">
-                <div class="section-head">
-                    <div>
-                        <p class="dashboard-card__eyebrow">Bandeja abierta</p>
-                        <h3>Solicitudes disponibles</h3>
-                    </div>
+    <section class="two-col">
+        <section class="card">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Bandeja de mercado</p>
+                    <h3>Solicitudes disponibles</h3>
                 </div>
+            </div>
 
-                @if(empty($availableRequests))
-                    <div class="empty-state">
-                        <h4>No hay solicitudes disponibles</h4>
-                        <p>En cuanto existan solicitudes compatibles con tus servicios aparecerán aquí.</p>
-                    </div>
-                @else
-                    <div class="stack-list">
-                        @foreach($availableRequests as $request)
-                            <article class="list-card">
-                                <h4>{{ $request['service']['name'] ?? $request['service_name'] ?? 'Servicio' }}</h4>
-                                <p>{{ $request['pickup_address'] ?? $request['address'] ?? 'Sin dirección' }}</p>
-                                <small>ID: {{ $request['id'] ?? 'N/D' }}</small>
-
-                                @if(!empty($request['id']))
-                                    <form action="{{ route('provider.asistencias.accept', $request['id']) }}" method="POST" style="margin-top:12px;">
+            @if(!$r['backend_can_operate'])
+                <div class="empty">
+                    <h4>Bandeja no operativa</h4>
+                    <p>La API no debería permitir aceptación mientras tu provider no cumpla verificación, estado activo y servicios asociados.</p>
+                </div>
+            @elseif(empty($availableRequests))
+                <div class="empty">
+                    <h4>Sin solicitudes compatibles</h4>
+                    <p>No hay solicitudes vivas para tus servicios en este momento.</p>
+                </div>
+            @else
+                <div class="list">
+                    @foreach($availableRequests as $request)
+                        <article class="item">
+                            <div class="item-head">
+                                <div>
+                                    <h4>{{ $request['service_name'] }}</h4>
+                                    <p>{{ $request['pickup_address'] }}</p>
+                                    <small>{{ $request['public_id'] ?: 'Sin folio público' }}</small>
+                                </div>
+                                <span class="chip info">{{ $request['status'] }}</span>
+                            </div>
+                            <div class="inline-form">
+                                <a href="{{ route('provider.asistencias.show', $request['id']) }}" class="btn-outline">Ver detalle</a>
+                                @if($r['portal_ready'])
+                                    <form action="{{ route('provider.asistencias.accept', $request['id']) }}" method="POST">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn-primary">Aceptar solicitud</button>
+                                        <button class="btn" type="submit">Aceptar solicitud</button>
                                     </form>
                                 @endif
-                            </article>
-                        @endforeach
-                    </div>
-                @endif
-            </section>
-
-            <section class="section-card">
-                <div class="section-head">
-                    <div>
-                        <p class="dashboard-card__eyebrow">Seguimiento</p>
-                        <h3>Mis asistencias</h3>
-                    </div>
+                            </div>
+                        </article>
+                    @endforeach
                 </div>
+            @endif
+        </section>
 
-                @if(empty($myRequests))
-                    <div class="empty-state">
-                        <h4>No tienes asistencias asignadas</h4>
-                        <p>Cuando aceptes una solicitud aparecerá aquí para seguimiento.</p>
-                    </div>
-                @else
-                    <div class="stack-list">
-                        @foreach($myRequests as $request)
-                            @php
-                                $currentStatus = $request['status'] ?? null;
-                                $statusOptions = $allowedStatusOptionsResolver($currentStatus);
-                            @endphp
-                            <article class="list-card">
-                                <h4>{{ $request['service']['name'] ?? $request['service_name'] ?? 'Servicio' }}</h4>
-                                <p>{{ $request['pickup_address'] ?? $request['address'] ?? 'Sin dirección' }}</p>
-                                <small>Estatus actual: {{ $currentStatus ?? 'Sin estatus' }}</small>
+        <section class="card">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Seguimiento</p>
+                    <h3>Solicitudes activas</h3>
+                </div>
+            </div>
 
-                                @if(!empty($request['id']) && !empty($statusOptions))
-                                    <form action="{{ route('provider.asistencias.status', $request['id']) }}" method="POST" class="inline-form" style="margin-top:12px;">
+            @if(empty($activeRequests))
+                <div class="empty">
+                    <h4>Sin solicitudes activas</h4>
+                    <p>Cuando aceptes una solicitud y quede asignada o en proceso, aparecerá aquí.</p>
+                </div>
+            @else
+                <div class="list">
+                    @foreach($activeRequests as $request)
+                        @php($statusOptions = $allowedStatusOptionsResolver($request['status']))
+                        <article class="item">
+                            <div class="item-head">
+                                <div>
+                                    <h4>{{ $request['service_name'] }}</h4>
+                                    <p>{{ $request['pickup_address'] }}</p>
+                                    <small>{{ $request['public_id'] ?: 'Sin folio público' }}</small>
+                                </div>
+                                <span class="chip dark">{{ $request['status'] }}</span>
+                            </div>
+                            <div class="inline-form">
+                                <a href="{{ route('provider.asistencias.show', $request['id']) }}" class="btn-outline">Ver detalle</a>
+                                @if(!empty($statusOptions) && $r['portal_ready'])
+                                    <form action="{{ route('provider.asistencias.status', $request['id']) }}" method="POST" class="inline-form">
                                         @csrf
                                         @method('PATCH')
-
                                         <select name="status" required>
-                                            <option value="">Selecciona transición válida</option>
+                                            <option value="">Transición válida</option>
                                             @foreach($statusOptions as $value => $label)
                                                 <option value="{{ $value }}">{{ $label }}</option>
                                             @endforeach
                                         </select>
-
-                                        <button type="submit" class="btn-primary">Actualizar</button>
+                                        <button type="submit" class="btn">Actualizar</button>
                                     </form>
-                                @else
-                                    <div class="helper-box" style="margin-top:12px;">
-                                        <strong>No hay cambios manuales disponibles</strong>
-                                        <p class="muted" style="margin-top:6px;">Este estado ya no permite una transición desde el portal o la API lo considera final.</p>
-                                    </div>
                                 @endif
-                            </article>
-                        @endforeach
-                    </div>
-                @endif
-            </section>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
         </section>
-    @endif
+    </section>
+
+    <section class="card">
+        <div class="section-head">
+            <div>
+                <p class="eyebrow">Historial</p>
+                <h3>Solicitudes cerradas</h3>
+            </div>
+        </div>
+        @if(empty($historicalRequests))
+            <div class="empty">
+                <h4>Sin historial todavía</h4>
+                <p>Cuando cierres o canceles solicitudes, aparecerán aquí.</p>
+            </div>
+        @else
+            <div class="list">
+                @foreach($historicalRequests as $request)
+                    <article class="item">
+                        <div class="item-head">
+                            <div>
+                                <h4>{{ $request['service_name'] }}</h4>
+                                <p>{{ $request['pickup_address'] }}</p>
+                                <small>{{ $request['public_id'] ?: 'Sin folio público' }}</small>
+                            </div>
+                            <span class="chip {{ $request['status'] === 'completed' ? 'success' : 'warning' }}">{{ $request['status'] }}</span>
+                        </div>
+                        <div style="margin-top:12px;"><a href="{{ route('provider.asistencias.show', $request['id']) }}" class="btn-outline">Ver detalle</a></div>
+                    </article>
+                @endforeach
+            </div>
+        @endif
+    </section>
 @endsection

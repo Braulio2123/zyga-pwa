@@ -8,15 +8,19 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ProviderMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  Closure(Request): (Response)  $next
-     */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!session('user') || (session('user')['role'] ?? null) !== 'provider') {
+        $user = session('user');
+
+        if (!$user || ($user['role'] ?? null) !== 'provider') {
             return redirect()->route('login');
+        }
+
+        if (!session()->has('api_token')) {
+            session()->forget('user');
+
+            return redirect()->route('login')
+                ->with('error', 'Tu sesión web no tiene token API activo. Inicia sesión nuevamente.');
         }
 
         return $next($request);

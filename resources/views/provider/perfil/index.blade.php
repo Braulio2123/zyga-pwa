@@ -1,119 +1,79 @@
 @extends('provider.layouts.app')
 
-@section('title', 'ZYGA | Perfil proveedor')
-@section('page-title', 'Perfil')
+@section('title', 'ZYGA | Perfil provider')
+@section('page-title', 'Perfil provider')
 
 @section('content')
-    @php
-        $statusName = $badgeData['statusName'] ?? 'Sin estado';
-        $verificationText = $badgeData['verificationText'] ?? 'Pendiente';
-        $isVerified = $badgeData['isVerified'] ?? false;
-    @endphp
-
-    <section class="hero-card">
-        <div>
-            <p class="hero-kicker">Onboarding y cuenta operativa</p>
-            <h2 style="margin:0 0 8px;">{{ $hasProfile ? 'Tu perfil de proveedor' : 'Activa tu perfil provider' }}</h2>
-            <p class="muted">
-                {{ $hasProfile
-                    ? 'Mantén actualizada tu identidad comercial y tu tipo de servicio para operar con coherencia dentro del portal.'
-                    : 'Este es el primer paso real para desbloquear el portal provider. Sin este registro la API no te permitirá operar.' }}
-            </p>
-        </div>
-
-        <div class="hero-stats">
-            <div class="hero-stat summary-card">
-                <span class="helper-text">Estado</span>
-                <strong>{{ $statusName }}</strong>
-            </div>
-            <div class="hero-stat summary-card">
-                <span class="helper-text">Validación</span>
-                <strong>{{ $verificationText }}</strong>
-            </div>
+    @php($r = $context['readiness'])
+    <section class="hero">
+        <p class="eyebrow">Identidad operativa</p>
+        <h2 style="margin:0 0 12px; font-size:2rem;">Perfil base del proveedor</h2>
+        <p class="muted" style="margin:0; line-height:1.6;">Aquí defines la identidad real del provider dentro del backend: nombre visible, tipo y estado operativo actual.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+            <span class="chip {{ $r['checks']['has_profile'] ? 'success' : 'warning' }}">{{ $r['checks']['has_profile'] ? 'Perfil creado' : 'Perfil pendiente' }}</span>
+            <span class="chip {{ $r['checks']['is_verified'] ? 'success' : 'warning' }}">{{ $r['verification_text'] }}</span>
+            <span class="chip {{ $r['checks']['status_active'] ? 'success' : 'warning' }}">Estado: {{ $r['status_name'] }}</span>
         </div>
     </section>
 
-    @if(!$hasProfile)
-        <section class="section-card">
+    <section class="two-col">
+        <section class="card">
             <div class="section-head">
                 <div>
-                    <p class="dashboard-card__eyebrow">Paso 1 de 3</p>
-                    <h3>Crear perfil de proveedor</h3>
+                    <p class="eyebrow">Formulario</p>
+                    <h3>{{ $context['hasProfile'] ? 'Editar perfil' : 'Crear perfil' }}</h3>
                 </div>
             </div>
 
-            <form action="{{ route('provider.perfil.store') }}" method="POST" class="form-grid">
+            <form method="POST" action="{{ $context['hasProfile'] ? route('provider.perfil.update') : route('provider.perfil.store') }}" class="form-grid">
                 @csrf
-                <div class="form-field full">
-                    <label for="display_name" class="label">Nombre comercial</label>
-                    <input type="text" name="display_name" id="display_name" value="{{ old('display_name') }}" placeholder="Ej. Grúas Express Guadalajara" required>
+                @if($context['hasProfile'])
+                    @method('PATCH')
+                @endif
+
+                <div class="field full">
+                    <label class="label" for="display_name">Nombre comercial / visible</label>
+                    <input type="text" id="display_name" name="display_name" value="{{ old('display_name', $context['profile']['display_name'] ?? '') }}" placeholder="Ej. Grúas Express GDL" required>
                 </div>
 
-                <div class="form-field full">
-                    <label for="provider_kind" class="label">Tipo de proveedor</label>
-                    <input type="text" name="provider_kind" id="provider_kind" value="{{ old('provider_kind') }}" placeholder="Ej. grua, cerrajeria, bateria, gasolina">
-                    <small class="helper-text">Se enviará a la API junto con el estado inicial del proveedor.</small>
+                <div class="field full">
+                    <label class="label" for="provider_kind">Tipo de proveedor</label>
+                    <input type="text" id="provider_kind" name="provider_kind" value="{{ old('provider_kind', $context['profile']['provider_kind'] ?? '') }}" placeholder="Ej. grua, bateria, cerrajeria, gasolina">
                 </div>
 
-                <div class="form-field full">
-                    <div class="helper-box">
-                        <strong>Qué ocurrirá al guardar</strong>
-                        <p class="muted" style="margin-top:6px;">
-                            Se creará tu <code>provider/profile</code> en la API real. Después podrás elegir servicios, cargar horarios y operar en asistencias.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="form-field full">
-                    <button type="submit" class="btn-primary">Crear perfil y continuar</button>
+                <div class="field full">
+                    <button type="submit" class="btn full">{{ $context['hasProfile'] ? 'Actualizar perfil' : 'Crear perfil' }}</button>
                 </div>
             </form>
         </section>
-    @else
-        <section class="profile-summary-grid">
-            <article class="summary-card">
-                <span class="status-chip dark">Cuenta</span>
-                <strong>{{ $profile['display_name'] ?? 'Sin nombre' }}</strong>
-                <p class="muted">Nombre comercial activo en el portal.</p>
-            </article>
-            <article class="summary-card">
-                <span class="status-chip info">Tipo</span>
-                <strong>{{ $profile['provider_kind'] ?? 'Sin definir' }}</strong>
-                <p class="muted">Clasificación actual del proveedor.</p>
-            </article>
-            <article class="summary-card">
-                <span class="status-chip {{ $isVerified ? 'success' : 'warning' }}">Validación</span>
-                <strong>{{ $verificationText }}</strong>
-                <p class="muted">Estado de revisión administrativa.</p>
-            </article>
-        </section>
 
-        <section class="section-card">
+        <section class="card">
             <div class="section-head">
                 <div>
-                    <p class="dashboard-card__eyebrow">Mantenimiento de cuenta</p>
-                    <h3>Actualizar perfil</h3>
+                    <p class="eyebrow">Estado del backend</p>
+                    <h3>Resumen del provider</h3>
                 </div>
             </div>
 
-            <form action="{{ route('provider.perfil.update') }}" method="POST" class="form-grid">
-                @csrf
-                @method('PATCH')
+            <div class="three-col">
+                <div class="summary"><span class="helper">Perfil</span><strong>{{ $context['hasProfile'] ? 'Creado' : 'Pendiente' }}</strong></div>
+                <div class="summary"><span class="helper">Verificación</span><strong>{{ $r['verification_text'] }}</strong></div>
+                <div class="summary"><span class="helper">Estado</span><strong>{{ $r['status_name'] }}</strong></div>
+            </div>
 
-                <div class="form-field full">
-                    <label for="display_name" class="label">Nombre comercial</label>
-                    <input type="text" name="display_name" id="display_name" value="{{ old('display_name', $profile['display_name'] ?? '') }}" required>
+            @if($context['hasProfile'])
+                <div class="meta-grid" style="margin-top:16px;">
+                    <div class="meta-box"><span>Display name</span><strong>{{ $context['profile']['display_name'] ?? 'Sin nombre' }}</strong></div>
+                    <div class="meta-box"><span>Tipo</span><strong>{{ $context['profile']['provider_kind'] ?? 'Sin tipo' }}</strong></div>
+                    <div class="meta-box"><span>Provider ID</span><strong>{{ $context['profile']['id'] ?? 'N/D' }}</strong></div>
+                    <div class="meta-box"><span>Usuario ID</span><strong>{{ $context['profile']['user_id'] ?? session('user.id') }}</strong></div>
                 </div>
-
-                <div class="form-field full">
-                    <label for="provider_kind" class="label">Tipo de proveedor</label>
-                    <input type="text" name="provider_kind" id="provider_kind" value="{{ old('provider_kind', $profile['provider_kind'] ?? '') }}">
+            @else
+                <div class="empty" style="margin-top:16px;">
+                    <h4>Sin perfil todavía</h4>
+                    <p>Mientras no exista el perfil provider, las demás pantallas operativas deben considerarse bloqueadas.</p>
                 </div>
-
-                <div class="form-field full">
-                    <button type="submit" class="btn-primary">Guardar cambios</button>
-                </div>
-            </form>
+            @endif
         </section>
-    @endif
+    </section>
 @endsection

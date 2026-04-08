@@ -3,24 +3,26 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
-    protected $redirectTo = '/login';
+    protected string $redirectTo = '/login';
 
     public function __construct()
     {
         $this->middleware('guest');
     }
 
-    public function showRegistrationForm(Request $request)
+    public function showRegistrationForm(Request $request): View
     {
-        $selectedRole = $request->query('role', 'provider');
+        $selectedRole = $request->query('role', 'client');
 
         if (!in_array($selectedRole, ['client', 'provider'], true)) {
-            $selectedRole = 'provider';
+            $selectedRole = 'client';
         }
 
         return view('auth.register', [
@@ -28,7 +30,7 @@ class RegisterController extends Controller
         ]);
     }
 
-    public function register(Request $request)
+    public function register(Request $request): RedirectResponse
     {
         $request->validate([
             'email' => ['required', 'email'],
@@ -57,7 +59,7 @@ class RegisterController extends Controller
             if ($response->successful()) {
                 $successMessage = $request->role === 'provider'
                     ? 'Cuenta de proveedor registrada correctamente. Inicia sesión para completar tu perfil operativo.'
-                    : 'Usuario registrado correctamente. Ahora ya puedes iniciar sesión.';
+                    : 'Cuenta de cliente registrada correctamente. Ahora ya puedes iniciar sesión.';
 
                 return redirect()
                     ->route('login')

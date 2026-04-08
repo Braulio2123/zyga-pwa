@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Provider;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
+use Illuminate\View\View;
 
 class ProviderPortalController extends Controller
 {
@@ -30,15 +33,14 @@ class ProviderPortalController extends Controller
     protected function apiGet(string $endpoint): array
     {
         try {
-            $response = $this->apiClient()->get($this->apiBase . $endpoint);
-
-            return $this->formatResponse($response);
+            return $this->formatResponse($this->apiClient()->get($this->apiBase . $endpoint));
         } catch (\Throwable $e) {
             return [
                 'ok' => false,
                 'status' => 0,
                 'message' => 'No fue posible conectar con la API.',
                 'details' => $e->getMessage(),
+                'errors' => [],
                 'data' => [],
                 'raw' => [],
             ];
@@ -65,6 +67,7 @@ class ProviderPortalController extends Controller
                 'status' => 0,
                 'message' => 'No fue posible conectar con la API.',
                 'details' => $e->getMessage(),
+                'errors' => [],
                 'data' => [],
                 'raw' => [],
             ];
@@ -73,17 +76,19 @@ class ProviderPortalController extends Controller
 
     protected function formatResponse($response): array
     {
+        $json = $response->json();
+
         return [
             'ok' => $response->successful(),
             'status' => $response->status(),
-            'message' => $response->json('message') ?? ($response->successful() ? 'Operación realizada correctamente.' : 'La API respondió con error.'),
-            'errors' => $response->json('errors') ?? [],
-            'data' => $response->json('data') ?? [],
-            'raw' => $response->json() ?? [],
+            'message' => is_array($json) ? ($json['message'] ?? ($response->successful() ? 'Operación realizada correctamente.' : 'La API respondió con error.')) : ($response->successful() ? 'Operación realizada correctamente.' : 'La API respondió con error.'),
+            'errors' => is_array($json) ? ($json['errors'] ?? []) : [],
+            'data' => is_array($json) ? ($json['data'] ?? []) : [],
+            'raw' => is_array($json) ? $json : [],
         ];
     }
 
-    protected function normalizeList($data, array $preferredKeys = []): array
+    protected function normalizeList(mixed $data, array $preferredKeys = []): array
     {
         if (is_array($data) && array_is_list($data)) {
             return $data;
@@ -112,53 +117,109 @@ class ProviderPortalController extends Controller
         $hasProfile = $profileResponse['ok'];
         $profile = $hasProfile && is_array($profileResponse['data']) ? $profileResponse['data'] : [];
 
+        $servicesResponse = ['ok' => false, 'data' => []];
+        $schedulesResponse = ['ok' => false, 'data' => []];
+        $documentsResponse = ['ok' => false, 'data' => []];
+
+        $services = [];
+        $schedules = [];
+        $documents = [];
+
+        if ($hasProfile) {
+            $servicesResponse = $this->apiGet('/api/v1/provider/services');
+            $schedulesResponse = $this->apiGet('/api/v1/provider/schedules');
+            $documentsResponse = $this->apiGet('/api/v1/provider/documents');
+
+            $services = $this->normalizeList($servicesResponse['data'] ?? [], ['services']);
+            $schedules = $this->normalizeList($schedulesResponse['data'] ?? [], ['schedules']);
+            $documents = $this->normalizeList($documentsResponse['data'] ?? [], ['documents']);
+        }
+
         return [
             'profileResponse' => $profileResponse,
             'hasProfile' => $hasProfile,
             'profile' => $profile,
+            'servicesResponse' => $servicesResponse,
+            'services' => $services,
+            'schedulesResponse' => $schedulesResponse,
+            'schedules' => $schedules,
+            'documentsResponse' => $documentsResponse,
+            'documents' => $documents,
+            'readiness' => $this->providerReadiness($profile, $services, $schedules, $documents, $hasProfile),
         ];
     }
 
     protected function publicServicesCatalog(): array
     {
         try {
-            $response = Http::acceptJson()
-                ->timeout(20)
-                ->get($this->apiBase . '/api/v1/services');
-
-            return $this->formatResponse($response);
+            return $this->formatResponse(
+                Http::acceptJson()->timeout(20)->get($this->apiBase . '/api/v1/services')
+            );
         } catch (\Throwable $e) {
             return [
                 'ok' => false,
                 'status' => 0,
                 'message' => 'No fue posible cargar el catálogo general de servicios.',
                 'details' => $e->getMessage(),
+                'errors' => [],
                 'data' => [],
                 'raw' => [],
             ];
         }
     }
 
-    protected function statusBadgeData(array $profile): array
+    protected function providerReadiness(array $profile, array $services, array $schedules, array $documents, bool $hasProfile): array
     {
-        $statusName = $profile['status']['name'] ?? null;
-        $statusId = (int) ($profile['status_id'] ?? 0);
+        $statusCode = strtolower((string) data_get($profile, 'status.code', ''));
+        $statusName = data_get($profile, 'status.name');
+        $isVerified = (bool) ($profile['is_verified'] ?? false);
+        $activeServicesCount = count($services);
+        $activeSchedulesCount = collect($schedules)->filter(fn ($schedule) => (bool) ($schedule['is_active'] ?? true))->count();
+        $documentsCount = count($documents);
 
-        if (!$statusName) {
-            $statusName = match ($statusId) {
-                1 => 'Activo',
-                2 => 'En revisión',
-                3 => 'Suspendido',
-                default => 'Sin estado',
-            };
+        $checks = [
+            'has_profile' => $hasProfile,
+            'has_services' => $activeServicesCount > 0,
+            'has_active_schedule' => $activeSchedulesCount > 0,
+            'is_verified' => $isVerified,
+            'status_active' => $statusCode === 'active',
+            'documents_registered' => $documentsCount > 0,
+        ];
+
+        $blockers = [];
+
+        if (!$checks['has_profile']) {
+            $blockers[] = 'Completa primero tu perfil de proveedor.';
+        }
+        if ($checks['has_profile'] && !$checks['has_services']) {
+            $blockers[] = 'Debes asignar al menos un servicio para poder recibir solicitudes compatibles.';
+        }
+        if ($checks['has_profile'] && !$checks['has_active_schedule']) {
+            $blockers[] = 'Debes registrar al menos un horario activo para marcarte como listo en el portal provider.';
+        }
+        if ($checks['has_profile'] && !$checks['is_verified']) {
+            $blockers[] = 'Administración todavía no valida tu proveedor. El backend no te permitirá operar hasta quedar verificado.';
+        }
+        if ($checks['has_profile'] && !$checks['status_active']) {
+            $blockers[] = 'Tu proveedor no está en estatus operativo activo dentro del backend.';
         }
 
-        $isVerified = (bool) ($profile['is_verified'] ?? false);
+        $documentsNote = $documentsCount > 0
+            ? 'Tienes documentos registrados en tu expediente.'
+            : 'El backend actual sí permite registrar documentos, pero no los usa todavía como bloqueo operativo automático.';
 
         return [
-            'statusName' => $statusName,
-            'verificationText' => $isVerified ? 'Verificado' : 'Pendiente de validación',
-            'isVerified' => $isVerified,
+            'checks' => $checks,
+            'status_code' => $statusCode,
+            'status_name' => $statusName ?: ($statusCode !== '' ? strtoupper($statusCode) : 'Sin estado'),
+            'verification_text' => $isVerified ? 'Verificado' : 'Pendiente de validación',
+            'services_count' => $activeServicesCount,
+            'active_schedules_count' => $activeSchedulesCount,
+            'documents_count' => $documentsCount,
+            'documents_note' => $documentsNote,
+            'backend_can_operate' => $hasProfile && $checks['has_services'] && $checks['is_verified'] && $checks['status_active'],
+            'portal_ready' => $hasProfile && $checks['has_services'] && $checks['has_active_schedule'] && $checks['is_verified'] && $checks['status_active'],
+            'blockers' => $blockers,
         ];
     }
 
@@ -190,145 +251,106 @@ class ProviderPortalController extends Controller
         ];
     }
 
-    protected function initialProviderStatusCandidates(): array
+    protected function activeRequests(array $requests): array
     {
-        $candidates = [];
-
-        $single = (int) env('DEFAULT_PROVIDER_STATUS_ID', 0);
-        if ($single > 0) {
-            $candidates[] = $single;
-        }
-
-        $list = (string) env('DEFAULT_PROVIDER_STATUS_IDS', '');
-        if ($list !== '') {
-            $parsed = collect(explode(',', $list))
-                ->map(fn ($value) => (int) trim($value))
-                ->filter(fn ($value) => $value > 0)
-                ->values()
-                ->all();
-
-            $candidates = array_merge($candidates, $parsed);
-        }
-
-        if (empty($candidates)) {
-            $candidates = range(1, 50);
-        }
-
-        return array_values(array_unique($candidates));
+        return array_values(array_filter($requests, function (array $request) {
+            return in_array($request['status'] ?? null, ['assigned', 'in_progress'], true);
+        }));
     }
 
-    protected function isProviderStatusValidationError(array $response): bool
+    protected function historicalRequests(array $requests): array
     {
-        $message = strtolower((string) ($response['message'] ?? ''));
-        $errors = $response['errors'] ?? [];
-        $statusErrors = strtolower(implode(' ', $errors['status_id'] ?? []));
-
-        return str_contains($message, 'status id')
-            || str_contains($message, 'status_id')
-            || str_contains($message, 'no pertenece al dominio de proveedor')
-            || str_contains($statusErrors, 'status id')
-            || str_contains($statusErrors, 'status_id')
-            || str_contains($statusErrors, 'dominio de proveedor');
+        return array_values(array_filter($requests, function (array $request) {
+            return in_array($request['status'] ?? null, ['completed', 'cancelled'], true);
+        }));
     }
 
-    protected function createProfileAgainstApi(array $payload): array
+    protected function normalizeRequest(array $request): array
     {
-        $lastResponse = [
-            'ok' => false,
-            'status' => 422,
-            'message' => 'No se encontró un status_id válido para crear el perfil del proveedor.',
-            'errors' => [],
-            'data' => [],
-            'raw' => [],
+        return [
+            'id' => $request['id'] ?? null,
+            'public_id' => $request['public_id'] ?? null,
+            'status' => $request['status'] ?? null,
+            'pickup_address' => $request['pickup_address'] ?? $request['address'] ?? 'Sin dirección de referencia',
+            'lat' => $request['lat'] ?? null,
+            'lng' => $request['lng'] ?? null,
+            'service_name' => data_get($request, 'service.name') ?? ($request['service_name'] ?? 'Servicio'),
+            'service_code' => data_get($request, 'service.code'),
+            'client_email' => data_get($request, 'user.email'),
+            'vehicle' => trim(implode(' ', array_filter([
+                data_get($request, 'vehicle.brand'),
+                data_get($request, 'vehicle.model'),
+            ]))) ?: 'Vehículo no especificado',
+            'created_at' => $request['created_at'] ?? null,
+            'updated_at' => $request['updated_at'] ?? null,
+            'raw' => $request,
         ];
-
-        foreach ($this->initialProviderStatusCandidates() as $statusId) {
-            $response = $this->apiSend('post', '/api/v1/provider/profile', array_merge($payload, [
-                'status_id' => $statusId,
-            ]));
-
-            if ($response['ok']) {
-                return $response;
-            }
-
-            $lastResponse = $response;
-
-            if (!$this->isProviderStatusValidationError($response)) {
-                return $response;
-            }
-        }
-
-        $lastResponse['message'] = 'No se pudo crear el perfil porque la API requiere un status_id inicial válido para provider y en este ambiente no coincide con el valor fijo anterior. Configura DEFAULT_PROVIDER_STATUS_ID en el .env web o revisa los status_types del dominio provider en Railway.';
-
-        return $lastResponse;
     }
 
-    public function dashboard()
+    protected function routeBackToAssistance(string $messageKey, string $message): RedirectResponse
+    {
+        return redirect()->route('provider.asistencias')->with($messageKey, $message);
+    }
+
+    public function dashboard(): View
     {
         $context = $this->providerContext();
 
-        $services = [];
-        $schedules = [];
+        $availableResponse = ['ok' => false, 'data' => []];
+        $mineResponse = ['ok' => false, 'data' => []];
         $availableRequests = [];
         $myRequests = [];
 
         if ($context['hasProfile']) {
-            $servicesResponse = $this->apiGet('/api/v1/provider/services');
-            $schedulesResponse = $this->apiGet('/api/v1/provider/schedules');
-            $availableResponse = $this->apiGet('/api/v1/provider/assistance-requests/available');
             $mineResponse = $this->apiGet('/api/v1/provider/assistance-requests');
+            $myRequests = array_map(fn ($item) => $this->normalizeRequest($item), $this->normalizeList($mineResponse['data'] ?? [], ['requests']));
 
-            $services = $this->normalizeList($servicesResponse['data'] ?? [], ['services']);
-            $schedules = $this->normalizeList($schedulesResponse['data'] ?? [], ['schedules']);
-            $availableRequests = $this->normalizeList($availableResponse['data'] ?? [], ['requests']);
-            $myRequests = $this->normalizeList($mineResponse['data'] ?? [], ['requests']);
+            if ($context['readiness']['backend_can_operate']) {
+                $availableResponse = $this->apiGet('/api/v1/provider/assistance-requests/available');
+                $availableRequests = array_map(fn ($item) => $this->normalizeRequest($item), $this->normalizeList($availableResponse['data'] ?? [], ['requests']));
+            }
         }
 
         return view('provider.dashboard', [
-            'profileResponse' => $context['profileResponse'],
-            'profile' => $context['profile'],
-            'hasProfile' => $context['hasProfile'],
-            'services' => $services,
-            'schedules' => $schedules,
+            'context' => $context,
+            'availableResponse' => $availableResponse,
+            'mineResponse' => $mineResponse,
             'availableRequests' => $availableRequests,
-            'myRequests' => $myRequests,
-            'dayOptions' => $this->dayOptions(),
-            'badgeData' => $this->statusBadgeData($context['profile']),
+            'activeRequests' => $this->activeRequests($myRequests),
+            'historicalRequests' => $this->historicalRequests($myRequests),
         ]);
     }
 
-    public function perfil()
+    public function perfil(): View
     {
-        $context = $this->providerContext();
-
         return view('provider.perfil.index', [
-            'profileResponse' => $context['profileResponse'],
-            'profile' => $context['profile'],
-            'hasProfile' => $context['hasProfile'],
-            'badgeData' => $this->statusBadgeData($context['profile']),
+            'context' => $this->providerContext(),
         ]);
     }
 
-    public function crearPerfil(Request $request)
+    public function crearPerfil(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'display_name' => ['required', 'string', 'max:255'],
             'provider_kind' => ['nullable', 'string', 'max:100'],
         ]);
 
-        $response = $this->createProfileAgainstApi([
+        $response = $this->apiSend('post', '/api/v1/provider/profile', [
             'display_name' => trim($validated['display_name']),
             'provider_kind' => $validated['provider_kind'] ?: null,
         ]);
 
         if ($response['ok']) {
-            return redirect()->route('provider.servicios')->with('success', 'Perfil creado correctamente. Ahora selecciona los servicios que ofrecerás.');
+            return redirect()->route('provider.servicios')
+                ->with('success', 'Perfil creado correctamente. Continúa con los servicios para completar tu onboarding provider.');
         }
 
-        return redirect()->route('provider.perfil')->withInput()->with('error', $response['message'] ?? 'No se pudo crear el perfil del proveedor.');
+        return redirect()->route('provider.perfil')
+            ->withInput()
+            ->with('error', $response['message'] ?? 'No se pudo crear el perfil del proveedor.');
     }
 
-    public function actualizarPerfil(Request $request)
+    public function actualizarPerfil(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'display_name' => ['required', 'string', 'max:255'],
@@ -344,35 +366,27 @@ class ProviderPortalController extends Controller
             return redirect()->route('provider.perfil')->with('success', 'Perfil actualizado correctamente.');
         }
 
-        return redirect()->route('provider.perfil')->withInput()->with('error', $response['message'] ?? 'No se pudo actualizar el perfil.');
+        return redirect()->route('provider.perfil')
+            ->withInput()
+            ->with('error', $response['message'] ?? 'No se pudo actualizar el perfil.');
     }
 
-    public function servicios()
+    public function servicios(): View
     {
         $context = $this->providerContext();
         $catalogResponse = $this->publicServicesCatalog();
         $catalog = $this->normalizeList($catalogResponse['data'] ?? [], ['services']);
-        $myServicesResponse = ['ok' => false, 'message' => null, 'data' => []];
-        $myServices = [];
-        $selectedIds = [];
-
-        if ($context['hasProfile']) {
-            $myServicesResponse = $this->apiGet('/api/v1/provider/services');
-            $myServices = $this->normalizeList($myServicesResponse['data'] ?? [], ['services']);
-            $selectedIds = collect($myServices)->pluck('id')->filter()->map(fn ($id) => (int) $id)->values()->all();
-        }
+        $selectedIds = collect($context['services'])->pluck('id')->map(fn ($id) => (int) $id)->all();
 
         return view('provider.servicios.index', [
-            'hasProfile' => $context['hasProfile'],
+            'context' => $context,
             'catalogResponse' => $catalogResponse,
-            'myServicesResponse' => $myServicesResponse,
             'catalog' => $catalog,
-            'myServices' => $myServices,
             'selectedIds' => $selectedIds,
         ]);
     }
 
-    public function actualizarServicios(Request $request)
+    public function actualizarServicios(Request $request): RedirectResponse
     {
         $request->validate([
             'service_ids' => ['required', 'array', 'min:1'],
@@ -394,32 +408,24 @@ class ProviderPortalController extends Controller
         ]);
 
         if ($response['ok']) {
-            return redirect()->route('provider.horarios')->with('success', 'Servicios actualizados correctamente. Continúa con la configuración de horarios.');
+            return redirect()->route('provider.horarios')
+                ->with('success', 'Servicios actualizados correctamente. Ahora registra horarios activos.');
         }
 
-        return redirect()->route('provider.servicios')->withInput()->with('error', $response['message'] ?? 'No se pudieron actualizar los servicios.');
+        return redirect()->route('provider.servicios')
+            ->withInput()
+            ->with('error', $response['message'] ?? 'No se pudieron actualizar los servicios.');
     }
 
-    public function horarios()
+    public function horarios(): View
     {
-        $context = $this->providerContext();
-        $schedulesResponse = ['ok' => false, 'message' => null, 'data' => []];
-        $schedules = [];
-
-        if ($context['hasProfile']) {
-            $schedulesResponse = $this->apiGet('/api/v1/provider/schedules');
-            $schedules = $this->normalizeList($schedulesResponse['data'] ?? [], ['schedules']);
-        }
-
         return view('provider.horarios.index', [
-            'hasProfile' => $context['hasProfile'],
-            'schedulesResponse' => $schedulesResponse,
-            'schedules' => $schedules,
+            'context' => $this->providerContext(),
             'dayOptions' => $this->dayOptions(),
         ]);
     }
 
-    public function guardarHorario(Request $request)
+    public function guardarHorario(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'day_of_week' => ['required', 'integer', 'min:1', 'max:7'],
@@ -437,29 +443,39 @@ class ProviderPortalController extends Controller
             return redirect()->route('provider.horarios')->with('success', 'Horario registrado correctamente.');
         }
 
-        return redirect()->route('provider.horarios')->withInput()->with('error', $response['message'] ?? 'No se pudo registrar el horario.');
+        return redirect()->route('provider.horarios')
+            ->withInput()
+            ->with('error', $response['message'] ?? 'No se pudo registrar el horario.');
     }
 
-    public function actualizarHorario(Request $request, int $id)
+    public function actualizarHorario(Request $request, int $id): RedirectResponse
     {
         $validated = $request->validate([
+            'day_of_week' => ['nullable', 'integer', 'min:1', 'max:7'],
             'start_time' => ['required', 'date_format:H:i'],
             'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+            'is_active' => ['nullable', 'boolean'],
         ]);
 
-        $response = $this->apiSend('patch', '/api/v1/provider/schedules/' . $id, [
+        $payload = Arr::whereNotNull([
+            'day_of_week' => $validated['day_of_week'] ?? null,
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
+            'is_active' => $request->has('is_active') ? (bool) $request->boolean('is_active') : null,
         ]);
+
+        $response = $this->apiSend('patch', '/api/v1/provider/schedules/' . $id, $payload);
 
         if ($response['ok']) {
             return redirect()->route('provider.horarios')->with('success', 'Horario actualizado correctamente.');
         }
 
-        return redirect()->route('provider.horarios')->withInput()->with('error', $response['message'] ?? 'No se pudo actualizar el horario.');
+        return redirect()->route('provider.horarios')
+            ->withInput()
+            ->with('error', $response['message'] ?? 'No se pudo actualizar el horario.');
     }
 
-    public function eliminarHorario(int $id)
+    public function eliminarHorario(int $id): RedirectResponse
     {
         $response = $this->apiSend('delete', '/api/v1/provider/schedules/' . $id);
 
@@ -467,32 +483,22 @@ class ProviderPortalController extends Controller
             return redirect()->route('provider.horarios')->with('success', 'Horario eliminado correctamente.');
         }
 
-        return redirect()->route('provider.horarios')->with('error', $response['message'] ?? 'No se pudo eliminar el horario.');
+        return redirect()->route('provider.horarios')
+            ->with('error', $response['message'] ?? 'No se pudo eliminar el horario.');
     }
 
-    public function documentos()
+    public function documentos(): View
     {
-        $context = $this->providerContext();
-        $documentsResponse = ['ok' => false, 'message' => null, 'data' => []];
-        $documents = [];
-
-        if ($context['hasProfile']) {
-            $documentsResponse = $this->apiGet('/api/v1/provider/documents');
-            $documents = $this->normalizeList($documentsResponse['data'] ?? [], ['documents']);
-        }
-
         return view('provider.documentos.index', [
-            'hasProfile' => $context['hasProfile'],
-            'documentsResponse' => $documentsResponse,
-            'documents' => $documents,
+            'context' => $this->providerContext(),
         ]);
     }
 
-    public function guardarDocumento(Request $request)
+    public function guardarDocumento(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'document_type' => ['required', 'string', 'max:255'],
-            'document_url' => ['required', 'url', 'max:2048'],
+            'document_url' => ['required', 'string', 'max:2048'],
         ]);
 
         $response = $this->apiSend('post', '/api/v1/provider/documents', [
@@ -504,10 +510,12 @@ class ProviderPortalController extends Controller
             return redirect()->route('provider.documentos')->with('success', 'Documento registrado correctamente.');
         }
 
-        return redirect()->route('provider.documentos')->withInput()->with('error', $response['message'] ?? 'No se pudo registrar el documento.');
+        return redirect()->route('provider.documentos')
+            ->withInput()
+            ->with('error', $response['message'] ?? 'No se pudo registrar el documento.');
     }
 
-    public function eliminarDocumento(int $id)
+    public function eliminarDocumento(int $id): RedirectResponse
     {
         $response = $this->apiSend('delete', '/api/v1/provider/documents/' . $id);
 
@@ -515,47 +523,89 @@ class ProviderPortalController extends Controller
             return redirect()->route('provider.documentos')->with('success', 'Documento eliminado correctamente.');
         }
 
-        return redirect()->route('provider.documentos')->with('error', $response['message'] ?? 'No se pudo eliminar el documento.');
+        return redirect()->route('provider.documentos')
+            ->with('error', $response['message'] ?? 'No se pudo eliminar el documento.');
     }
 
-    public function asistencias()
+    public function asistencias(): View
     {
         $context = $this->providerContext();
-        $availableResponse = ['ok' => false, 'message' => null, 'data' => []];
-        $mineResponse = ['ok' => false, 'message' => null, 'data' => []];
+        $availableResponse = ['ok' => false, 'data' => []];
+        $mineResponse = ['ok' => false, 'data' => []];
         $availableRequests = [];
         $myRequests = [];
 
         if ($context['hasProfile']) {
-            $availableResponse = $this->apiGet('/api/v1/provider/assistance-requests/available');
             $mineResponse = $this->apiGet('/api/v1/provider/assistance-requests');
-            $availableRequests = $this->normalizeList($availableResponse['data'] ?? [], ['requests']);
-            $myRequests = $this->normalizeList($mineResponse['data'] ?? [], ['requests']);
+            $myRequests = array_map(fn ($item) => $this->normalizeRequest($item), $this->normalizeList($mineResponse['data'] ?? [], ['requests']));
+
+            if ($context['readiness']['backend_can_operate']) {
+                $availableResponse = $this->apiGet('/api/v1/provider/assistance-requests/available');
+                $availableRequests = array_map(fn ($item) => $this->normalizeRequest($item), $this->normalizeList($availableResponse['data'] ?? [], ['requests']));
+            }
         }
 
         return view('provider.asistencias.index', [
-            'hasProfile' => $context['hasProfile'],
+            'context' => $context,
             'availableResponse' => $availableResponse,
             'mineResponse' => $mineResponse,
             'availableRequests' => $availableRequests,
-            'myRequests' => $myRequests,
+            'activeRequests' => $this->activeRequests($myRequests),
+            'historicalRequests' => $this->historicalRequests($myRequests),
             'allowedStatusOptionsResolver' => fn (?string $status) => $this->allowedStatusOptions($status),
         ]);
     }
 
-    public function aceptarAsistencia(int $id)
+    public function verAsistencia(int $id): View|RedirectResponse
     {
+        $context = $this->providerContext();
+        $response = $this->apiGet('/api/v1/provider/assistance-requests/' . $id);
+
+        if (!$response['ok'] || !is_array($response['data'])) {
+            return redirect()->route('provider.asistencias')
+                ->with('error', $response['message'] ?? 'No se pudo cargar el detalle de la asistencia.');
+        }
+
+        $requestData = $response['data'];
+
+        return view('provider.asistencias.show', [
+            'context' => $context,
+            'requestItem' => $this->normalizeRequest($requestData),
+            'requestRaw' => $requestData,
+            'allowedStatusOptions' => $this->allowedStatusOptions($requestData['status'] ?? null),
+        ]);
+    }
+
+    public function aceptarAsistencia(int $id): RedirectResponse
+    {
+        $context = $this->providerContext();
+
+        if (!$context['readiness']['portal_ready']) {
+            return $this->routeBackToAssistance(
+                'error',
+                'Tu provider todavía no está listo para operar desde el portal. Completa onboarding, validación y horarios antes de aceptar solicitudes.'
+            );
+        }
+
         $response = $this->apiSend('patch', '/api/v1/provider/assistance-requests/' . $id . '/accept');
 
         if ($response['ok']) {
-            return redirect()->route('provider.asistencias')->with('success', 'Solicitud aceptada correctamente.');
+            return redirect()->route('provider.asistencias.show', $id)
+                ->with('success', 'Solicitud aceptada correctamente.');
         }
 
-        return redirect()->route('provider.asistencias')->with('error', $response['message'] ?? 'No se pudo aceptar la solicitud.');
+        return $this->routeBackToAssistance('error', $response['message'] ?? 'No se pudo aceptar la solicitud.');
     }
 
-    public function actualizarEstatusAsistencia(Request $request, int $id)
+    public function actualizarEstatusAsistencia(Request $request, int $id): RedirectResponse
     {
+        $context = $this->providerContext();
+
+        if (!$context['readiness']['portal_ready']) {
+            return redirect()->route('provider.asistencias')
+                ->with('error', 'Tu provider todavía no está listo para operar desde el portal.');
+        }
+
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:in_progress,completed,cancelled'],
         ]);
@@ -565,9 +615,11 @@ class ProviderPortalController extends Controller
         ]);
 
         if ($response['ok']) {
-            return redirect()->route('provider.asistencias')->with('success', 'Estatus actualizado correctamente.');
+            return redirect()->route('provider.asistencias.show', $id)
+                ->with('success', 'Estatus actualizado correctamente.');
         }
 
-        return redirect()->route('provider.asistencias')->with('error', $response['message'] ?? 'No se pudo actualizar el estatus.');
+        return redirect()->route('provider.asistencias.show', $id)
+            ->with('error', $response['message'] ?? 'No se pudo actualizar el estatus.');
     }
 }

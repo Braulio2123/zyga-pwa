@@ -1,96 +1,80 @@
 @extends('provider.layouts.app')
 
 @section('title', 'ZYGA | Documentos provider')
-@section('page-title', 'Documentos')
+@section('page-title', 'Documentos provider')
 
 @section('content')
-    <section class="hero-card">
-        <div>
-            <p class="hero-kicker">Módulo documental</p>
-            <h2 style="margin:0 0 8px;">Documentos de validación</h2>
-            <p class="muted">Registra enlaces de documentos para integrarlos al expediente del proveedor.</p>
-        </div>
-        <div class="hero-stat summary-card">
-            <span class="helper-text">Registrados</span>
-            <strong>{{ count($documents) }}</strong>
-        </div>
+    @php($r = $context['readiness'])
+    <section class="hero">
+        <p class="eyebrow">Expediente</p>
+        <h2 style="margin:0 0 12px; font-size:2rem;">Documentos del provider</h2>
+        <p class="muted" style="margin:0; line-height:1.6;">La API sí soporta CRUD de documentos, pero hoy no los usa todavía como criterio duro de operación. Por eso este módulo permanece en el MVP como expediente informativo y administrativo, no como falsa verificación automática.</p>
     </section>
 
-    @if(!$hasProfile)
-        <section class="locked-module">
-            <h3>Módulo bloqueado temporalmente</h3>
-            <p>Primero debes crear tu perfil de proveedor para poder gestionar documentos.</p>
-            <a href="{{ route('provider.perfil') }}" class="btn-primary">Ir a crear perfil</a>
+    @if(!$context['hasProfile'])
+        <section class="lockbox">
+            <h3>Primero crea tu perfil</h3>
+            <a href="{{ route('provider.perfil') }}" class="btn">Ir a perfil</a>
         </section>
     @else
-        @if(!$documentsResponse['ok'] && $documentsResponse['status'] !== 200 && $documentsResponse['status'] !== 0)
-            <section class="section-card"><div class="alert danger">{{ $documentsResponse['message'] ?? 'No se pudieron cargar los documentos.' }}</div></section>
-        @endif
+        <section class="two-col">
+            <section class="card">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Nuevo documento</p>
+                        <h3>Registrar documento</h3>
+                    </div>
+                </div>
+                <form method="POST" action="{{ route('provider.documentos.store') }}" class="form-grid">
+                    @csrf
+                    <div class="field">
+                        <label class="label" for="document_type">Tipo</label>
+                        <input type="text" id="document_type" name="document_type" value="{{ old('document_type') }}" placeholder="Ej. licencia, identificacion" required>
+                    </div>
+                    <div class="field">
+                        <label class="label" for="document_url">URL</label>
+                        <input type="text" id="document_url" name="document_url" value="{{ old('document_url') }}" placeholder="https://..." required>
+                    </div>
+                    <div class="field full">
+                        <button class="btn full" type="submit">Guardar documento</button>
+                    </div>
+                </form>
+            </section>
 
-        <section class="section-card">
-            <div class="section-head">
-                <div>
-                    <p class="dashboard-card__eyebrow">Nuevo registro</p>
-                    <h3>Agregar documento</h3>
+            <section class="card">
+                <div class="section-head">
+                    <div>
+                        <p class="eyebrow">Expediente actual</p>
+                        <h3>Documentos registrados</h3>
+                    </div>
                 </div>
-            </div>
 
-            <form action="{{ route('provider.documentos.store') }}" method="POST" class="form-grid">
-                @csrf
-                <div class="form-field">
-                    <label class="label" for="document_type">Tipo de documento</label>
-                    <input type="text" name="document_type" id="document_type" value="{{ old('document_type') }}" placeholder="Ej. licencia, identificacion, seguro" required>
-                </div>
-                <div class="form-field">
-                    <label class="label" for="document_url">URL del documento</label>
-                    <input type="url" name="document_url" id="document_url" value="{{ old('document_url') }}" placeholder="https://..." required>
-                </div>
-                <div class="form-field full">
-                    <button type="submit" class="btn-primary">Guardar documento</button>
-                </div>
-            </form>
-        </section>
-
-        <section class="section-card">
-            <div class="section-head">
-                <div>
-                    <p class="dashboard-card__eyebrow">Expediente actual</p>
-                    <h3>Listado de documentos</h3>
-                </div>
-            </div>
-
-            @if(empty($documents))
-                <div class="empty-state">
-                    <h4>No hay documentos registrados</h4>
-                    <p>Cuando existan documentos asociados a tu cuenta se mostrarán aquí.</p>
-                </div>
-            @else
-                <div class="stack-list">
-                    @foreach($documents as $document)
-                        <article class="list-card">
-                            <div class="tableish-row">
-                                <div>
-                                    <h4>{{ $document['document_type'] ?? 'Documento' }}</h4>
-                                    <p>{{ $document['document_url'] ?? 'Sin enlace disponible' }}</p>
+                @if(empty($context['documents']))
+                    <div class="empty">
+                        <h4>Sin documentos todavía</h4>
+                        <p>{{ $r['documents_note'] }}</p>
+                    </div>
+                @else
+                    <div class="list">
+                        @foreach($context['documents'] as $document)
+                            <article class="item">
+                                <div class="item-head">
+                                    <div>
+                                        <h4>{{ $document['document_type'] ?? 'Documento' }}</h4>
+                                        <p>{{ $document['document_url'] ?? 'Sin URL' }}</p>
+                                    </div>
+                                    <span class="chip info">Registrado</span>
                                 </div>
-                                <div>
-                                    <span class="status-chip info">{{ $document['status'] ?? 'Registrado' }}</span>
-                                </div>
-                                <div>
-                                    <small>{{ $document['created_at'] ?? 'Sin fecha' }}</small>
-                                </div>
-                                <div>
-                                    <form action="{{ route('provider.documentos.delete', $document['id']) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-secondary btn-sm">Eliminar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </article>
-                    @endforeach
-                </div>
-            @endif
+                                <form method="POST" action="{{ route('provider.documentos.delete', $document['id']) }}" style="margin-top:12px;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn-ghost" type="submit">Eliminar</button>
+                                </form>
+                            </article>
+                        @endforeach
+                    </div>
+                @endif
+            </section>
         </section>
     @endif
 @endsection
