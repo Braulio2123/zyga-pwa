@@ -208,11 +208,7 @@ return [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
         ],
-        [
-            'text' => 'Panel ZYGA',
-            'url'  => 'admin',
-            'icon' => 'fas fa-shield-alt',
-        ],
+
         [
             'header' => 'OPERACIÓN',
         ],
@@ -222,9 +218,9 @@ return [
             'icon' => 'fas fa-chart-line',
         ],
         [
-            'text' => 'Usuarios',
-            'route' => 'admin.users.index',
-            'icon' => 'fas fa-users',
+            'text' => 'Solicitudes',
+            'route' => 'admin.assistance.index',
+            'icon' => 'fas fa-truck-pickup',
         ],
         [
             'text' => 'Proveedores',
@@ -232,14 +228,18 @@ return [
             'icon' => 'fas fa-people-carry',
         ],
         [
+            'text' => 'Usuarios',
+            'route' => 'admin.users.index',
+            'icon' => 'fas fa-users',
+        ],
+        [
             'text' => 'Servicios',
             'route' => 'admin.services.index',
             'icon' => 'fas fa-concierge-bell',
         ],
+
         [
-            'text' => 'Solicitudes',
-            'route' => 'admin.assistance.index',
-            'icon' => 'fas fa-truck-pickup',
+            'header' => 'FINANZAS Y ANÁLISIS',
         ],
         [
             'text' => 'Pagos y finanzas',
@@ -251,6 +251,7 @@ return [
             'route' => 'admin.reportes.index',
             'icon' => 'fas fa-chart-pie',
         ],
+
         [
             'header' => 'CUENTA Y SISTEMA',
         ],
@@ -264,6 +265,7 @@ return [
             'route' => 'admin.configuracion.index',
             'icon' => 'fas fa-cogs',
         ],
+
         [
             'header' => 'SESIÓN',
         ],
