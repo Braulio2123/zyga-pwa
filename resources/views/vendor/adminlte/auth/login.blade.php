@@ -6,13 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Iniciar sesión | Zyga</title>
 
-    <!-- PWA -->
-    <meta name="theme-color" content="#0f172a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="ZYGA">
-    <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
-    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    @include('partials.pwa-meta')
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 

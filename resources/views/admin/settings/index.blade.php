@@ -1,11 +1,11 @@
 @extends('adminlte::page')
 
-@section('title', 'Configuración')
+@section('title', 'Configuración técnica')
 
 @section('content_header')
     <div>
-        <h1 class="m-0">Configuración del panel</h1>
-        <p class="zyga-muted mb-0">Estado actual de conexión, sesión y parámetros base del administrador web.</p>
+        <h1 class="m-0">Configuración técnica</h1>
+        <p class="zyga-muted mb-0">Validación rápida de sesión web, conectividad API y perfil administrativo resuelto.</p>
     </div>
 @stop
 

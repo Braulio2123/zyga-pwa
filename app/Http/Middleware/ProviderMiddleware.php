@@ -4,25 +4,54 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProviderMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $user = session('user');
+        $token = session('api_token');
 
-        if (!$user || ($user['role'] ?? null) !== 'provider') {
-            return redirect()->route('login');
+        if (! $token) {
+            session()->forget(['api_token', 'roles', 'user']);
+
+            return redirect()
+                ->route('login')
+                ->withErrors(['email' => 'Debes iniciar sesión para continuar.']);
         }
 
-        if (!session()->has('api_token')) {
-            session()->forget('user');
-
-            return redirect()->route('login')
-                ->with('error', 'Tu sesión web no tiene token API activo. Inicia sesión nuevamente.');
+        if (! $this->resolveRoleCodes()->contains('provider')) {
+            abort(403, 'Acceso solo para proveedores.');
         }
 
         return $next($request);
+    }
+
+    private function resolveRoleCodes(): Collection
+    {
+        $roles = collect(
+            session('roles')
+            ?? session('api_roles')
+            ?? data_get(session('user'), 'roles', [])
+            ?? data_get(session('api_user'), 'roles', [])
+            ?? []
+        );
+
+        return $roles
+            ->map(function ($role) {
+                if (is_array($role)) {
+                    return $role['code'] ?? $role['slug'] ?? $role['name'] ?? null;
+                }
+
+                if (is_object($role)) {
+                    return $role->code ?? $role->slug ?? $role->name ?? null;
+                }
+
+                return $role;
+            })
+            ->filter()
+            ->map(fn ($role) => strtolower(trim((string) $role)))
+            ->values();
     }
 }

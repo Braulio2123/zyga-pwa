@@ -5,7 +5,7 @@
 @section('content_header')
     <div>
         <h1 class="m-0">Reportes ejecutivos</h1>
-        <p class="zyga-muted mb-0">Lectura rápida del comportamiento operativo usando datos administrativos reales.</p>
+        <p class="zyga-muted mb-0">Resumen de volumen, estado operativo, pagos y auditoría para lectura gerencial.</p>
     </div>
 @stop
 
@@ -14,11 +14,11 @@
         <div class="alert alert-warning"><ul class="mb-0">@foreach($apiErrors as $error)<li>{{ $error }}</li>@endforeach</ul></div>
     @endif
 
-    <div class="row">
-        <div class="col-md-6 col-xl-3 mb-3"><div class="zyga-kpi"><div class="kpi-label">Usuarios</div><div class="kpi-value">{{ number_format($summary['total_users']) }}</div><div class="kpi-icon"><i class="fas fa-users"></i></div></div></div>
-        <div class="col-md-6 col-xl-3 mb-3"><div class="zyga-kpi"><div class="kpi-label">Proveedores</div><div class="kpi-value">{{ number_format($summary['total_providers']) }}</div><div class="kpi-icon"><i class="fas fa-people-carry"></i></div></div></div>
-        <div class="col-md-6 col-xl-3 mb-3"><div class="zyga-kpi"><div class="kpi-label">Solicitudes</div><div class="kpi-value">{{ number_format($summary['total_requests']) }}</div><div class="kpi-icon"><i class="fas fa-route"></i></div></div></div>
-        <div class="col-md-6 col-xl-3 mb-3"><div class="zyga-kpi"><div class="kpi-label">Ingresos</div><div class="kpi-value">${{ number_format($summary['completed_revenue'],2) }}</div><div class="kpi-icon"><i class="fas fa-wallet"></i></div></div></div>
+    <div class="row mb-4">
+        <div class="col-md-6 col-xl-3 mb-3"><div class="zyga-kpi"><div class="kpi-label">Usuarios</div><div class="kpi-value">{{ $summary['total_users'] }}</div><div class="zyga-muted">Base total</div><div class="kpi-icon"><i class="fas fa-users"></i></div></div></div>
+        <div class="col-md-6 col-xl-3 mb-3"><div class="zyga-kpi"><div class="kpi-label">Providers</div><div class="kpi-value">{{ $summary['total_providers'] }}</div><div class="zyga-muted">Red total</div><div class="kpi-icon"><i class="fas fa-people-carry"></i></div></div></div>
+        <div class="col-md-6 col-xl-3 mb-3"><div class="zyga-kpi"><div class="kpi-label">Solicitudes</div><div class="kpi-value">{{ $summary['total_requests'] }}</div><div class="zyga-muted">Casos registrados</div><div class="kpi-icon"><i class="fas fa-route"></i></div></div></div>
+        <div class="col-md-6 col-xl-3 mb-3"><div class="zyga-kpi"><div class="kpi-label">Ingresos</div><div class="kpi-value">${{ number_format($summary['completed_revenue'], 2) }}</div><div class="zyga-muted">Pagos completados</div><div class="kpi-icon"><i class="fas fa-wallet"></i></div></div></div>
     </div>
 
     <div class="row">
@@ -27,7 +27,7 @@
                 <div class="card-header"><h3 class="zyga-section-title">Distribución por estado de solicitud</h3></div>
                 <div class="card-body">
                     @forelse($statusCounts as $status => $count)
-                        <div class="zyga-stat-item mb-2"><span>{{ $status }}</span><strong>{{ $count }}</strong></div>
+                        <div class="zyga-stat-item mb-2"><span>{{ ucfirst(str_replace('_', ' ', $status)) }}</span><strong>{{ $count }}</strong></div>
                     @empty
                         <div class="zyga-empty">Sin datos de solicitudes.</div>
                     @endforelse

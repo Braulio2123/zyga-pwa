@@ -8,11 +8,20 @@ use Illuminate\Http\RedirectResponse;
 
 class ClientPortalController extends Controller
 {
+    private const DEFAULT_VEHICLE_TYPE_OPTIONS = [
+        ['id' => 1, 'name' => 'Automóvil'],
+        ['id' => 2, 'name' => 'Motocicleta'],
+        ['id' => 3, 'name' => 'Camioneta'],
+    ];
+
     private function validateClientSession(): ?RedirectResponse
     {
         $sessionUser = session('user');
+        $roles = session('roles', []);
+        $hasClientRole = ($sessionUser['role'] ?? null) === 'client'
+            || in_array('client', $roles, true);
 
-        if (!$sessionUser || ($sessionUser['role'] ?? null) !== 'client' || !session('api_token')) {
+        if (!$sessionUser || !$hasClientRole || !session('api_token')) {
             return redirect()->route('login');
         }
 
@@ -28,11 +37,8 @@ class ClientPortalController extends Controller
             'sessionUser' => session('user', []),
             'apiBaseUrl' => rtrim((string) env('URL_BASE_API', 'http://127.0.0.1:8000'), '/'),
             'apiToken' => (string) session('api_token'),
-            'vehicleTypeOptions' => [
-                ['id' => 1, 'name' => 'Automóvil'],
-                ['id' => 2, 'name' => 'Motocicleta'],
-                ['id' => 3, 'name' => 'Camioneta'],
-            ],
+            'vehicleTypeOptions' => self::DEFAULT_VEHICLE_TYPE_OPTIONS,
+            'vehicleTypeCatalogSource' => 'fallback',
         ];
     }
 
@@ -72,7 +78,7 @@ class ClientPortalController extends Controller
         return view('user.historial.index', $this->sharedViewData('history', 'ZYGA | Historial', 'Historial'));
     }
 
-    public function billetera(): View|RedirectResponse
+    public function pagos(): View|RedirectResponse
     {
         if ($redirect = $this->validateClientSession()) {
             return $redirect;

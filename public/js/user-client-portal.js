@@ -174,6 +174,7 @@
                 showToast('Pago registrado correctamente.');
                 event.currentTarget.reset();
                 loadPaymentsPage();
+                loadHistoryPage();
             } catch (error) {
                 showToast(error.message || 'No fue posible registrar el pago.');
             }
@@ -647,7 +648,8 @@
     }
 
     function hydrateVehicleTypeOptions() {
-        fillSelect('vehicleTypeInput', app.vehicleTypeOptions || [], 'Selecciona tipo', item => ({
+        const options = Array.isArray(app.vehicleTypeOptions) ? app.vehicleTypeOptions : [];
+        fillSelect('vehicleTypeInput', options, options.length ? 'Selecciona tipo' : 'Catálogo no disponible', item => ({
             value: item.id,
             label: item.name,
         }));

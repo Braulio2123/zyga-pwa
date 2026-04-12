@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
@@ -32,7 +33,7 @@ class LoginController extends Controller
                     'password' => $request->password,
                 ]);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 $errorMessage = $response->json('message')
                     ?? $response->json('error')
                     ?? 'Credenciales incorrectas o respuesta inválida del servidor.';
@@ -46,9 +47,10 @@ class LoginController extends Controller
             $user = $payload['user'] ?? [];
             $roles = $payload['roles'] ?? [];
             $token = $payload['token'] ?? null;
-            $role = $this->extractPrimaryRole($roles);
+            $roleCodes = $this->normalizeRoleCodes($roles);
+            $primaryRole = $roleCodes->first() ?? 'client';
 
-            if (!$token) {
+            if (! $token) {
                 return back()
                     ->withErrors(['email' => 'La API respondió sin token de acceso.'])
                     ->withInput();
@@ -59,18 +61,19 @@ class LoginController extends Controller
                     'id' => $user['id'] ?? null,
                     'name' => $user['name'] ?? ($user['email'] ?? 'Usuario'),
                     'email' => $user['email'] ?? $request->email,
-                    'role' => $role,
+                    'role' => $primaryRole,
                     'roles' => $roles,
                 ],
+                'roles' => $roles,
                 'api_token' => $token,
             ]);
 
-            if ($role === 'admin') {
+            if ($primaryRole === 'admin') {
                 return redirect()->route('admin.dashboard');
             }
 
-            if ($role === 'provider') {
-                if (!$this->providerHasProfile($baseUrl, (string) $token)) {
+            if ($primaryRole === 'provider') {
+                if (! $this->providerHasProfile($baseUrl, (string) $token)) {
                     return redirect()
                         ->route('provider.perfil')
                         ->with('success', 'Sesión iniciada correctamente. Completa tu perfil de proveedor para habilitar el portal operativo.');
@@ -127,34 +130,34 @@ class LoginController extends Controller
         }
     }
 
-    private function extractPrimaryRole(mixed $roles): string
+    private function normalizeRoleCodes(mixed $roles): Collection
     {
-        if (is_string($roles) && !empty($roles)) {
-            return strtolower(trim($roles));
+        if (is_string($roles) && $roles !== '') {
+            return collect([strtolower(trim($roles))]);
         }
 
-        if (is_array($roles) && count($roles) > 0) {
-            $firstRole = $roles[0];
-
-            if (is_string($firstRole) && !empty($firstRole)) {
-                return strtolower(trim($firstRole));
-            }
-
-            if (is_array($firstRole)) {
-                if (!empty($firstRole['code'])) {
-                    return strtolower(trim($firstRole['code']));
-                }
-
-                if (!empty($firstRole['slug'])) {
-                    return strtolower(trim($firstRole['slug']));
-                }
-
-                if (!empty($firstRole['name'])) {
-                    return strtolower(trim($firstRole['name']));
-                }
-            }
+        if (! is_array($roles)) {
+            return collect();
         }
 
-        return 'client';
+        return collect($roles)
+            ->map(function ($role) {
+                if (is_string($role)) {
+                    return $role;
+                }
+
+                if (is_array($role)) {
+                    return $role['code'] ?? $role['slug'] ?? $role['name'] ?? null;
+                }
+
+                if (is_object($role)) {
+                    return $role->code ?? $role->slug ?? $role->name ?? null;
+                }
+
+                return null;
+            })
+            ->filter()
+            ->map(fn ($role) => strtolower(trim((string) $role)))
+            ->values();
     }
 }

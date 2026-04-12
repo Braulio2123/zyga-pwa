@@ -3,9 +3,30 @@
 @section('content')
 <section class="panel hero-panel hero-panel--compact">
     <div>
-        <p class="hero-panel__eyebrow">Pagos</p>
-        <h2>Administra tus métodos y registra movimientos con una vista ejecutiva.</h2>
-        <p>Conserva el control de tus formas de pago y de los cargos ligados a servicios concluidos.</p>
+        <p class="hero-panel__eyebrow">Pagos y métodos</p>
+        <h2>Concentra aquí tus formas de pago y el cierre financiero de tus servicios.</h2>
+        <p>Esta sección sustituye el concepto anterior de billetera. Aquí gestionas métodos guardados y registras pagos de asistencias concluidas.</p>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="section-head">
+        <h3>Cómo opera esta sección</h3>
+        <span class="section-pill">MVP</span>
+    </div>
+    <div class="stack-list">
+        <article class="card-row">
+            <h4 class="card-row__title">Métodos guardados</h4>
+            <p class="card-row__meta">Sirven para dejar preparada tu cuenta y registrar pagos posteriores de forma más rápida.</p>
+        </article>
+        <article class="card-row">
+            <h4 class="card-row__title">Pagos realizados</h4>
+            <p class="card-row__meta">Muestran los cargos ya registrados sobre solicitudes completadas.</p>
+        </article>
+        <article class="card-row">
+            <h4 class="card-row__title">Registro de pago</h4>
+            <p class="card-row__meta">Solo aparecerán como elegibles las asistencias concluidas que aún no tengan pago completado.</p>
+        </article>
     </div>
 </section>
 
@@ -13,15 +34,15 @@
     <article class="panel">
         <div class="section-head">
             <h3>Métodos guardados</h3>
-            <span class="section-pill">Cliente</span>
+            <span class="section-pill">Cuenta</span>
         </div>
         <div id="paymentMethodsList" class="stack-list"></div>
     </article>
 
     <article class="panel">
         <div class="section-head">
-            <h3>Pagos realizados</h3>
-            <span class="section-pill">Registro</span>
+            <h3>Pagos registrados</h3>
+            <span class="section-pill">Historial</span>
         </div>
         <div id="paymentsList" class="stack-list"></div>
     </article>

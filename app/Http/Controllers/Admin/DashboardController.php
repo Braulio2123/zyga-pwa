@@ -33,27 +33,53 @@ class DashboardController extends BaseAdminController
             !$servicesResponse['ok'] ? 'Servicios: ' . $servicesResponse['message'] : null,
         ]));
 
-        $completedPayments = array_values(array_filter($payments, fn ($payment) => ($payment['status'] ?? null) === 'completed'));
-        $pendingRequests = array_values(array_filter($requests, fn ($request) => in_array($request['status'] ?? '', ['created', 'assigned', 'in_progress'], true)));
         $verifiedProviders = array_values(array_filter($providers, fn ($provider) => !empty($provider['is_verified'])));
         $activeServices = array_values(array_filter($services, fn ($service) => !empty($service['is_active'])));
+        $completedPayments = array_values(array_filter($payments, fn ($payment) => ($payment['status'] ?? null) === 'completed'));
+        $failedPayments = array_values(array_filter($payments, fn ($payment) => ($payment['status'] ?? null) === 'failed'));
 
-        $recentRequests = array_slice($requests, 0, 5);
-        $recentPayments = array_slice($payments, 0, 5);
+        $queueRequests = array_values(array_filter($requests, fn ($request) => ($request['status'] ?? null) === 'created'));
+        $assignedRequests = array_values(array_filter($requests, fn ($request) => ($request['status'] ?? null) === 'assigned'));
+        $inProgressRequests = array_values(array_filter($requests, fn ($request) => ($request['status'] ?? null) === 'in_progress'));
+        $completedRequests = array_values(array_filter($requests, fn ($request) => ($request['status'] ?? null) === 'completed'));
+        $cancelledRequests = array_values(array_filter($requests, fn ($request) => ($request['status'] ?? null) === 'cancelled'));
+
+        $notReadyProviders = array_values(array_filter($providers, function ($provider) {
+            $hasServices = count($provider['services'] ?? []) > 0;
+            $hasSchedules = count($provider['schedules'] ?? []) > 0;
+            $hasDocuments = count($provider['documents'] ?? []) > 0;
+
+            return empty($provider['is_verified']) || !$hasServices || !$hasSchedules || !$hasDocuments;
+        }));
+
+        $statusBreakdown = [
+            'created' => count($queueRequests),
+            'assigned' => count($assignedRequests),
+            'in_progress' => count($inProgressRequests),
+            'completed' => count($completedRequests),
+            'cancelled' => count($cancelledRequests),
+        ];
+
+        arsort($statusBreakdown);
 
         return view('admin.dashboard', [
             'metrics' => [
                 'users' => count($users),
                 'providers' => count($providers),
                 'verified_providers' => count($verifiedProviders),
+                'not_ready_providers' => count($notReadyProviders),
                 'active_services' => count($activeServices),
                 'requests' => count($requests),
-                'pending_requests' => count($pendingRequests),
+                'queue_requests' => count($queueRequests),
+                'assigned_requests' => count($assignedRequests),
+                'in_progress_requests' => count($inProgressRequests),
                 'payments' => count($payments),
                 'completed_revenue' => array_sum(array_map(fn ($payment) => (float) ($payment['amount'] ?? 0), $completedPayments)),
+                'failed_payments' => count($failedPayments),
             ],
-            'recentRequests' => $recentRequests,
-            'recentPayments' => $recentPayments,
+            'statusBreakdown' => $statusBreakdown,
+            'recentRequests' => array_slice($requests, 0, 6),
+            'recentPayments' => array_slice($payments, 0, 6),
             'apiErrors' => $apiErrors,
         ]);
     }

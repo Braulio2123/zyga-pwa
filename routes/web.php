@@ -99,8 +99,8 @@ Route::prefix('user')
         Route::get('/solicitud', [ClientPortalController::class, 'solicitud'])->name('solicitud');
         Route::get('/servicio-activo', [ClientPortalController::class, 'servicioActivo'])->name('activo');
         Route::get('/historial', [ClientPortalController::class, 'historial'])->name('historial');
-        Route::get('/pagos', [ClientPortalController::class, 'billetera'])->name('pagos');
-        Route::get('/billetera', [ClientPortalController::class, 'billetera'])->name('billetera');
+        Route::get('/pagos', [ClientPortalController::class, 'pagos'])->name('pagos');
+        Route::redirect('/billetera', '/user/pagos')->name('billetera');
         Route::get('/cuenta', [ClientPortalController::class, 'cuenta'])->name('cuenta');
     });
 

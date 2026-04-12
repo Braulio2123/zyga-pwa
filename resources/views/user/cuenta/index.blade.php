@@ -5,7 +5,7 @@
     <div>
         <p class="hero-panel__eyebrow">Cuenta</p>
         <h2>Perfil, seguridad y vehículos en un mismo espacio.</h2>
-        <p>Mantén actualizada tu información principal y prepara tus vehículos para solicitar atención con mayor rapidez.</p>
+        <p>Mantén actualizada tu información principal y deja al menos un vehículo listo para solicitar asistencia sin fricción.</p>
     </div>
 </section>
 
@@ -69,6 +69,13 @@
         <h3>Agregar o editar vehículo</h3>
         <button type="button" id="vehicleFormReset" class="button button--ghost">Nuevo</button>
     </div>
+
+    @if (($vehicleTypeCatalogSource ?? 'fallback') === 'fallback')
+        <div class="helper-note" style="margin-bottom: 1rem;">
+            El catálogo de tipos de vehículo aún se está usando con una base controlada desde el portal web para no frenar la operación del MVP. Cuando la API publique este catálogo de forma abierta, aquí se consumirá automáticamente desde backend.
+        </div>
+    @endif
+
     <form id="vehicleForm" class="form-grid">
         <input type="hidden" name="vehicle_id" id="vehicleIdInput">
         <label class="form-field">

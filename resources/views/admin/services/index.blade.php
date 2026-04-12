@@ -5,7 +5,7 @@
 @section('content_header')
     <div>
         <h1 class="m-0">Catálogo de servicios</h1>
-        <p class="zyga-muted mb-0">Administración del catálogo real consumido por la API de ZYGA.</p>
+        <p class="zyga-muted mb-0">Administra el catálogo de servicios disponible para la operación de ZYGA.</p>
     </div>
 @stop
 

@@ -211,12 +211,13 @@ class ProviderPortalController extends Controller
         return [
             'checks' => $checks,
             'status_code' => $statusCode,
-            'status_name' => $statusName ?: ($statusCode !== '' ? strtoupper($statusCode) : 'Sin estado'),
-            'verification_text' => $isVerified ? 'Verificado' : 'Pendiente de validación',
+            'status_name' => $statusName ?: ($statusCode !== '' ? $this->statusLabel($statusCode) : 'Sin estado'),
+            'verification_text' => $isVerified ? 'Verificado por administración' : 'Pendiente de validación',
             'services_count' => $activeServicesCount,
             'active_schedules_count' => $activeSchedulesCount,
             'documents_count' => $documentsCount,
             'documents_note' => $documentsNote,
+            'status_tone' => $this->statusTone($statusCode),
             'backend_can_operate' => $hasProfile && $checks['has_services'] && $checks['is_verified'] && $checks['status_active'],
             'portal_ready' => $hasProfile && $checks['has_services'] && $checks['has_active_schedule'] && $checks['is_verified'] && $checks['status_active'],
             'blockers' => $blockers,
@@ -235,6 +236,32 @@ class ProviderPortalController extends Controller
                 'cancelled' => 'Cancelar servicio',
             ],
             default => [],
+        };
+    }
+
+
+    protected function statusLabel(?string $status): string
+    {
+        return match ($status) {
+            'created' => 'Nueva',
+            'assigned' => 'Asignada',
+            'in_progress' => 'En proceso',
+            'completed' => 'Completada',
+            'cancelled' => 'Cancelada',
+            'active' => 'Activo',
+            'inactive' => 'Inactivo',
+            default => $status ? ucfirst(str_replace('_', ' ', $status)) : 'Sin estado',
+        };
+    }
+
+    protected function statusTone(?string $status): string
+    {
+        return match ($status) {
+            'created' => 'info',
+            'assigned', 'in_progress', 'active' => 'success',
+            'completed' => 'dark',
+            'cancelled', 'inactive' => 'warning',
+            default => 'info',
         };
     }
 
@@ -271,6 +298,8 @@ class ProviderPortalController extends Controller
             'id' => $request['id'] ?? null,
             'public_id' => $request['public_id'] ?? null,
             'status' => $request['status'] ?? null,
+            'status_label' => $this->statusLabel($request['status'] ?? null),
+            'status_tone' => $this->statusTone($request['status'] ?? null),
             'pickup_address' => $request['pickup_address'] ?? $request['address'] ?? 'Sin dirección de referencia',
             'lat' => $request['lat'] ?? null,
             'lng' => $request['lng'] ?? null,
@@ -342,7 +371,7 @@ class ProviderPortalController extends Controller
 
         if ($response['ok']) {
             return redirect()->route('provider.servicios')
-                ->with('success', 'Perfil creado correctamente. Continúa con los servicios para completar tu onboarding provider.');
+                ->with('success', 'Perfil creado correctamente. Continúa con tus servicios para completar la configuración operativa.');
         }
 
         return redirect()->route('provider.perfil')
@@ -409,7 +438,7 @@ class ProviderPortalController extends Controller
 
         if ($response['ok']) {
             return redirect()->route('provider.horarios')
-                ->with('success', 'Servicios actualizados correctamente. Ahora registra horarios activos.');
+                ->with('success', 'Servicios actualizados correctamente. Ahora registra al menos un horario activo.');
         }
 
         return redirect()->route('provider.servicios')
