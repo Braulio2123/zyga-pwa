@@ -4,16 +4,22 @@
 <section class="panel hero-panel hero-panel--compact">
     <div>
         <p class="hero-panel__eyebrow">Cuenta</p>
-        <h2>Perfil, seguridad y vehículos en un mismo espacio.</h2>
-        <p>Mantén actualizada tu información principal y deja al menos un vehículo listo para solicitar asistencia sin fricción.</p>
+        <h2>Perfil, seguridad y vehículos en un solo lugar.</h2>
+        <p>
+            Mantén tu información actualizada y deja al menos un vehículo listo para que el flujo de solicitud
+            de asistencia sea más rápido y sin fricciones.
+        </p>
     </div>
 </section>
 
 <section class="grid-two">
     <article class="panel">
         <div class="section-head">
-            <h3>Perfil</h3>
+            <h3>Perfil del cliente</h3>
             <span class="section-pill">Identidad</span>
+        </div>
+        <div class="helper-note">
+            Aquí verás el correo y la información básica recuperada desde tu sesión y la API.
         </div>
         <div id="accountProfileCard" class="stack-list"></div>
     </article>
@@ -24,7 +30,7 @@
             <span class="section-pill">Movilidad</span>
         </div>
         <div class="helper-note">
-            Mantén al menos un vehículo disponible para agilizar tus próximas solicitudes.
+            Mantén al menos un vehículo disponible para poder generar solicitudes sin bloquear el flujo.
         </div>
         <div id="accountVehiclesList" class="stack-list"></div>
     </article>
@@ -33,14 +39,21 @@
 <section class="grid-two">
     <article class="panel">
         <div class="section-head">
-            <h3>Actualizar correo</h3>
+            <h3>Actualizar correo electrónico</h3>
             <span class="section-pill">Cuenta</span>
         </div>
-        <form id="accountEmailForm" class="form-grid">
+        <form id="accountEmailForm" class="form-grid" autocomplete="off">
             <label class="form-field form-field--full">
                 <span>Correo electrónico</span>
-                <input type="email" id="accountEmailInput" name="email" placeholder="cliente@zyga.com" required>
+                <input
+                    type="email"
+                    id="accountEmailInput"
+                    name="email"
+                    placeholder="cliente@zyga.com"
+                    required
+                >
             </label>
+
             <div class="form-actions form-field--full">
                 <button type="submit" class="button button--primary">Guardar correo</button>
             </div>
@@ -49,14 +62,22 @@
 
     <article class="panel">
         <div class="section-head">
-            <h3>Cambiar contraseña</h3>
+            <h3>Actualizar contraseña</h3>
             <span class="section-pill">Seguridad</span>
         </div>
-        <form id="accountPasswordForm" class="form-grid">
+        <form id="accountPasswordForm" class="form-grid" autocomplete="off">
             <label class="form-field form-field--full">
                 <span>Nueva contraseña</span>
-                <input type="password" name="password" id="accountPasswordInput" minlength="8" placeholder="Mínimo 8 caracteres" required>
+                <input
+                    type="password"
+                    name="password"
+                    id="accountPasswordInput"
+                    minlength="8"
+                    placeholder="Mínimo 8 caracteres"
+                    required
+                >
             </label>
+
             <div class="form-actions form-field--full">
                 <button type="submit" class="button button--secondary">Actualizar contraseña</button>
             </div>
@@ -66,42 +87,74 @@
 
 <section class="panel">
     <div class="section-head">
-        <h3>Agregar o editar vehículo</h3>
+        <h3>Registrar o editar vehículo</h3>
         <button type="button" id="vehicleFormReset" class="button button--ghost">Nuevo</button>
     </div>
 
-    @if (($vehicleTypeCatalogSource ?? 'fallback') === 'fallback')
-        <div class="helper-note" style="margin-bottom: 1rem;">
-            El catálogo de tipos de vehículo aún se está usando con una base controlada desde el portal web para no frenar la operación del MVP. Cuando la API publique este catálogo de forma abierta, aquí se consumirá automáticamente desde backend.
-        </div>
-    @endif
+    <div class="helper-note">
+        Usa este formulario para registrar un vehículo nuevo o editar uno existente. Cuando pulses
+        <strong>Editar</strong> en un vehículo, los campos se llenarán automáticamente aquí.
+    </div>
 
-    <form id="vehicleForm" class="form-grid">
+    <form id="vehicleForm" class="form-grid" autocomplete="off">
         <input type="hidden" name="vehicle_id" id="vehicleIdInput">
+
         <label class="form-field">
             <span>Tipo de vehículo</span>
             <select name="vehicle_type_id" id="vehicleTypeInput" required>
                 <option value="">Selecciona tipo</option>
             </select>
         </label>
+
         <label class="form-field">
             <span>Placas</span>
-            <input type="text" name="plate" id="vehiclePlateInput" placeholder="JAL-458-B" required>
+            <input
+                type="text"
+                name="plate"
+                id="vehiclePlateInput"
+                placeholder="JAL-458-B"
+                required
+            >
         </label>
+
         <label class="form-field">
             <span>Marca</span>
-            <input type="text" name="brand" id="vehicleBrandInput" placeholder="Nissan" required>
+            <input
+                type="text"
+                name="brand"
+                id="vehicleBrandInput"
+                placeholder="Nissan"
+                required
+            >
         </label>
+
         <label class="form-field">
             <span>Modelo</span>
-            <input type="text" name="model" id="vehicleModelInput" placeholder="Versa" required>
+            <input
+                type="text"
+                name="model"
+                id="vehicleModelInput"
+                placeholder="Versa"
+                required
+            >
         </label>
+
         <label class="form-field form-field--full">
             <span>Año</span>
-            <input type="number" name="year" id="vehicleYearInput" min="1900" max="2100" placeholder="2021">
+            <input
+                type="number"
+                name="year"
+                id="vehicleYearInput"
+                min="1900"
+                max="2100"
+                placeholder="2021"
+            >
         </label>
+
         <div class="form-actions form-field--full">
-            <button type="submit" id="vehicleSubmitButton" class="button button--primary">Guardar vehículo</button>
+            <button type="submit" id="vehicleSubmitButton" class="button button--primary">
+                Guardar vehículo
+            </button>
         </div>
     </form>
 </section>

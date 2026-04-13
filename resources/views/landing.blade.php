@@ -763,7 +763,7 @@
 </head>
 
 <body>
-
+   
     <header class="site-header">
         <div class="container site-header__inner">
             <div class="brand">
@@ -1056,7 +1056,9 @@
     <footer class="footer">
         © {{ date('Y') }} Zyga · Plataforma digital de asistencia vial
     </footer>
-
+ )
 </body>
+
+
 
 </html>

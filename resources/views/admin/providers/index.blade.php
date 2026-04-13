@@ -5,7 +5,7 @@
 @section('content_header')
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
         <div>
-            <h1 class="m-0">Red de proveedores</h1>
+            <h1 class="m-0">Red de provedores</h1>
             <p class="zyga-muted mb-0">Supervisión de disponibilidad, verificación y preparación operativa de los providers.</p>
         </div>
         <div class="mt-3 mt-md-0"><a href="{{ route('admin.dashboard') }}" class="btn btn-light"><i class="fas fa-arrow-left mr-1"></i>Volver al dashboard</a></div>

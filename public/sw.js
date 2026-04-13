@@ -1,74 +1,127 @@
-const ZYGA_CACHE = 'zyga-shell-v1';
+const CACHE_VERSION = 'v2';
+const STATIC_CACHE = `zyga-static-${CACHE_VERSION}`;
+
 const STATIC_ASSETS = [
-  '/manifest.webmanifest',
-  '/favicon.ico',
-  '/icons/apple-touch-icon.png',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/images/logo.png',
-  '/css/auth-client.css',
-  '/css/auth-custom.css',
-  '/css/register.css',
-  '/css/user-client-portal.css',
-  '/css/admin-custom.css',
-  '/js/user-client-portal.js',
-  '/js/user-pwa.js'
+    '/manifest.webmanifest',
+    '/favicon.ico',
+    '/icons/apple-touch-icon.png',
+    '/icons/icon-192.png',
+    '/icons/icon-512.png',
+    '/images/logo.png',
+    '/css/auth-client.css',
+    '/css/auth-custom.css',
+    '/css/register.css',
+    '/css/user-client-portal.css',
+    '/css/admin-custom.css',
+    '/js/user-client-portal.js',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(ZYGA_CACHE).then(async (cache) => {
-      for (const asset of STATIC_ASSETS) {
-        try {
-          await cache.add(asset);
-        } catch (error) {
-          console.warn('[ZYGA SW] asset not cached:', asset, error);
-        }
-      }
-    })
-  );
-  self.skipWaiting();
+    event.waitUntil((async () => {
+        const cache = await caches.open(STATIC_CACHE);
+
+        await Promise.allSettled(
+            STATIC_ASSETS.map(async (asset) => {
+                try {
+                    await cache.add(new Request(asset, { cache: 'reload' }));
+                } catch (error) {
+                    console.warn('[ZYGA SW] No se pudo precachear:', asset, error);
+                }
+            })
+        );
+
+        await self.skipWaiting();
+    })());
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => Promise.all(
-      keys.filter((key) => key !== ZYGA_CACHE).map((key) => caches.delete(key))
-    ))
-  );
-  self.clients.claim();
+    event.waitUntil((async () => {
+        const keys = await caches.keys();
+
+        await Promise.all(
+            keys
+                .filter((key) => key !== STATIC_CACHE)
+                .map((key) => caches.delete(key))
+        );
+
+        await self.clients.claim();
+    })());
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
+    const { request } = event;
 
-  const request = event.request;
-  const acceptsHtml = request.headers.get('accept')?.includes('text/html');
+    if (request.method !== 'GET') {
+        return;
+    }
 
-  if (acceptsHtml) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(ZYGA_CACHE).then((cache) => cache.put(request, clone)).catch(() => {});
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
-    return;
-  }
+    const url = new URL(request.url);
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
-        if (!response || response.status !== 200 || response.type === 'opaque') {
-          return response;
-        }
-        const clone = response.clone();
-        caches.open(ZYGA_CACHE).then((cache) => cache.put(request, clone)).catch(() => {});
-        return response;
-      });
-    })
-  );
+    if (url.origin !== self.location.origin) {
+        return;
+    }
+
+    // Nunca cachear llamadas a la API.
+    if (url.pathname.startsWith('/api/')) {
+        return;
+    }
+
+    // Nunca cachear documentos HTML para evitar vistas viejas o sesiones inconsistentes.
+    if (isNavigationRequest(request)) {
+        return;
+    }
+
+    // Solo cachear assets estáticos.
+    if (!isStaticAsset(url.pathname)) {
+        return;
+    }
+
+    event.respondWith(staleWhileRevalidate(request));
 });
+
+function isNavigationRequest(request) {
+    return (
+        request.mode === 'navigate' ||
+        request.destination === 'document' ||
+        request.headers.get('accept')?.includes('text/html')
+    );
+}
+
+function isStaticAsset(pathname) {
+    if (STATIC_ASSETS.includes(pathname)) {
+        return true;
+    }
+
+    return /\.(css|js|png|jpg|jpeg|svg|webp|ico|woff|woff2)$/i.test(pathname);
+}
+
+async function staleWhileRevalidate(request) {
+    const cache = await caches.open(STATIC_CACHE);
+    const cached = await cache.match(request);
+
+    const networkPromise = fetch(request)
+        .then((response) => {
+            if (response && response.ok && response.type !== 'opaque') {
+                cache.put(request, response.clone()).catch(() => {});
+            }
+
+            return response;
+        })
+        .catch(() => null);
+
+    if (cached) {
+        networkPromise.catch(() => {});
+        return cached;
+    }
+
+    const networkResponse = await networkPromise;
+
+    if (networkResponse) {
+        return networkResponse;
+    }
+
+    return new Response('', {
+        status: 504,
+        statusText: 'Offline or unreachable asset',
+    });
+}
