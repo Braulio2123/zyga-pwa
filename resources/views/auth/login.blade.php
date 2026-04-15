@@ -9,60 +9,101 @@
 </head>
 <body class="auth-body">
     <main class="auth-shell">
-        <section class="auth-panel auth-panel--brand">
-            <div class="auth-brand-badge">ZYGA</div>
-            <p class="auth-kicker">Asistencia vial premium</p>
-            <h1>Control, respaldo y atención inmediata desde una sola experiencia.</h1>
-            <p class="auth-copy">
-                Inicia sesión para gestionar tu vehículo, solicitar apoyo y dar seguimiento a cada servicio con una interfaz clara, elegante y confiable.
-            </p>
-            <div class="auth-points">
-                <span>Atención prioritaria</span>
-                <span>Seguimiento en tiempo real</span>
-                <span>Operación centralizada</span>
-            </div>
-        </section>
+        <div class="auth-container">
+            <section class="auth-showcase">
+                <div>
+                    <div class="auth-brand-badge">ZYGA</div>
+                    <p class="auth-kicker">Acceso seguro</p>
 
-        <section class="auth-panel auth-panel--form">
-            <div class="auth-card">
-                <div class="auth-header">
-                    <p class="auth-eyebrow">Acceso seguro</p>
-                    <h2>Bienvenido a ZYGA</h2>
-                </div>
+                    <div class="auth-showcase-body">
+                        <h1>Control, respaldo y atención inmediata desde una sola experiencia.</h1>
+                        <p class="auth-copy">
+                            Inicia sesión para gestionar tu vehículo, solicitar apoyo y dar seguimiento a cada servicio
+                            desde una interfaz clara, elegante y confiable.
+                        </p>
 
-                @if (session('success'))
-                    <div class="auth-alert auth-alert--success">{{ session('success') }}</div>
-                @endif
-
-                @if ($errors->any())
-                    <div class="auth-alert auth-alert--error">
-                        {{ $errors->first() }}
+                        <div class="auth-points">
+                            <span>Atención prioritaria</span>
+                            <span>Seguimiento en tiempo real</span>
+                            <span>Operación centralizada</span>
+                        </div>
                     </div>
-                @endif
-
-                <form method="POST" action="{{ route('login.post') }}" class="auth-form" novalidate>
-                    @csrf
-
-                    <label class="auth-field">
-                        <span>Correo electrónico</span>
-                        <input type="email" name="email" value="{{ old('email') }}" placeholder="cliente@zyga.com" autocomplete="email" required>
-                    </label>
-
-                    <label class="auth-field">
-                        <span>Contraseña</span>
-                        <input type="password" name="password" placeholder="********" autocomplete="current-password" required>
-                    </label>
-
-                    <button type="submit" class="auth-button">Ingresar</button>
-                </form>
-
-                <div class="auth-links">
-                    <a href="{{ route('register', ['role' => 'client']) }}">Crear cuenta de cliente</a>
-                    <a href="{{ route('register', ['role' => 'provider']) }}">Crear cuenta de proveedor</a>
                 </div>
-            </div>
-        </section>
+
+                <div class="auth-showcase-footer">
+                    <div class="auth-mini-card">
+                        <strong>Cliente</strong>
+                        <small>Solicita asistencia, consulta estado y administra tu cuenta.</small>
+                    </div>
+                    <div class="auth-mini-card">
+                        <strong>Proveedor</strong>
+                        <small>Opera solicitudes, disponibilidad y atención desde un solo panel.</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="auth-card-wrap">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <p class="auth-eyebrow">Acceso seguro</p>
+                        <h2>Bienvenido a ZYGA</h2>
+                        <p class="auth-subcopy">
+                            Inicia sesión para continuar con tu flujo de cliente o proveedor.
+                        </p>
+                    </div>
+
+                    @if (session('success'))
+                        <div class="auth-alert auth-alert--success">{{ session('success') }}</div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="auth-alert auth-alert--error">
+                            {{ $errors->first() }}
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('login.post') }}" class="auth-form" novalidate>
+                        @csrf
+
+                        <label class="auth-field">
+                            <span>Correo electrónico</span>
+                            <input
+                                type="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                placeholder="cliente@zyga.com"
+                                autocomplete="email"
+                                required
+                            >
+                        </label>
+
+                        <label class="auth-field">
+                            <span>Contraseña</span>
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="********"
+                                autocomplete="current-password"
+                                required
+                            >
+                        </label>
+
+                        <button type="submit" class="auth-button">Ingresar</button>
+                    </form>
+
+                    <div class="auth-links">
+                        <a href="{{ route('register', ['role' => 'client']) }}">Crear cuenta de cliente</a>
+                        <a href="{{ route('register', ['role' => 'provider']) }}">Crear cuenta de proveedor</a>
+                    </div>
+
+                    <p class="auth-footer-note">
+                        Accede desde escritorio o móvil con una experiencia adaptada a ambos formatos.
+                    </p>
+                </div>
+            </section>
+        </div>
     </main>
+
     @include('partials.pwa-register')
 </body>
 </html>
