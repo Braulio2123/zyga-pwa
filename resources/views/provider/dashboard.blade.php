@@ -1,107 +1,218 @@
 @extends('provider.layouts.app')
 
-@section('title', 'ZYGA | Inicio del proveedor')
-@section('page-title', 'Panel operativo')
+@section('title', 'ZYGA | Dashboard provider')
+@section('page-title', 'Panel operativo del provider')
+@section('page-copy', 'Controla tu operación diaria con una vista más táctica y clara.')
 
 @section('content')
     @php($r = $context['readiness'])
     <section class="hero hero-split">
         <div>
-            <p class="eyebrow">Resumen del día</p>
-            <h2 style="margin:0 0 12px; font-size:2rem;">Tu operación en ZYGA</h2>
-            <p class="muted" style="margin:0; line-height:1.6;">Desde aquí puedes revisar si tu cuenta ya está lista para recibir servicios, ver oportunidades disponibles y dar seguimiento a los casos en curso.</p>
+            <p class="eyebrow">Operación real</p>
+            <h2 style="margin:0 0 12px; font-size:2rem;">Consola operativa del provider</h2>
+            <p class="muted" style="margin:0 0 16px; line-height:1.6;">
+                Gestiona tu perfil, disponibilidad y atención de servicios desde un solo panel.
+            </p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <span class="chip {{ $r['portal_ready'] ? 'success' : 'warning' }}">{{ $r['portal_ready'] ? 'Listo para operar' : 'Onboarding incompleto' }}</span>
+                <span class="chip {{ $r['backend_can_operate'] ? 'success' : 'info' }}">Operación: {{ $r['backend_can_operate'] ? 'habilitada' : 'pendiente' }}</span>
+                <span class="chip {{ $r['checks']['is_verified'] ? 'success' : 'warning' }}">{{ $r['verification_text'] }}</span>
+                <span class="chip {{ $r['checks']['status_active'] ? 'success' : 'warning' }}">Estado: {{ $r['status_name'] }}</span>
+            </div>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-                <span class="chip {{ $r['portal_ready'] ? 'success' : 'warning' }}">Portal {{ $r['portal_ready'] ? 'listo' : 'pendiente' }}</span>
-                <span class="chip {{ $r['backend_can_operate'] ? 'success' : 'warning' }}">Operación {{ $r['backend_can_operate'] ? 'habilitada' : 'restringida' }}</span>
-                <span class="chip {{ $r['status_tone'] ?? 'info' }}">{{ $r['status_name'] }}</span>
+                <a href="{{ route('provider.perfil') }}" class="btn">Ir a perfil</a>
+                <a href="{{ route('provider.asistencias') }}" class="btn-outline">Ir a asistencias</a>
             </div>
         </div>
+
         <div class="hero-panel">
-            <div class="summary"><span class="helper" style="color:rgba(255,255,255,.8)">Solicitudes disponibles</span><strong>{{ count($availableRequests) }}</strong></div>
-            <div class="summary"><span class="helper" style="color:rgba(255,255,255,.8)">Servicios activos</span><strong>{{ count($activeRequests) }}</strong></div>
-            <div class="summary"><span class="helper" style="color:rgba(255,255,255,.8)">Servicios cerrados</span><strong>{{ count($historicalRequests) }}</strong></div>
+            <div class="summary">
+                <span class="helper">Servicios activos</span>
+                <strong>{{ $r['services_count'] }}</strong>
+            </div>
+            <div class="summary">
+                <span class="helper">Horarios activos</span>
+                <strong>{{ $r['active_schedules_count'] }}</strong>
+            </div>
+            <div class="summary">
+                <span class="helper">Solicitudes disponibles</span>
+                <strong>{{ count($availableRequests) }}</strong>
+            </div>
+            <div class="summary">
+                <span class="helper">Solicitudes activas</span>
+                <strong>{{ count($activeRequests) }}</strong>
+            </div>
         </div>
     </section>
 
-    @if(!$context['hasProfile'])
+    <section class="kpi-grid">
+        <article class="kpi">
+            <div class="kpi-label">Perfil provider</div>
+            <div class="kpi-value">{{ $context['hasProfile'] ? 'OK' : 'NO' }}</div>
+            <div class="kpi-hint">Debe existir antes de cualquier operación.</div>
+        </article>
+        <article class="kpi">
+            <div class="kpi-label">Servicios</div>
+            <div class="kpi-value">{{ $r['services_count'] }}</div>
+            <div class="kpi-hint">Matching real con solicitudes disponibles.</div>
+        </article>
+        <article class="kpi">
+            <div class="kpi-label">Horarios activos</div>
+            <div class="kpi-value">{{ $r['active_schedules_count'] }}</div>
+            <div class="kpi-hint">Criterio UX para marcar listo al provider.</div>
+        </article>
+        <article class="kpi">
+            <div class="kpi-label">Historial cerrado</div>
+            <div class="kpi-value">{{ count($historicalRequests) }}</div>
+            <div class="kpi-hint">Solicitudes finalizadas o canceladas.</div>
+        </article>
+    </section>
+
+    @if(!$r['portal_ready'])
         <section class="lockbox">
-            <h3>Primero completa tu alta como proveedor</h3>
-            <p class="muted">Aún no tienes un perfil operativo. Crea tu perfil para comenzar a configurar servicios, horarios y documentos.</p>
-            <a href="{{ route('provider.perfil') }}" class="btn">Completar perfil</a>
-        </section>
-    @elseif(!$r['portal_ready'])
-        <section class="lockbox">
-            <h3>Tu cuenta todavía no está lista para recibir servicios</h3>
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Bloqueo operativo</p>
+                    <h3>Tu provider todavía no debe tomar solicitudes</h3>
+                </div>
+            </div>
             <div class="checklist">
                 @foreach($r['blockers'] as $blocker)
-                    <div class="check"><span>{{ $blocker }}</span><span class="chip warning">Pendiente</span></div>
+                    <div class="check">
+                        <span>{{ $blocker }}</span>
+                        <span class="chip warning">Pendiente</span>
+                    </div>
                 @endforeach
             </div>
+            <p class="helper" style="margin-top:14px;">{{ $r['documents_note'] }}</p>
         </section>
     @endif
 
-    <section class="kpi-grid">
-        <article class="kpi"><div class="kpi-label">Servicios activos</div><div class="kpi-value">{{ count($activeRequests) }}</div><div class="kpi-hint">Casos asignados o en proceso.</div></article>
-        <article class="kpi"><div class="kpi-label">Disponibles hoy</div><div class="kpi-value">{{ count($availableRequests) }}</div><div class="kpi-hint">Oportunidades compatibles con tu cuenta.</div></article>
-        <article class="kpi"><div class="kpi-label">Servicios configurados</div><div class="kpi-value">{{ $r['services_count'] }}</div><div class="kpi-hint">Debes tener al menos uno activo.</div></article>
-        <article class="kpi"><div class="kpi-label">Horarios activos</div><div class="kpi-value">{{ $r['active_schedules_count'] }}</div><div class="kpi-hint">Tu disponibilidad declarada en el portal.</div></article>
+    <section class="two-col">
+        <section class="card">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Pipeline operativo</p>
+                    <h3>Siguiente paso recomendado</h3>
+                </div>
+            </div>
+            <div class="stack">
+                @if(!$context['hasProfile'])
+                    <div class="item">
+                        <h4>1. Crear perfil de proveedor</h4>
+                        <p>Completa tu perfil para habilitar tu operación en el portal.</p>
+                        <div style="margin-top:12px;"><a class="btn" href="{{ route('provider.perfil') }}">Completar perfil</a></div>
+                    </div>
+                @elseif($r['services_count'] === 0)
+                    <div class="item">
+                        <h4>2. Asociar servicios</h4>
+                        <p>El matching de solicitudes disponibles depende del catálogo ligado al provider.</p>
+                        <div style="margin-top:12px;"><a class="btn" href="{{ route('provider.servicios') }}">Configurar servicios</a></div>
+                    </div>
+                @elseif($r['active_schedules_count'] === 0)
+                    <div class="item">
+                        <h4>3. Registrar horarios activos</h4>
+                        <p>El portal no te considera listo si todavía no declaras disponibilidad operativa.</p>
+                        <div style="margin-top:12px;"><a class="btn" href="{{ route('provider.horarios') }}">Configurar horarios</a></div>
+                    </div>
+                @elseif(!$r['checks']['is_verified'] || !$r['checks']['status_active'])
+                    <div class="item">
+                        <h4>4. Esperar habilitación administrativa</h4>
+                        <p>Tu cuenta debe cumplir validación y estado operativo para habilitar la atención de servicios.</p>
+                    </div>
+                @else
+                    <div class="item">
+                        <h4>Provider listo para operar</h4>
+                        <p>Ya puedes revisar solicitudes disponibles, aceptar una y avanzar por el flujo de estado permitido.</p>
+                        <div style="margin-top:12px;"><a class="btn" href="{{ route('provider.asistencias') }}">Ir a asistencias</a></div>
+                    </div>
+                @endif
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Resumen vivo</p>
+                    <h3>Estado de operación</h3>
+                </div>
+            </div>
+            <div class="meta-grid">
+                <div class="meta-box"><span>Perfil</span><strong>{{ $context['hasProfile'] ? 'Creado' : 'Sin crear' }}</strong></div>
+                <div class="meta-box"><span>Verificación</span><strong>{{ $r['verification_text'] }}</strong></div>
+                <div class="meta-box"><span>Estado actual</span><strong>{{ $r['status_name'] }}</strong></div>
+                <div class="meta-box"><span>Documentos</span><strong>{{ $r['documents_count'] }}</strong></div>
+            </div>
+        </section>
     </section>
 
     <section class="two-col">
         <section class="card">
-            <div class="section-head"><div><p class="eyebrow">Configuración</p><h3>Estado de tu cuenta</h3></div></div>
-            <div class="meta-grid">
-                <div class="meta-box"><span>Perfil</span><strong>{{ $context['hasProfile'] ? 'Registrado' : 'Pendiente' }}</strong></div>
-                <div class="meta-box"><span>Validación</span><strong>{{ $r['verification_text'] }}</strong></div>
-                <div class="meta-box"><span>Servicios</span><strong>{{ $r['services_count'] }}</strong></div>
-                <div class="meta-box"><span>Documentos</span><strong>{{ $r['documents_count'] }}</strong></div>
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Mercado</p>
+                    <h3>Solicitudes disponibles</h3>
+                </div>
+                <a href="{{ route('provider.asistencias') }}" class="btn-outline">Ver todas</a>
             </div>
-            <div class="inline-form">
-                <a href="{{ route('provider.perfil') }}" class="btn-outline">Perfil</a>
-                <a href="{{ route('provider.servicios') }}" class="btn-outline">Servicios</a>
-                <a href="{{ route('provider.horarios') }}" class="btn-outline">Horarios</a>
-                <a href="{{ route('provider.documentos') }}" class="btn-outline">Documentos</a>
-            </div>
-        </section>
 
-        <section class="card">
-            <div class="section-head"><div><p class="eyebrow">Bandeja rápida</p><h3>Solicitudes disponibles</h3></div></div>
             @if(!$r['backend_can_operate'])
-                <div class="empty"><h4>Aún no puedes aceptar servicios</h4><p>Completa tu configuración y espera validación administrativa para ver solicitudes compatibles.</p></div>
+                <div class="empty">
+                    <h4>Bandeja cerrada</h4>
+                    <p>Tu cuenta aún no cumple las condiciones necesarias para aceptar solicitudes.</p>
+                </div>
             @elseif(empty($availableRequests))
-                <div class="empty"><h4>No hay solicitudes disponibles por ahora</h4><p>Cuando exista una asistencia compatible con tus servicios, aparecerá aquí.</p></div>
+                <div class="empty">
+                    <h4>Sin solicitudes disponibles</h4>
+                    <p>No hay solicitudes compatibles con tus servicios en este momento.</p>
+                </div>
             @else
                 <div class="list">
-                    @foreach($availableRequests as $request)
+                    @foreach(array_slice($availableRequests, 0, 3) as $request)
                         <article class="item">
                             <div class="item-head">
-                                <div><h4>{{ $request['service_name'] }}</h4><p>{{ $request['pickup_address'] }}</p><small>{{ $request['public_id'] ?: 'Sin folio visible' }}</small></div>
-                                <span class="chip {{ $request['status_tone'] ?? 'info' }}">{{ $request['status_label'] ?? 'Nueva' }}</span>
+                                <div>
+                                    <h4>{{ $request['service_name'] }}</h4>
+                                    <p>{{ $request['pickup_address'] }}</p>
+                                </div>
+                                <span class="chip info">{{ $request['status'] }}</span>
                             </div>
-                            <div style="margin-top:12px;"><a href="{{ route('provider.asistencias.show', $request['id']) }}" class="btn">Ver detalle</a></div>
+                            <p style="margin-top:10px;">{{ $request['public_id'] ?: 'Sin folio público' }}</p>
                         </article>
                     @endforeach
                 </div>
             @endif
         </section>
-    </section>
 
-    <section class="card">
-        <div class="section-head"><div><p class="eyebrow">Seguimiento</p><h3>Servicios activos</h3></div></div>
-        @if(empty($activeRequests))
-            <div class="empty"><h4>No tienes servicios activos</h4><p>Cuando aceptes una asistencia y esta pase a asignada o en proceso, aparecerá aquí.</p></div>
-        @else
-            <div class="list">
-                @foreach($activeRequests as $request)
-                    <article class="item">
-                        <div class="item-head">
-                            <div><h4>{{ $request['service_name'] }}</h4><p>{{ $request['pickup_address'] }}</p></div>
-                            <span class="chip {{ $request['status_tone'] ?? 'info' }}">{{ $request['status_label'] }}</span>
-                        </div>
-                        <div style="margin-top:12px;"><a href="{{ route('provider.asistencias.show', $request['id']) }}" class="btn">Abrir servicio</a></div>
-                    </article>
-                @endforeach
+        <section class="card">
+            <div class="section-head">
+                <div>
+                    <p class="eyebrow">Seguimiento</p>
+                    <h3>Solicitudes activas</h3>
+                </div>
             </div>
-        @endif
+
+            @if(empty($activeRequests))
+                <div class="empty">
+                    <h4>No tienes solicitudes activas</h4>
+                    <p>Cuando aceptes una solicitud y quede asignada o en proceso, aparecerá aquí.</p>
+                </div>
+            @else
+                <div class="list">
+                    @foreach($activeRequests as $request)
+                        <article class="item">
+                            <div class="item-head">
+                                <div>
+                                    <h4>{{ $request['service_name'] }}</h4>
+                                    <p>{{ $request['pickup_address'] }}</p>
+                                </div>
+                                <span class="chip dark">{{ $request['status'] }}</span>
+                            </div>
+                            <div style="margin-top:12px;"><a href="{{ route('provider.asistencias.show', $request['id']) }}" class="btn">Abrir detalle</a></div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
+        </section>
     </section>
 @endsection
