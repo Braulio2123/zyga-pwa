@@ -1,9 +1,4 @@
 import './bootstrap';
-import { createApp } from 'vue'
-import App from './App.vue'
+import { registerSW } from 'virtual:pwa-register';
 
-// Crear app Vue
-const app = createApp(App)
-
-// Montar en el div #app
-app.mount('#app')
+registerSW({ immediate: true });
