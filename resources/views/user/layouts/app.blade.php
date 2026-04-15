@@ -9,6 +9,7 @@
     <title>{{ $pageTitle ?? 'ZYGA Cliente' }}</title>
 
     <link rel="stylesheet" href="{{ asset('css/user-client-portal.css') }}">
+    @stack('page_styles')
 
     <script>
         (function () {
@@ -329,6 +330,7 @@
     </script>
 
     <script src="{{ asset('js/user-client-portal.js') }}"></script>
+    @stack('page_scripts')
     @include('partials.pwa-register')
 </body>
 </html>
