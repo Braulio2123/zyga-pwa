@@ -1,6 +1,39 @@
 @extends('user.layouts.app')
 
 @section('content')
+@php
+    $initialProfile = is_array($accountProfile ?? null) ? $accountProfile : [];
+    $initialUser = is_array($initialProfile['user'] ?? null) ? $initialProfile['user'] : [];
+    $initialRoles = collect($initialProfile['roles'] ?? [])
+        ->map(fn ($role) => $role['name'] ?? $role['code'] ?? null)
+        ->filter()
+        ->implode(', ');
+
+    $initialVehicles = is_array($accountVehicles ?? null) ? $accountVehicles : [];
+
+    $resolveVehicleTypeName = function (array $vehicle): string {
+        return (string) (
+            data_get($vehicle, 'vehicle_type.name')
+            ?? data_get($vehicle, 'vehicleType.name')
+            ?? data_get($vehicle, 'vehicle_type_id')
+            ? 'Tipo #' . (data_get($vehicle, 'vehicle_type_id') ?? 'N/D')
+            : 'Sin tipo'
+        );
+    };
+
+    $vehicleLabel = function (array $vehicle): string {
+        $brand = trim((string) ($vehicle['brand'] ?? ''));
+        $model = trim((string) ($vehicle['model'] ?? ''));
+        $plate = trim((string) ($vehicle['plate'] ?? ''));
+
+        $base = trim($brand . ' ' . $model);
+
+        return $plate !== ''
+            ? trim($base . ' · ' . $plate)
+            : ($base !== '' ? $base : 'Vehículo sin datos');
+    };
+@endphp
+
 <section class="panel hero-panel hero-panel--compact">
     <div>
         <p class="hero-panel__eyebrow">Cuenta</p>
@@ -21,7 +54,20 @@
         <div class="helper-note">
             Aquí verás el correo y la información básica recuperada desde tu sesión y la API.
         </div>
-        <div id="accountProfileCard" class="stack-list"></div>
+
+        <div id="accountProfileCard" class="stack-list">
+            @if(!empty($initialUser))
+                <article class="profile-card">
+                    <h4 class="card-row__title">{{ $initialUser['email'] ?? 'Sin correo' }}</h4>
+                    <p class="card-row__meta">Roles: {{ $initialRoles !== '' ? $initialRoles : 'Cliente' }}</p>
+                    <p class="card-row__meta">ID de usuario: {{ $initialUser['id'] ?? 'N/D' }}</p>
+                </article>
+            @elseif(!empty($accountLoadError))
+                <article class="empty-state">{{ $accountLoadError }}</article>
+            @else
+                <article class="empty-state">No fue posible cargar el perfil del cliente.</article>
+            @endif
+        </div>
     </article>
 
     <article class="panel">
@@ -32,7 +78,24 @@
         <div class="helper-note">
             Mantén al menos un vehículo disponible para poder generar solicitudes sin bloquear el flujo.
         </div>
-        <div id="accountVehiclesList" class="stack-list"></div>
+
+        <div id="accountVehiclesList" class="stack-list">
+            @forelse($initialVehicles as $vehicle)
+                <article class="vehicle-card">
+                    <h4 class="vehicle-card__title">{{ $vehicleLabel($vehicle) }}</h4>
+                    <p class="card-row__meta">Tipo: {{ $resolveVehicleTypeName($vehicle) }}</p>
+                    <p class="card-row__meta">Año: {{ $vehicle['year'] ?? 'N/D' }}</p>
+                    <div class="actions-inline">
+                        <button type="button" class="button button--ghost" data-edit-vehicle="{{ $vehicle['id'] }}">Editar</button>
+                        <button type="button" class="button button--danger" data-delete-vehicle="{{ $vehicle['id'] }}">Eliminar</button>
+                    </div>
+                </article>
+            @empty
+                <article class="empty-state">
+                    {{ !empty($accountLoadError) ? $accountLoadError : 'Aún no registras vehículos.' }}
+                </article>
+            @endforelse
+        </div>
     </article>
 </section>
 
@@ -49,6 +112,7 @@
                     type="email"
                     id="accountEmailInput"
                     name="email"
+                    value="{{ $initialUser['email'] ?? '' }}"
                     placeholder="cliente@zyga.com"
                     required
                 >
