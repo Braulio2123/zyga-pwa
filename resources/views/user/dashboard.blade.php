@@ -301,9 +301,7 @@
             default => $status ?: 'En proceso',
         };
     };
-    <div class="actions-inline" style="margin-top: 16px;">
-    <a href="{{ route('user.notificaciones') }}" class="button button--ghost">Ver todas</a>
-</div>
+
     $notificationTypeLabel = function (mixed $value): string {
         $key = strtolower(trim((string) $value));
 
