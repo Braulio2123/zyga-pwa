@@ -98,4 +98,37 @@ class UserController extends BaseAdminController
             ? redirect()->route('admin.users.show', $id)->with('success', $response['message'])
             : back()->with('error', $response['message']);
     }
+
+    public function create(): View|RedirectResponse
+    {
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
+        }
+
+        return view('admin.users.create');
+    }
+
+    public function adminStore(Request $request): RedirectResponse
+    {
+        if ($redirect = $this->redirectIfNotAdmin()) {
+            return $redirect;
+        }
+
+        $request->validate([
+            'email' => ['required', 'email', 'max:255'],
+            'password' => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
+        ]);
+
+        $payload = [
+            'email' => strtolower(trim($request->email)),
+            'password' => $request->password,
+            'role' => 'admin',
+        ];
+
+        $response = $this->api('POST', '/api/v1/auth/register', $payload);
+
+        return $response['ok']
+            ? redirect()->route('admin.users.index')->with('success', $response['message'] ?: 'Administrador creado correctamente.')
+            : back()->withInput()->with('error', $response['message']);
+    }
 }

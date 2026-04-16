@@ -79,7 +79,7 @@ $resolvePortalRoute = function (): string {
             return $role;
         })
         ->filter()
-        ->map(fn ($role) => strtolower((string) $role))
+        ->map(fn($role) => strtolower((string) $role))
         ->values();
 
     $primaryRole = strtolower((string) data_get($sessionUser, 'role', ''));
@@ -216,21 +216,28 @@ Route::prefix('admin')
          * Gestión de usuarios
          * ---------------------------------------------------------------------
          */
+
         Route::prefix('users')->name('users.')->group(function () {
-            // Listado de usuarios
+            // Listado
             Route::get('/', [UserController::class, 'index'])->name('index');
 
-            // Detalle de un usuario
-            Route::get('/{id}', [UserController::class, 'show'])->name('show');
+            // Formulario crear admin
+            Route::get('/create', [UserController::class, 'create'])->name('create');
 
-            // Vista de edición de usuario
+            // Guardar admin
+            Route::post('/', [UserController::class, 'adminStore'])->name('store');
+
+            // Editar
             Route::get('/{id}/edit', [UserController::class, 'edit'])->name('edit');
 
-            // Actualizar correo de un usuario
+            // Actualizar correo
             Route::patch('/{id}/email', [UserController::class, 'updateEmail'])->name('update-email');
 
-            // Actualizar contraseña de un usuario
+            // Actualizar contraseña
             Route::patch('/{id}/password', [UserController::class, 'updatePassword'])->name('update-password');
+
+            // Detalle
+            Route::get('/{id}', [UserController::class, 'show'])->name('show');
         });
 
         /**
@@ -299,7 +306,7 @@ Route::prefix('admin')
             // Actualizar información de una solicitud
             Route::patch('/{id}', [AssistanceController::class, 'update'])->name('update');
         });
-        
+
         /**
          * ---------------------------------------------------------------------
          * Exportaciones administrativas

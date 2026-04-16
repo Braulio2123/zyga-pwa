@@ -135,6 +135,13 @@
 <div class="card mb-4">
     <div class="card-header">
         <h3 class="zyga-section-title">Filtros</h3>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="mb-0">Usuarios</h1>
+
+            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                <i class="fas fa-user-plus mr-1"></i> Nuevo administrador
+            </a>
+        </div>
     </div>
 
     <div class="card-body">
