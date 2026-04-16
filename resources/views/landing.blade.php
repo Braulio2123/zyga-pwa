@@ -791,11 +791,12 @@
             </div>
 
             <nav class="site-nav">
-                <a href="#beneficios">Beneficios</a>
-                <a href="#como-funciona">Cómo funciona</a>
-                <a href="#proveedores">Proveedores</a>
-                <a href="{{ route('login') }}" class="btn-outline">Iniciar sesión</a>
-            </nav>
+    <a href="#beneficios">Beneficios</a>
+    <a href="#como-funciona">Cómo funciona</a>
+    <a href="#proveedores">Proveedores</a>
+    <a href="https://gentle-speculoos-2485b8.netlify.app/" target="_blank" rel="noopener noreferrer">Juego ZYGA</a>
+    <a href="{{ route('login') }}" class="btn-outline">Iniciar sesión</a>
+</nav>
         </div>
     </header>
 
