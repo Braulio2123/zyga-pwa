@@ -96,6 +96,36 @@
     </div>
 
     <div class="row">
+        <div class="col-lg-7 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="zyga-section-title mb-0">Solicitudes por estado</h3>
+                    <span class="zyga-muted small">Gráfica de barras</span>
+                </div>
+                <div class="card-body">
+                    <div style="height: 320px;">
+                        <canvas id="requestsStatusBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="zyga-section-title mb-0">Salud operativa</h3>
+                    <span class="zyga-muted small">Gráfica de dona</span>
+                </div>
+                <div class="card-body">
+                    <div style="height: 320px;">
+                        <canvas id="operationsDoughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-lg-4 mb-4">
             <div class="card h-100">
                 <div class="card-header"><h3 class="zyga-section-title">Lectura operativa</h3></div>
@@ -128,6 +158,20 @@
                                 <div class="zyga-muted small">Catálogo disponible para solicitar</div>
                             </div>
                             <span class="badge badge-pill badge-soft-success">{{ $metrics['active_services'] }}</span>
+                        </div>
+                        <div class="zyga-stat-item">
+                            <div>
+                                <div class="font-weight-bold">Proveedores verificados</div>
+                                <div class="zyga-muted small">Disponibles para operar</div>
+                            </div>
+                            <span class="badge badge-pill badge-soft-success">{{ $metrics['verified_providers'] }}</span>
+                        </div>
+                        <div class="zyga-stat-item">
+                            <div>
+                                <div class="font-weight-bold">Usuarios registrados</div>
+                                <div class="zyga-muted small">Base total del sistema</div>
+                            </div>
+                            <span class="badge badge-pill badge-soft-dark">{{ $metrics['users'] }}</span>
                         </div>
                     </div>
                 </div>
@@ -247,4 +291,87 @@
             </div>
         </div>
     </div>
+@stop
+
+@section('js')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        (() => {
+            const statusBarLabels = @json($statusBarChart['labels']);
+            const statusBarValues = @json($statusBarChart['values']);
+            const doughnutLabels = @json($operationalDoughnut['labels']);
+            const doughnutValues = @json($operationalDoughnut['values']);
+
+            const css = getComputedStyle(document.documentElement);
+            const primary = (css.getPropertyValue('--primary') || '#0d6efd').trim();
+            const success = (css.getPropertyValue('--success') || '#198754').trim();
+            const warning = (css.getPropertyValue('--warning') || '#ffc107').trim();
+            const danger = (css.getPropertyValue('--danger') || '#dc3545').trim();
+            const info = (css.getPropertyValue('--info') || '#0dcaf0').trim();
+            const muted = '#6c757d';
+
+            const barCanvas = document.getElementById('requestsStatusBarChart');
+            if (barCanvas) {
+                new Chart(barCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: statusBarLabels,
+                        datasets: [{
+                            label: 'Solicitudes',
+                            data: statusBarValues,
+                            backgroundColor: [warning, info, primary, success, danger],
+                            borderRadius: 8,
+                            maxBarThickness: 56
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const doughnutCanvas = document.getElementById('operationsDoughnutChart');
+            if (doughnutCanvas) {
+                new Chart(doughnutCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: doughnutLabels,
+                        datasets: [{
+                            data: doughnutValues,
+                            backgroundColor: [primary, success, danger],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '68%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    usePointStyle: true
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        })();
+    </script>
 @stop

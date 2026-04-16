@@ -62,6 +62,36 @@ class DashboardController extends BaseAdminController
 
         arsort($statusBreakdown);
 
+        $operationalDoughnut = [
+            'labels' => [
+                'Solicitudes activas',
+                'Completadas',
+                'Canceladas',
+            ],
+            'values' => [
+                count($queueRequests) + count($assignedRequests) + count($inProgressRequests),
+                count($completedRequests),
+                count($cancelledRequests),
+            ],
+        ];
+
+        $statusBarChart = [
+            'labels' => [
+                'En cola',
+                'Asignadas',
+                'En progreso',
+                'Completadas',
+                'Canceladas',
+            ],
+            'values' => [
+                count($queueRequests),
+                count($assignedRequests),
+                count($inProgressRequests),
+                count($completedRequests),
+                count($cancelledRequests),
+            ],
+        ];
+
         return view('admin.dashboard', [
             'metrics' => [
                 'users' => count($users),
@@ -81,6 +111,8 @@ class DashboardController extends BaseAdminController
             'recentRequests' => array_slice($requests, 0, 6),
             'recentPayments' => array_slice($payments, 0, 6),
             'apiErrors' => $apiErrors,
+            'statusBarChart' => $statusBarChart,
+            'operationalDoughnut' => $operationalDoughnut,
         ]);
     }
 }

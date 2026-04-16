@@ -39,6 +39,23 @@ class ReportController extends BaseAdminController
         }
         arsort($methodCounts);
 
+        $globalSummaryChart = [
+            'labels' => [
+                'Usuarios',
+                'Providers',
+                'Solicitudes',
+                'Pagos',
+                'Eventos de auditoría',
+            ],
+            'values' => [
+                count($users),
+                count($providers),
+                count($requests),
+                count($payments),
+                count($audits),
+            ],
+        ];
+
         return view('admin.reportes.index', [
             'summary' => [
                 'total_users' => count($users),
@@ -58,6 +75,14 @@ class ReportController extends BaseAdminController
                 !$paymentsResponse['ok'] ? 'Pagos: ' . $paymentsResponse['message'] : null,
                 !$auditResponse['ok'] ? 'Auditoría: ' . $auditResponse['message'] : null,
             ])),
+            'charts' => [
+                'statusLabels' => array_map(fn ($status) => ucfirst(str_replace('_', ' ', $status)), array_keys($statusCounts)),
+                'statusValues' => array_values($statusCounts),
+                'methodLabels' => array_map(fn ($method) => ucfirst(str_replace('_', ' ', $method)), array_keys($methodCounts)),
+                'methodValues' => array_values($methodCounts),
+                'globalSummaryLabels' => $globalSummaryChart['labels'],
+                'globalSummaryValues' => $globalSummaryChart['values'],
+            ],
         ]);
     }
 }
