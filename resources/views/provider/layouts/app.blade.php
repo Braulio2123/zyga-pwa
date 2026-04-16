@@ -3,393 +3,433 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>@yield('title', 'ZYGA Provider')</title>
-    <style>
-        :root {
-            --bg: #f5f4f1;
-            --shell: #ffffff;
-            --shell-soft: #f7f8fb;
-            --text: #101828;
-            --muted: #667085;
-            --line: #e5e7eb;
-            --brand: #ff8a00;
-            --brand-strong: #f97316;
-            --navy: #0c275d;
-            --navy-soft: #173b8a;
-            --navy-panel: #eaf0ff;
-            --success-bg: #e8f8ee;
-            --success-text: #0f8a51;
-            --warning-bg: #fff3df;
-            --warning-text: #c26b00;
-            --danger-bg: #fef0f0;
-            --danger-text: #b42318;
-            --shadow-lg: 0 22px 44px rgba(15, 23, 42, 0.10);
-            --shadow-sm: 0 10px 20px rgba(15, 23, 42, 0.05);
-            --radius-xl: 30px;
-            --radius-lg: 24px;
-            --radius-md: 18px;
-        }
-        * { box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(255, 138, 0, 0.16), transparent 18%),
-                radial-gradient(circle at right top, rgba(23, 59, 138, 0.18), transparent 24%),
-                linear-gradient(180deg, #f4f1eb 0%, #f7f7fb 100%);
-        }
-        a { color: inherit; text-decoration: none; }
-        button { font: inherit; }
-        .shell { max-width: 1320px; margin: 0 auto; padding: 24px 20px 104px; }
-        .topbar {
-            display: flex;
-            justify-content: space-between;
-            gap: 18px;
-            padding: 22px 24px;
-            border-radius: 30px;
-            background: linear-gradient(135deg, #0b1f46 0%, #0d2f72 100%);
-            color: #fff;
-            box-shadow: 0 20px 38px rgba(12, 39, 93, 0.22);
-            border: 1px solid rgba(255,255,255,.08);
-            margin-bottom: 22px;
-        }
-        .topbar-left { min-width: 0; }
-        .eyebrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0 0 10px;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: rgba(255,255,255,.10);
-            color: #dbe6ff;
-            font-size: .86rem;
-            font-weight: 800;
-            letter-spacing: .02em;
-        }
-        .page-title {
-            margin: 0;
-            font-size: clamp(1.9rem, 3vw, 2.4rem);
-            line-height: 1.05;
-            letter-spacing: -.03em;
-        }
-        .topbar-copy {
-            margin: 10px 0 0;
-            max-width: 760px;
-            color: rgba(255,255,255,.80);
-            font-size: 1rem;
-            line-height: 1.45;
-        }
-        .topbar-right {
-            display: grid;
-            grid-template-columns: auto auto;
-            gap: 16px;
-            align-items: start;
-        }
-        .topbar-actions {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            gap: 10px;
-            align-content: start;
-        }
-        .pill-link, .logout-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 44px;
-            padding: 10px 16px;
-            border-radius: 999px;
-            font-weight: 800;
-            font-size: .96rem;
-            border: 0;
-            cursor: pointer;
-        }
-        .pill-link.primary { background: linear-gradient(135deg, var(--brand), var(--brand-strong)); color: #fff; box-shadow: 0 12px 24px rgba(255,138,0,.26); }
-        .pill-link.secondary { background: rgba(255,255,255,.12); color: #fff; }
-        .logout-btn { background: rgba(255,255,255,.95); color: var(--navy); box-shadow: var(--shadow-sm); }
-        .user-box {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-left: 6px;
-        }
-        .user-meta { text-align: right; }
-        .user-meta strong { display: block; font-size: 1rem; }
-        .user-meta small { display: block; margin-top: 2px; color: rgba(255,255,255,.74); }
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            background: linear-gradient(135deg, #ffb14b, #ff7c5c);
-            color: #fff;
-            font-weight: 900;
-            font-size: 1.1rem;
-            box-shadow: 0 14px 30px rgba(255,138,0,.28);
-        }
-        .grid { display: grid; gap: 18px; }
-        .hero, .card, .lockbox, .kpi {
-            background: rgba(255,255,255,.96);
-            border: 1px solid rgba(229,231,235,.95);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg);
-        }
-        .hero, .card, .lockbox { padding: 24px; }
-        .hero {
-            background:
-                radial-gradient(circle at right top, rgba(255, 138, 0, 0.12), transparent 24%),
-                linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%);
-        }
-        .hero-split, .two-col, .three-col, .kpi-grid, .meta-grid, .form-grid {
-            display: grid;
-            gap: 16px;
-        }
-        .hero-split { grid-template-columns: 1.28fr .88fr; }
-        .two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .kpi-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-        .hero-panel {
-            display: grid;
-            gap: 12px;
-            padding: 18px;
-            border-radius: 26px;
-            background: linear-gradient(180deg, #0f2e6f 0%, #173b8a 100%);
-            color: #fff;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
-        }
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 9px 13px;
-            border-radius: 999px;
-            font-size: .88rem;
-            font-weight: 800;
-            background: #eef2ff;
-            color: var(--navy-soft);
-            border: 1px solid #dbe6ff;
-        }
-        .chip.success { background: var(--success-bg); color: var(--success-text); border-color: #c7efd7; }
-        .chip.warning { background: var(--warning-bg); color: var(--warning-text); border-color: #ffd79a; }
-        .chip.info { background: #eef4ff; color: var(--navy-soft); border-color: #d4e2ff; }
-        .btn, .btn-outline, .btn-ghost {
-            border: 0;
-            cursor: pointer;
-            border-radius: 16px;
-            padding: 13px 17px;
-            font-size: .96rem;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
-        }
-        .btn { background: linear-gradient(135deg, var(--brand), var(--brand-strong)); color: #fff; box-shadow: 0 14px 28px rgba(255,138,0,.22); }
-        .btn-outline { background: #f8fafc; color: var(--navy); border: 1px solid #d4dce8; }
-        .btn-ghost { background: transparent; color: var(--navy-soft); border: 1px dashed #cfd8e3; }
-        .btn:hover, .btn-outline:hover, .btn-ghost:hover, .pill-link:hover, .logout-btn:hover { transform: translateY(-1px); }
-        .full { width: 100%; }
-        .section-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-        .section-head h3, .card h3 { margin: 0; }
-        .muted, .helper { color: var(--muted); }
-        .list, .stack, .timeline { display: grid; gap: 12px; }
-        .item {
-            padding: 16px 18px;
-            border-radius: 22px;
-            border: 1px solid #e7ebf3;
-            background: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
-            box-shadow: var(--shadow-sm);
-        }
-        .item-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 14px;
-        }
-        .item h4 { margin: 0 0 6px; }
-        .item p, .item small { margin: 0; color: var(--muted); }
-        .empty {
-            padding: 22px;
-            border-radius: 22px;
-            border: 1px dashed #d6dee9;
-            background: linear-gradient(180deg, #fbfbfc 0%, #f6f8fb 100%);
-        }
-        .empty h4 { margin: 0 0 8px; }
-        .alert {
-            border-radius: 18px;
-            padding: 14px 16px;
-            border: 1px solid transparent;
-            box-shadow: var(--shadow-sm);
-        }
-        .alert.success { background: var(--success-bg); color: var(--success-text); border-color: #c7efd7; }
-        .alert.danger { background: var(--danger-bg); color: var(--danger-text); border-color: #f7c7c5; }
-        .alert.warning { background: var(--warning-bg); color: var(--warning-text); border-color: #ffd79a; }
-        .summary {
-            padding: 18px;
-            border-radius: 22px;
-            background: rgba(255,255,255,.12);
-            border: 1px solid rgba(255,255,255,.10);
-        }
-        .summary .helper { color: rgba(255,255,255,.72); }
-        .summary strong { display: block; margin-top: 8px; font-size: 1.78rem; color: #fff; letter-spacing: -.03em; }
-        .meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .meta-box {
-            padding: 15px;
-            border-radius: 18px;
-            border: 1px solid #e5eaf2;
-            background: var(--shell-soft);
-        }
-        .meta-box span { display: block; margin-bottom: 6px; font-size: .84rem; color: var(--muted); }
-        .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .field { display: grid; gap: 8px; }
-        .field.full { grid-column: 1 / -1; }
-        .label { font-size: .92rem; font-weight: 700; color: #344054; }
-        input, select {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 15px;
-            border: 1px solid #d6dde8;
-            background: #fff;
-            color: var(--text);
-            font-size: .95rem;
-            outline: none;
-        }
-        input:focus, select:focus { border-color: #b6c6eb; box-shadow: 0 0 0 4px rgba(23,59,138,.08); }
-        .inline-form { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-        .lockbox {
-            background: linear-gradient(180deg, #fff7ec 0%, #fffdf8 100%);
-            border-color: #ffe1b2;
-        }
-        .checklist { display: grid; gap: 10px; }
-        .check {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 13px 15px;
-            border-radius: 18px;
-            background: #fff;
-            border: 1px solid #f4d7a6;
-        }
-        .timeline-entry {
-            padding: 13px 15px;
-            border-left: 4px solid #c7d7ff;
-            border-radius: 16px;
-            background: var(--shell-soft);
-        }
-        .bottom-nav {
-            position: fixed;
-            left: 50%;
-            bottom: 14px;
-            transform: translateX(-50%);
-            width: min(820px, calc(100% - 28px));
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            padding: 9px;
-            border-radius: 22px;
-            background: rgba(17, 28, 45, 0.82);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255,255,255,.10);
-            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.20);
-            z-index: 40;
-        }
-        .bottom-nav a {
-            text-align: center;
-            padding: 11px 8px;
-            border-radius: 15px;
-            color: rgba(255,255,255,.76);
-            font-size: .88rem;
-            font-weight: 800;
-        }
-        .bottom-nav a.active { background: linear-gradient(135deg, rgba(255,138,0,.28), rgba(23,59,138,.78)); color: #fff; }
-        @media (max-width: 960px) {
-            .hero-split, .two-col, .three-col, .kpi-grid, .meta-grid, .form-grid { grid-template-columns: 1fr; }
-            .topbar { padding: 20px; }
-            .topbar-right { grid-template-columns: 1fr; width: 100%; }
-            .topbar-actions { justify-content: flex-start; }
-            .user-box { justify-content: space-between; padding-left: 0; }
-            .user-meta { text-align: left; }
-            .bottom-nav { grid-template-columns: repeat(3, 1fr); }
-        }
-    </style>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.pwa-meta')
+
+    <title>@yield('title', 'ZYGA | Proveedor')</title>
+
+    <link rel="stylesheet" href="{{ asset('css/provider-portal.css') }}">
     @stack('page_styles')
+
+    <script>
+        (function () {
+            try {
+                if (window.innerWidth >= 1024) {
+                    if (localStorage.getItem('zyga-provider-sidebar') === 'collapsed') {
+                        document.documentElement.classList.add('provider-sidebar-collapsed');
+                    }
+
+                    if (localStorage.getItem('zyga-provider-top-actions') === 'collapsed') {
+                        document.documentElement.classList.add('provider-top-actions-collapsed');
+                    }
+                }
+            } catch (e) {}
+        })();
+    </script>
 </head>
-<body>
+<body class="provider-body" data-page="@yield('page-key', 'dashboard')">
     @php
-        $sessionUser = session('user', []);
-        $displayName = $sessionUser['name'] ?? $sessionUser['email'] ?? 'Provider';
-        $displayEmail = $sessionUser['email'] ?? 'Sin correo';
-        $initial = strtoupper(substr($displayName, 0, 1));
+        $resolvedUser = is_array(session('user')) ? session('user') : [];
+
+        $rawName = trim((string) ($resolvedUser['name'] ?? ''));
+        $userEmail = trim((string) ($resolvedUser['email'] ?? 'proveedor@zyga.com'));
+
+        $displayName = $rawName !== '' && strtolower($rawName) !== strtolower($userEmail)
+            ? $rawName
+            : 'Proveedor';
+
+        $firstNameParts = preg_split('/\s+/', trim($displayName));
+        $userFirstName = $firstNameParts[0] ?? 'Proveedor';
+
+        $avatarBase = $rawName !== '' ? $rawName : ($userEmail !== '' ? $userEmail : 'P');
+        $avatar = strtoupper(substr(trim($avatarBase), 0, 1));
+
+        $currentPage = trim($__env->yieldContent('page-key')) !== '' ? trim($__env->yieldContent('page-key')) : 'dashboard';
+
+        if ($currentPage === 'dashboard' && request()->routeIs('provider.perfil*')) {
+            $currentPage = 'perfil';
+        } elseif ($currentPage === 'dashboard' && request()->routeIs('provider.servicios*')) {
+            $currentPage = 'servicios';
+        } elseif ($currentPage === 'dashboard' && request()->routeIs('provider.horarios*')) {
+            $currentPage = 'horarios';
+        } elseif ($currentPage === 'dashboard' && request()->routeIs('provider.documentos*')) {
+            $currentPage = 'documentos';
+        } elseif ($currentPage === 'dashboard' && request()->routeIs('provider.asistencias*')) {
+            $currentPage = 'asistencias';
+        }
+
+        $navItems = [
+            [
+                'key' => 'dashboard',
+                'route' => route('provider.dashboard'),
+                'label' => 'Inicio',
+                'icon' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.8 12 3l9 7.8v9.2a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1v-9.2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+            ],
+            [
+                'key' => 'perfil',
+                'route' => route('provider.perfil'),
+                'label' => 'Perfil',
+                'icon' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 20a7 7 0 1 0-14 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+            ],
+            [
+                'key' => 'servicios',
+                'route' => route('provider.servicios'),
+                'label' => 'Servicios',
+                'icon' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+            ],
+            [
+                'key' => 'horarios',
+                'route' => route('provider.horarios'),
+                'label' => 'Horarios',
+                'icon' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3v3M16 3v3M4 9h16M6 6h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+            ],
+            [
+                'key' => 'documentos',
+                'route' => route('provider.documentos'),
+                'label' => 'Documentos',
+                'icon' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm7 0v5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+            ],
+            [
+                'key' => 'asistencias',
+                'route' => route('provider.asistencias'),
+                'label' => 'Atención',
+                'icon' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-4.35-8.5-8.36C1.85 9.32 3.87 5.5 8.02 5.5c1.7 0 3.07.78 3.98 2.07.91-1.29 2.28-2.07 3.98-2.07 4.15 0 6.17 3.82 4.52 7.14C18.5 16.65 12 21 12 21Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+            ],
+        ];
     @endphp
 
-    <div class="shell">
-        <header class="topbar">
-            <div class="topbar-left">
-                <p class="eyebrow">ZYGA PROVIDER HUB</p>
-                <h1 class="page-title">@yield('page-title', 'Centro operativo del provider')</h1>
-                <p class="topbar-copy">@yield('page-copy', 'Gestiona disponibilidad, servicios y atención con una consola enfocada en respuesta y ejecución.') </p>
-            </div>
+    <div class="provider-shell">
+        <aside class="provider-nav desktop-only" aria-label="Navegación principal del proveedor">
+            <div class="provider-nav__brand">
+                <div class="provider-nav__brand-head">
+                    <div class="provider-nav__brand-mark">ZY</div>
 
-            <div class="topbar-right">
-                <div class="topbar-actions">
-                    <a href="{{ route('provider.asistencias') }}" class="pill-link primary">Asistencias</a>
-                    <a href="{{ route('provider.dashboard') }}" class="pill-link secondary">Resumen</a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="logout-btn">Cerrar sesión</button>
-                    </form>
-                </div>
-
-                <div class="user-box">
-                    <div class="user-meta">
-                        <strong>{{ $displayName }}</strong>
-                        <small>{{ $displayEmail }}</small>
+                    <div class="provider-nav__brand-copy">
+                        <strong class="provider-nav__brand-title">Centro del proveedor</strong>
+                        <p class="provider-nav__brand-text">
+                            Organiza tu cuenta, tu disponibilidad y tu atención desde un solo lugar.
+                        </p>
                     </div>
-                    <div class="avatar">{{ $initial ?: 'P' }}</div>
                 </div>
             </div>
-        </header>
 
-        <main class="grid">
-            @if(session('success'))
-                <div class="alert success">{{ session('success') }}</div>
-            @endif
+            <div class="provider-nav__items">
+                @foreach($navItems as $item)
+                    <a
+                        href="{{ $item['route'] }}"
+                        class="provider-nav__item {{ $currentPage === $item['key'] ? 'is-active' : '' }}"
+                        aria-current="{{ $currentPage === $item['key'] ? 'page' : 'false' }}"
+                        title="{{ $item['label'] }}"
+                    >
+                        <span class="provider-nav__icon">{!! $item['icon'] !!}</span>
+                        <span class="provider-nav__label">{{ $item['label'] }}</span>
+                    </a>
+                @endforeach
+            </div>
 
-            @if(session('error'))
-                <div class="alert danger">{{ session('error') }}</div>
-            @endif
+            <div class="provider-nav__footer">
+                <a href="{{ route('provider.asistencias') }}" class="provider-nav__footer-link">
+                    Ver solicitudes
+                </a>
 
-            @if($errors->any())
-                <div class="alert danger">{{ $errors->first() }}</div>
-            @endif
+                <button
+                    type="button"
+                    class="provider-nav__footer-link provider-nav__logout"
+                    onclick="event.preventDefault(); document.getElementById('providerLogoutForm').submit();"
+                >
+                    Cerrar sesión
+                </button>
+            </div>
+        </aside>
 
-            @yield('content')
-        </main>
+        <div class="provider-app">
+            @include('provider.partials.bottom-nav')
+
+            <header class="provider-topbar">
+                <div class="provider-topbar__surface">
+                    <div class="provider-topbar__identity">
+                        <div class="provider-brand-mark">ZY</div>
+
+                        <div class="provider-topbar__copy">
+                            <p class="provider-topbar__eyebrow">Portal del proveedor</p>
+                            <h1>@yield('page-title', 'Portal del proveedor')</h1>
+                            <p class="provider-topbar__meta">Hola, {{ $userFirstName }}</p>
+                            <p class="provider-topbar__submeta">{{ $userEmail }}</p>
+                        </div>
+                    </div>
+
+                    <div class="provider-topbar__tools">
+                        <button
+                            type="button"
+                            id="providerTopActionsToggleButton"
+                            class="top-actions-toggle desktop-only"
+                            aria-pressed="false"
+                            title="Ocultar accesos rápidos"
+                        >
+                            <span class="top-actions-toggle__icon">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M5 7h14M5 12h14M5 17h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <button
+                            type="button"
+                            id="providerSidebarToggleButton"
+                            class="sidebar-toggle desktop-only"
+                            aria-pressed="false"
+                            title="Contraer menú lateral"
+                        >
+                            <span class="sidebar-toggle__icon sidebar-toggle__icon--open">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                                </svg>
+                            </span>
+
+                            <span class="sidebar-toggle__icon sidebar-toggle__icon--close">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </span>
+                        </button>
+
+                        <div class="avatar-circle" title="{{ $displayName }}">{{ $avatar }}</div>
+                    </div>
+                </div>
+
+                <details class="provider-quick-menu mobile-only">
+                    <summary class="provider-quick-menu__summary">
+                        <span>Accesos rápidos</span>
+                        <span class="provider-quick-menu__chevron">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    </summary>
+
+                    <div class="provider-quick-menu__content">
+                        @if ($currentPage !== 'asistencias')
+                            <a href="{{ route('provider.asistencias') }}" class="button button--primary button--compact">
+                                Ver solicitudes
+                            </a>
+                        @endif
+
+                        @if ($currentPage !== 'perfil')
+                            <a href="{{ route('provider.perfil') }}" class="button button--secondary button--compact">
+                                Mi perfil
+                            </a>
+                        @endif
+
+                        @if ($currentPage !== 'horarios')
+                            <a href="{{ route('provider.horarios') }}" class="button button--ghost button--compact">
+                                Mis horarios
+                            </a>
+                        @endif
+
+                        <button
+                            type="button"
+                            class="button button--ghost button--compact"
+                            onclick="event.preventDefault(); document.getElementById('providerLogoutForm').submit();"
+                        >
+                            Cerrar sesión
+                        </button>
+                    </div>
+                </details>
+
+                <div class="provider-topbar__actions desktop-only" id="providerTopbarActions">
+                    @if ($currentPage !== 'asistencias')
+                        <a href="{{ route('provider.asistencias') }}" class="button button--primary button--compact">
+                            Ver solicitudes
+                        </a>
+                    @endif
+
+                    @if ($currentPage !== 'perfil')
+                        <a href="{{ route('provider.perfil') }}" class="button button--secondary button--compact">
+                            Mi perfil
+                        </a>
+                    @endif
+
+                    @if ($currentPage !== 'horarios')
+                        <a href="{{ route('provider.horarios') }}" class="button button--ghost button--compact">
+                            Mis horarios
+                        </a>
+                    @endif
+
+                    <button
+                        type="button"
+                        class="button button--ghost button--compact"
+                        onclick="event.preventDefault(); document.getElementById('providerLogoutForm').submit();"
+                    >
+                        Cerrar sesión
+                    </button>
+                </div>
+            </header>
+
+            <main class="provider-main">
+                @if (session('success'))
+                    <div class="flash flash--success">{{ session('success') }}</div>
+                @endif
+
+                @if (session('error'))
+                    <div class="flash flash--error">{{ session('error') }}</div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="flash flash--error">{{ $errors->first() }}</div>
+                @endif
+
+                @yield('content')
+            </main>
+        </div>
     </div>
 
-    @include('provider.partials.bottom-nav')
+    <form id="providerLogoutForm" action="{{ route('logout') }}" method="POST" class="d-none">
+        @csrf
+    </form>
+
+    <div class="toast" id="providerAppToast" aria-live="polite" aria-atomic="true"></div>
+
     <script>
         window.ZYGA_PROVIDER_APP = {
-            page: @json(trim($__env->yieldContent('page-key')) !== '' ? $__env->yieldContent('page-key') : 'dashboard'),
+            page: @json($currentPage),
             apiBaseUrl: @json(rtrim((string) env('URL_BASE_API', 'http://127.0.0.1:8000'), '/')),
             token: @json(session('api_token', '')),
             csrfToken: @json(csrf_token()),
-            sessionUser: @json($sessionUser),
+            sessionUser: @json($resolvedUser),
+            routes: {
+                dashboard: @json(route('provider.dashboard')),
+                perfil: @json(route('provider.perfil')),
+                servicios: @json(route('provider.servicios')),
+                horarios: @json(route('provider.horarios')),
+                documentos: @json(route('provider.documentos')),
+                asistencias: @json(route('provider.asistencias')),
+                logout: @json(route('logout')),
+            },
         };
     </script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const html = document.documentElement;
+            const body = document.body;
+
+            const sidebarButton = document.getElementById('providerSidebarToggleButton');
+            const topActionsButton = document.getElementById('providerTopActionsToggleButton');
+
+            const syncInitialDesktopState = () => {
+                if (html.classList.contains('provider-sidebar-collapsed')) {
+                    body.classList.add('provider-sidebar-collapsed');
+                } else {
+                    body.classList.remove('provider-sidebar-collapsed');
+                }
+
+                if (html.classList.contains('provider-top-actions-collapsed')) {
+                    body.classList.add('provider-top-actions-collapsed');
+                } else {
+                    body.classList.remove('provider-top-actions-collapsed');
+                }
+            };
+
+            const syncSidebarButton = () => {
+                if (!sidebarButton) return;
+
+                const collapsed = body.classList.contains('provider-sidebar-collapsed');
+
+                sidebarButton.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+                sidebarButton.setAttribute('title', collapsed ? 'Expandir menú lateral' : 'Contraer menú lateral');
+            };
+
+            const syncTopActionsButton = () => {
+                if (!topActionsButton) return;
+
+                const collapsed = body.classList.contains('provider-top-actions-collapsed');
+
+                topActionsButton.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+                topActionsButton.setAttribute('title', collapsed ? 'Mostrar accesos rápidos' : 'Ocultar accesos rápidos');
+            };
+
+            const applyDesktopStateFromStorage = () => {
+                if (window.innerWidth < 1024) {
+                    body.classList.remove('provider-sidebar-collapsed');
+                    body.classList.remove('provider-top-actions-collapsed');
+                    html.classList.remove('provider-sidebar-collapsed');
+                    html.classList.remove('provider-top-actions-collapsed');
+                    syncSidebarButton();
+                    syncTopActionsButton();
+                    return;
+                }
+
+                try {
+                    const sidebarState = localStorage.getItem('zyga-provider-sidebar');
+                    const topActionsState = localStorage.getItem('zyga-provider-top-actions');
+
+                    if (sidebarState === 'collapsed') {
+                        body.classList.add('provider-sidebar-collapsed');
+                        html.classList.add('provider-sidebar-collapsed');
+                    } else {
+                        body.classList.remove('provider-sidebar-collapsed');
+                        html.classList.remove('provider-sidebar-collapsed');
+                    }
+
+                    if (topActionsState === 'collapsed') {
+                        body.classList.add('provider-top-actions-collapsed');
+                        html.classList.add('provider-top-actions-collapsed');
+                    } else {
+                        body.classList.remove('provider-top-actions-collapsed');
+                        html.classList.remove('provider-top-actions-collapsed');
+                    }
+                } catch (e) {}
+
+                syncSidebarButton();
+                syncTopActionsButton();
+            };
+
+            syncInitialDesktopState();
+            syncSidebarButton();
+            syncTopActionsButton();
+
+            if (sidebarButton) {
+                sidebarButton.addEventListener('click', function () {
+                    if (window.innerWidth < 1024) return;
+
+                    body.classList.toggle('provider-sidebar-collapsed');
+                    html.classList.toggle('provider-sidebar-collapsed');
+
+                    try {
+                        localStorage.setItem(
+                            'zyga-provider-sidebar',
+                            body.classList.contains('provider-sidebar-collapsed') ? 'collapsed' : 'expanded'
+                        );
+                    } catch (e) {}
+
+                    syncSidebarButton();
+                });
+            }
+
+            if (topActionsButton) {
+                topActionsButton.addEventListener('click', function () {
+                    if (window.innerWidth < 1024) return;
+
+                    body.classList.toggle('provider-top-actions-collapsed');
+                    html.classList.toggle('provider-top-actions-collapsed');
+
+                    try {
+                        localStorage.setItem(
+                            'zyga-provider-top-actions',
+                            body.classList.contains('provider-top-actions-collapsed') ? 'collapsed' : 'expanded'
+                        );
+                    } catch (e) {}
+
+                    syncTopActionsButton();
+                });
+            }
+
+            applyDesktopStateFromStorage();
+            window.addEventListener('resize', applyDesktopStateFromStorage);
+        });
+    </script>
+
     @stack('page_scripts')
+    @include('partials.pwa-register')
 </body>
 </html>

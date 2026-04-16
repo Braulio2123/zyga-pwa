@@ -1,5 +1,220 @@
 @extends('user.layouts.app')
 
+@push('page_styles')
+<style>
+    .account-hero {
+        display: grid;
+        gap: 14px;
+    }
+
+    .account-hero__copy {
+        display: grid;
+        gap: 6px;
+    }
+
+    .account-hero__copy h2 {
+        margin: 0;
+        color: #0f172a;
+        line-height: 1.08;
+        font-size: clamp(1.35rem, 2vw, 1.9rem);
+    }
+
+    .account-hero__copy p {
+        margin: 0;
+        color: #475569;
+        line-height: 1.55;
+        font-size: 0.95rem;
+    }
+
+    .account-ready-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .account-ready-card {
+        padding: 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: #ffffff;
+        display: grid;
+        gap: 6px;
+    }
+
+    .account-ready-card.is-ready {
+        border-color: rgba(22, 163, 74, 0.18);
+        background: rgba(22, 163, 74, 0.05);
+    }
+
+    .account-ready-card span {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .account-ready-card strong {
+        color: #0f172a;
+        line-height: 1.45;
+        font-size: 1rem;
+    }
+
+    .account-profile-card {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 24px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background:
+            radial-gradient(circle at top right, rgba(249, 115, 22, 0.10), transparent 38%),
+            radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.10), transparent 45%),
+            #ffffff;
+    }
+
+    .account-profile-card__top {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+
+    .account-profile-card__avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: #fff;
+        background: linear-gradient(135deg, #f97316, #ea580c);
+        box-shadow: 0 12px 26px rgba(249, 115, 22, 0.22);
+        flex: 0 0 auto;
+    }
+
+    .account-profile-card__copy {
+        min-width: 0;
+        display: grid;
+        gap: 4px;
+    }
+
+    .account-profile-card__copy h3 {
+        margin: 0;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    .account-profile-card__copy p {
+        margin: 0;
+        color: #64748b;
+        line-height: 1.45;
+        word-break: break-word;
+    }
+
+    .account-profile-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .account-profile-item {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: #f8fafc;
+        display: grid;
+        gap: 6px;
+    }
+
+    .account-profile-item span {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .account-profile-item strong {
+        color: #0f172a;
+        line-height: 1.45;
+        word-break: break-word;
+    }
+
+    .account-vehicles-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .account-vehicles-grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .account-vehicle-card {
+        padding: 16px;
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: #ffffff;
+        display: grid;
+        gap: 8px;
+    }
+
+    .account-vehicle-card__title {
+        margin: 0;
+        color: #0f172a;
+        line-height: 1.3;
+        font-size: 1rem;
+    }
+
+    .account-vehicle-card__meta {
+        margin: 0;
+        color: #64748b;
+        line-height: 1.5;
+        font-size: 0.9rem;
+    }
+
+    .account-note {
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(15, 23, 42, 0.04);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #475569;
+        line-height: 1.55;
+        font-size: 0.92rem;
+    }
+
+    @media (max-width: 900px) {
+        .account-ready-grid,
+        .account-profile-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .account-profile-card,
+        .account-ready-card,
+        .account-vehicle-card {
+            padding: 14px;
+        }
+
+        .account-profile-card__avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            font-size: 1.05rem;
+        }
+
+        .account-hero__copy h2 {
+            font-size: 1.25rem;
+        }
+
+        .account-hero__copy p,
+        .account-note,
+        .account-vehicle-card__meta {
+            font-size: 0.88rem;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 @php
     $initialProfile = is_array($accountProfile ?? null) ? $accountProfile : [];
@@ -10,15 +225,19 @@
         ->implode(', ');
 
     $initialVehicles = is_array($accountVehicles ?? null) ? $accountVehicles : [];
+    $accountError = trim((string) ($accountLoadError ?? ''));
 
     $resolveVehicleTypeName = function (array $vehicle): string {
-        return (string) (
-            data_get($vehicle, 'vehicle_type.name')
-            ?? data_get($vehicle, 'vehicleType.name')
-            ?? data_get($vehicle, 'vehicle_type_id')
-            ? 'Tipo #' . (data_get($vehicle, 'vehicle_type_id') ?? 'N/D')
-            : 'Sin tipo'
-        );
+        $vehicleTypeName = data_get($vehicle, 'vehicle_type.name')
+            ?? data_get($vehicle, 'vehicleType.name');
+
+        if ($vehicleTypeName) {
+            return (string) $vehicleTypeName;
+        }
+
+        $vehicleTypeId = data_get($vehicle, 'vehicle_type_id');
+
+        return $vehicleTypeId ? 'Tipo #' . $vehicleTypeId : 'Sin tipo';
     };
 
     $vehicleLabel = function (array $vehicle): string {
@@ -32,59 +251,115 @@
             ? trim($base . ' · ' . $plate)
             : ($base !== '' ? $base : 'Vehículo sin datos');
     };
+
+    $userEmail = trim((string) ($initialUser['email'] ?? ''));
+    $userName = trim((string) ($initialUser['name'] ?? 'Cliente'));
+    $avatarLetter = strtoupper(substr($userName !== '' ? $userName : ($userEmail !== '' ? $userEmail : 'C'), 0, 1));
+
+    $profileReady = $userEmail !== '';
+    $hasVehicle = !empty($initialVehicles);
+    $rolesLabel = $initialRoles !== '' ? $initialRoles : 'Cliente';
 @endphp
 
-<section class="panel hero-panel hero-panel--compact">
-    <div>
-        <p class="hero-panel__eyebrow">Cuenta</p>
-        <h2>Perfil, seguridad y vehículos en un solo lugar.</h2>
-        <p>
-            Mantén tu información actualizada y deja al menos un vehículo listo para que el flujo de solicitud
-            de asistencia sea más rápido y sin fricciones.
-        </p>
+<section class="panel account-hero">
+    <div class="account-hero__copy">
+        <p class="hero-panel__eyebrow">Mi perfil</p>
+        <h2>Tu cuenta y tus vehículos</h2>
+        <p>Desde aquí puedes revisar tu información, cambiar tu correo o contraseña y dejar listo tu vehículo para pedir ayuda cuando lo necesites.</p>
     </div>
+</section>
+
+@if($accountError !== '')
+    <section class="stack-list">
+        <article class="notice-card" style="border-color: rgba(220,38,38,0.18); background: rgba(220,38,38,0.05); color: #b91c1c;">
+            {{ $accountError }}
+        </article>
+    </section>
+@endif
+
+<section class="account-ready-grid">
+    <article class="account-ready-card {{ $profileReady ? 'is-ready' : '' }}">
+        <span>Correo</span>
+        <strong>{{ $profileReady ? 'Listo' : 'Falta revisar' }}</strong>
+    </article>
+
+    <article class="account-ready-card {{ $hasVehicle ? 'is-ready' : '' }}">
+        <span>Vehículo</span>
+        <strong>{{ $hasVehicle ? 'Ya registrado' : 'Agrega uno' }}</strong>
+    </article>
+
+    <article class="account-ready-card is-ready">
+        <span>Acceso</span>
+        <strong>{{ $rolesLabel }}</strong>
+    </article>
 </section>
 
 <section class="grid-two">
     <article class="panel">
         <div class="section-head">
-            <h3>Perfil del cliente</h3>
-            <span class="section-pill">Identidad</span>
-        </div>
-        <div class="helper-note">
-            Aquí verás el correo y la información básica recuperada desde tu sesión y la API.
+            <h3>Tu información</h3>
+            <span class="section-pill">Cuenta</span>
         </div>
 
-        <div id="accountProfileCard" class="stack-list">
+        <div id="accountProfileCard">
             @if(!empty($initialUser))
-                <article class="profile-card">
-                    <h4 class="card-row__title">{{ $initialUser['email'] ?? 'Sin correo' }}</h4>
-                    <p class="card-row__meta">Roles: {{ $initialRoles !== '' ? $initialRoles : 'Cliente' }}</p>
-                    <p class="card-row__meta">ID de usuario: {{ $initialUser['id'] ?? 'N/D' }}</p>
+                <article class="account-profile-card">
+                    <div class="account-profile-card__top">
+                        <div class="account-profile-card__avatar">{{ $avatarLetter }}</div>
+
+                        <div class="account-profile-card__copy">
+                            <h3>{{ $userName !== '' ? $userName : 'Cliente' }}</h3>
+                            <p>{{ $userEmail !== '' ? $userEmail : 'Sin correo disponible' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="account-profile-grid">
+                        <article class="account-profile-item">
+                            <span>Correo</span>
+                            <strong>{{ $userEmail !== '' ? $userEmail : 'Sin correo disponible' }}</strong>
+                        </article>
+
+                        <article class="account-profile-item">
+                            <span>Tipo de cuenta</span>
+                            <strong>{{ $rolesLabel }}</strong>
+                        </article>
+
+                        <article class="account-profile-item">
+                            <span>ID de usuario</span>
+                            <strong>{{ $initialUser['id'] ?? 'No disponible' }}</strong>
+                        </article>
+
+                        <article class="account-profile-item">
+                            <span>Estado</span>
+                            <strong>{{ $profileReady ? 'Cuenta lista para usarse' : 'Requiere revisión' }}</strong>
+                        </article>
+                    </div>
                 </article>
-            @elseif(!empty($accountLoadError))
-                <article class="empty-state">{{ $accountLoadError }}</article>
             @else
-                <article class="empty-state">No fue posible cargar el perfil del cliente.</article>
+                <article class="empty-state">
+                    No pudimos cargar tu información en este momento.
+                </article>
             @endif
         </div>
     </article>
 
     <article class="panel">
         <div class="section-head">
-            <h3>Vehículos registrados</h3>
-            <span class="section-pill">Movilidad</span>
-        </div>
-        <div class="helper-note">
-            Mantén al menos un vehículo disponible para poder generar solicitudes sin bloquear el flujo.
+            <h3>Mis vehículos</h3>
+            <span class="section-pill">Importante</span>
         </div>
 
-        <div id="accountVehiclesList" class="stack-list">
+        <div class="account-note">
+            Para pedir ayuda necesitas tener al menos un vehículo registrado. Puedes agregarlo abajo o editar uno existente.
+        </div>
+
+        <div id="accountVehiclesList" class="account-vehicles-grid" style="margin-top: 14px;">
             @forelse($initialVehicles as $vehicle)
-                <article class="vehicle-card">
-                    <h4 class="vehicle-card__title">{{ $vehicleLabel($vehicle) }}</h4>
-                    <p class="card-row__meta">Tipo: {{ $resolveVehicleTypeName($vehicle) }}</p>
-                    <p class="card-row__meta">Año: {{ $vehicle['year'] ?? 'N/D' }}</p>
+                <article class="account-vehicle-card">
+                    <h4 class="account-vehicle-card__title">{{ $vehicleLabel($vehicle) }}</h4>
+                    <p class="account-vehicle-card__meta">Tipo: {{ $resolveVehicleTypeName($vehicle) }}</p>
+                    <p class="account-vehicle-card__meta">Año: {{ $vehicle['year'] ?? 'No disponible' }}</p>
+
                     <div class="actions-inline">
                         <button type="button" class="button button--ghost" data-edit-vehicle="{{ $vehicle['id'] }}">Editar</button>
                         <button type="button" class="button button--danger" data-delete-vehicle="{{ $vehicle['id'] }}">Eliminar</button>
@@ -92,7 +367,7 @@
                 </article>
             @empty
                 <article class="empty-state">
-                    {{ !empty($accountLoadError) ? $accountLoadError : 'Aún no registras vehículos.' }}
+                    Aún no registras vehículos.
                 </article>
             @endforelse
         </div>
@@ -102,10 +377,15 @@
 <section class="grid-two">
     <article class="panel">
         <div class="section-head">
-            <h3>Actualizar correo electrónico</h3>
-            <span class="section-pill">Cuenta</span>
+            <h3>Cambiar correo</h3>
+            <span class="section-pill">Acceso</span>
         </div>
-        <form id="accountEmailForm" class="form-grid" autocomplete="off">
+
+        <div class="account-note">
+            Usa un correo que revises con frecuencia para que no pierdas información importante de tu cuenta.
+        </div>
+
+        <form id="accountEmailForm" class="form-grid" autocomplete="off" style="margin-top: 14px;">
             <label class="form-field form-field--full">
                 <span>Correo electrónico</span>
                 <input
@@ -126,10 +406,15 @@
 
     <article class="panel">
         <div class="section-head">
-            <h3>Actualizar contraseña</h3>
+            <h3>Cambiar contraseña</h3>
             <span class="section-pill">Seguridad</span>
         </div>
-        <form id="accountPasswordForm" class="form-grid" autocomplete="off">
+
+        <div class="account-note">
+            Elige una contraseña que puedas recordar y que no compartas con otras personas.
+        </div>
+
+        <form id="accountPasswordForm" class="form-grid" autocomplete="off" style="margin-top: 14px;">
             <label class="form-field form-field--full">
                 <span>Nueva contraseña</span>
                 <input
@@ -150,17 +435,20 @@
 </section>
 
 <section class="panel">
-    <div class="section-head">
-        <h3>Registrar o editar vehículo</h3>
+    <div class="account-vehicles-head">
+        <div class="section-head" style="margin-bottom: 0;">
+            <h3>Agregar o editar vehículo</h3>
+            <span class="section-pill">Formulario</span>
+        </div>
+
         <button type="button" id="vehicleFormReset" class="button button--ghost">Nuevo</button>
     </div>
 
-    <div class="helper-note">
-        Usa este formulario para registrar un vehículo nuevo o editar uno existente. Cuando pulses
-        <strong>Editar</strong> en un vehículo, los campos se llenarán automáticamente aquí.
+    <div class="account-note" style="margin-top: 14px;">
+        Si tocas “Editar” en uno de tus vehículos, este formulario se llenará automáticamente.
     </div>
 
-    <form id="vehicleForm" class="form-grid" autocomplete="off">
+    <form id="vehicleForm" class="form-grid" autocomplete="off" style="margin-top: 14px;">
         <input type="hidden" name="vehicle_id" id="vehicleIdInput">
 
         <label class="form-field">

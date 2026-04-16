@@ -26,14 +26,19 @@ class ClientPortalController extends Controller
         ],
         'request' => [
             'view' => 'user.request.index',
-            'title' => 'ZYGA | Solicitar asistencia',
-            'heading' => 'Solicitar asistencia',
+            'title' => 'ZYGA | Pedir ayuda',
+            'heading' => 'Pedir ayuda',
         ],
+        'notifications' => [
+    'view' => 'user.notificaciones.index',
+    'title' => 'ZYGA | Notificaciones',
+    'heading' => 'Notificaciones',
+],
         'active' => [
-            'view' => 'user.active.index',
-            'title' => 'ZYGA | Servicio activo',
-            'heading' => 'Servicio activo',
-        ],
+    'view' => 'user.active.index',
+    'title' => 'ZYGA | Seguimiento',
+    'heading' => 'Seguimiento',
+],
         'history' => [
             'view' => 'user.historial.index',
             'title' => 'ZYGA | Historial',
@@ -42,16 +47,18 @@ class ClientPortalController extends Controller
         'payments' => [
             'view' => 'user.billetera.index',
             'title' => 'ZYGA | Pagos',
-            'heading' => 'Pagos y métodos',
+            'heading' => 'Pagos',
         ],
         'account' => [
             'view' => 'user.cuenta.index',
-            'title' => 'ZYGA | Cuenta',
-            'heading' => 'Mi cuenta',
+            'title' => 'ZYGA | Mi perfil',
+            'heading' => 'Mi perfil',
         ],
     ];
 
     protected string $apiBaseUrl;
+
+    protected array $apiCache = [];
 
     public function __construct()
     {
@@ -67,6 +74,11 @@ class ClientPortalController extends Controller
     {
         return $this->renderClientPage('request', $this->requestContext());
     }
+
+    public function notificaciones(): View|RedirectResponse
+{
+    return $this->renderClientPage('notifications');
+}
 
     public function servicioActivo(): View|RedirectResponse
     {
@@ -162,6 +174,24 @@ class ClientPortalController extends Controller
     {
         [$vehicleTypeOptions, $vehicleTypeCatalogSource] = $this->resolveVehicleTypeOptions();
 
+        $notificationsResponse = $this->apiGet('/api/v1/notifications');
+        $requestsResponse = $this->apiGet('/api/v1/client/assistance-requests');
+
+        $globalNotifications = $notificationsResponse['ok']
+            ? $this->normalizeList($notificationsResponse['data'], ['notifications', 'items'])
+            : [];
+
+        $globalUnreadNotifications = array_values(array_filter(
+            $globalNotifications,
+            fn ($notification) => !((bool) data_get($notification, 'is_read', false))
+        ));
+
+        $globalRequests = $requestsResponse['ok']
+            ? $this->normalizeList($requestsResponse['data'], ['requests', 'items'])
+            : [];
+
+        $globalActiveRequest = $this->findActiveRequest($globalRequests);
+
         return [
             'pageKey' => $pageKey,
             'pageTitle' => $pageTitle,
@@ -171,14 +201,24 @@ class ClientPortalController extends Controller
             'apiToken' => (string) session('api_token'),
             'vehicleTypeOptions' => $vehicleTypeOptions,
             'vehicleTypeCatalogSource' => $vehicleTypeCatalogSource,
+            'globalNotificationsPreview' => array_slice($globalNotifications, 0, 5),
+            'globalUnreadNotificationCount' => count($globalUnreadNotifications),
+            'globalActiveRequest' => $globalActiveRequest,
         ];
     }
 
     private function dashboardContext(): array
     {
+        $profileResponse = $this->apiGet('/api/v1/me');
         $servicesResponse = $this->apiGet('/api/v1/services');
         $vehiclesResponse = $this->apiGet('/api/v1/client/vehicles');
         $requestsResponse = $this->apiGet('/api/v1/client/assistance-requests');
+        $paymentsResponse = $this->apiGet('/api/v1/client/payments');
+        $notificationsResponse = $this->apiGet('/api/v1/notifications');
+
+        $dashboardProfile = $profileResponse['ok'] && is_array($profileResponse['data'])
+            ? $profileResponse['data']
+            : [];
 
         $dashboardServices = $servicesResponse['ok']
             ? $this->normalizeList($servicesResponse['data'], ['services', 'items'])
@@ -192,28 +232,87 @@ class ClientPortalController extends Controller
             ? $this->normalizeList($requestsResponse['data'], ['requests', 'items'])
             : [];
 
+        $dashboardPayments = $paymentsResponse['ok']
+            ? $this->normalizeList($paymentsResponse['data'], ['payments', 'items'])
+            : [];
+
+        $dashboardNotifications = $notificationsResponse['ok']
+            ? $this->normalizeList($notificationsResponse['data'], ['notifications', 'items'])
+            : [];
+
         $dashboardActiveRequest = $this->findActiveRequest($dashboardRequestHistory);
+
+        $dashboardUnreadNotifications = array_values(array_filter(
+            $dashboardNotifications,
+            fn ($notification) => !((bool) data_get($notification, 'is_read', false))
+        ));
+
+        $dashboardPendingPayments = array_values(array_filter(
+            $dashboardPayments,
+            fn ($payment) => in_array(
+                strtolower((string) data_get($payment, 'status', '')),
+                ['pending', 'pending_validation'],
+                true
+            )
+        ));
+
+        $dashboardClosedRequests = array_values(array_filter(
+            $dashboardRequestHistory,
+            fn ($request) => in_array(
+                strtolower((string) data_get($request, 'status', '')),
+                ['completed', 'cancelled'],
+                true
+            )
+        ));
+
+        $profileReady = !empty(data_get($dashboardProfile, 'user.email'));
+        $hasVehicle = !empty($dashboardVehicles);
+        $hasHistory = !empty($dashboardRequestHistory);
+        $canRequest = !empty($dashboardServices) && !empty($dashboardVehicles) && empty($dashboardActiveRequest);
+
+        $dashboardNeedsSetup = !$profileReady || !$hasVehicle || !$hasHistory;
 
         $dashboardApiErrors = [];
 
+        if (!$profileResponse['ok']) {
+            $dashboardApiErrors[] = 'No fue posible consultar tu perfil.';
+        }
+
         if (!$servicesResponse['ok']) {
-            $dashboardApiErrors[] = 'No fue posible consultar los servicios disponibles desde la API.';
+            $dashboardApiErrors[] = 'No fue posible consultar los servicios disponibles.';
         }
 
         if (!$vehiclesResponse['ok']) {
-            $dashboardApiErrors[] = 'No fue posible consultar los vehículos del cliente desde la API.';
+            $dashboardApiErrors[] = 'No fue posible consultar tus vehículos.';
         }
 
         if (!$requestsResponse['ok']) {
-            $dashboardApiErrors[] = 'No fue posible consultar las asistencias del cliente desde la API.';
+            $dashboardApiErrors[] = 'No fue posible consultar tus solicitudes.';
+        }
+
+        if (!$paymentsResponse['ok']) {
+            $dashboardApiErrors[] = 'No fue posible consultar tus pagos.';
+        }
+
+        if (!$notificationsResponse['ok']) {
+            $dashboardApiErrors[] = 'No fue posible consultar tus notificaciones.';
         }
 
         return [
+            'dashboardProfile' => $dashboardProfile,
             'dashboardServices' => $dashboardServices,
             'dashboardVehicles' => $dashboardVehicles,
             'dashboardRequestHistory' => $dashboardRequestHistory,
             'dashboardActiveRequest' => $dashboardActiveRequest,
+            'dashboardPayments' => $dashboardPayments,
+            'dashboardNotifications' => $dashboardNotifications,
+            'dashboardUnreadNotifications' => $dashboardUnreadNotifications,
+            'dashboardPendingPayments' => $dashboardPendingPayments,
+            'dashboardClosedRequests' => $dashboardClosedRequests,
             'dashboardApiErrors' => $dashboardApiErrors,
+            'dashboardCanRequest' => $canRequest,
+            'dashboardNeedsSetup' => $dashboardNeedsSetup,
+            'dashboardProfileReady' => $profileReady,
         ];
     }
 
@@ -336,12 +435,16 @@ class ClientPortalController extends Controller
 
     private function apiGet(string $endpoint): array
     {
+        if (array_key_exists($endpoint, $this->apiCache)) {
+            return $this->apiCache[$endpoint];
+        }
+
         try {
             $response = $this->apiClient()->get($this->apiBaseUrl . $endpoint);
 
-            return $this->formatResponse($response);
+            return $this->apiCache[$endpoint] = $this->formatResponse($response);
         } catch (\Throwable $e) {
-            return [
+            return $this->apiCache[$endpoint] = [
                 'ok' => false,
                 'status' => 0,
                 'message' => 'No fue posible conectar con la API.',
@@ -382,7 +485,7 @@ class ClientPortalController extends Controller
                 }
             }
 
-            foreach (['items', 'vehicles', 'services', 'requests'] as $key) {
+            foreach (['items', 'vehicles', 'services', 'requests', 'payments', 'notifications'] as $key) {
                 if (isset($data[$key]) && is_array($data[$key])) {
                     return $data[$key];
                 }

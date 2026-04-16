@@ -1,42 +1,119 @@
 @extends('user.layouts.app')
 
+@push('page_styles')
+<style>
+    .payment-request-summary {
+        display: grid;
+        gap: 12px;
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background:
+            linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(37, 99, 235, 0.06)),
+            #ffffff;
+    }
+
+    .payment-request-summary[hidden] {
+        display: none;
+    }
+
+    .payment-request-summary__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .payment-request-summary__item {
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: rgba(255, 255, 255, 0.92);
+        padding: 14px;
+    }
+
+    .payment-request-summary__item span {
+        display: block;
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-bottom: 6px;
+    }
+
+    .payment-request-summary__item strong {
+        display: block;
+        color: #0f172a;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .payment-request-summary__total {
+        font-size: 1.9rem;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+    }
+
+    .payment-inline-note {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.04);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #475569;
+        line-height: 1.55;
+    }
+
+    .payment-inline-note--warning {
+        background: rgba(245, 158, 11, 0.12);
+        color: #92400e;
+        border-color: rgba(161, 98, 7, 0.18);
+    }
+
+    @media (max-width: 640px) {
+        .payment-request-summary__grid {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-request-summary__total {
+            font-size: 1.6rem;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 <section class="panel hero-panel hero-panel--compact">
     <div>
         <p class="hero-panel__eyebrow">Pagos y métodos</p>
-        <h2>Gestiona tus métodos de pago y registra el cierre financiero de tus asistencias.</h2>
+        <h2>Registra el pago usando el monto definido por la solicitud, sin capturas manuales.</h2>
         <p>
-            Aquí puedes guardar métodos de pago para futuras operaciones y registrar pagos asociados
-            a solicitudes ya concluidas.
+            El sistema toma automáticamente el importe desde la asistencia completada. En esta fase
+            solo se permiten pagos en efectivo o por transferencia para mantener el flujo simple y consistente.
         </p>
     </div>
 </section>
 
 <section class="panel">
     <div class="section-head">
-        <h3>Cómo funciona esta sección</h3>
-        <span class="section-pill">MVP</span>
+        <h3>Cómo funciona esta sección ahora</h3>
+        <span class="section-pill">Bloque 2</span>
     </div>
 
     <div class="stack-list">
         <article class="card-row">
-            <h4 class="card-row__title">Métodos guardados</h4>
+            <h4 class="card-row__title">Monto protegido por backend</h4>
             <p class="card-row__meta">
-                Te permiten dejar tu cuenta preparada para registrar pagos de forma más rápida.
+                Ya no se captura el monto manualmente. El pago usa el valor guardado en la solicitud completada.
             </p>
         </article>
 
         <article class="card-row">
-            <h4 class="card-row__title">Pagos registrados</h4>
+            <h4 class="card-row__title">Efectivo</h4>
             <p class="card-row__meta">
-                Muestran los pagos ya vinculados a solicitudes finalizadas dentro del flujo del cliente.
+                Se registra como pago completado en el momento.
             </p>
         </article>
 
         <article class="card-row">
-            <h4 class="card-row__title">Solicitudes elegibles</h4>
+            <h4 class="card-row__title">Transferencia</h4>
             <p class="card-row__meta">
-                Solo podrás registrar pagos sobre asistencias completadas que aún no tengan un pago final registrado.
+                Se registra con referencia y queda pendiente de validación administrativa.
             </p>
         </article>
     </div>
@@ -50,7 +127,7 @@
         </div>
 
         <div class="helper-note">
-            Los métodos guardados se cargan desde la API y quedan disponibles para usarse posteriormente.
+            En esta etapa los métodos disponibles para operación real están limitados a efectivo y transferencia.
         </div>
 
         <div id="paymentMethodsList" class="stack-list">
@@ -65,7 +142,7 @@
         </div>
 
         <div class="helper-note">
-            Aquí se muestran los pagos que ya fueron registrados por el cliente dentro del sistema.
+            Aquí se muestran pagos completados y pagos enviados a validación.
         </div>
 
         <div id="paymentsList" class="stack-list">
@@ -95,7 +172,7 @@
                     type="text"
                     name="method_details"
                     id="paymentMethodDetails"
-                    placeholder="Ej. Terminación 4242"
+                    placeholder="Ej. Efectivo contra entrega o BBVA cuenta personal"
                     required
                 >
             </label>
@@ -112,6 +189,10 @@
             <span class="section-pill">Solicitud concluida</span>
         </div>
 
+        <div class="helper-note">
+            Selecciona una asistencia completada. El importe se mostrará abajo y será el mismo que el backend registrará.
+        </div>
+
         <form id="paymentRegisterForm" class="form-grid" autocomplete="off">
             <label class="form-field form-field--full">
                 <span>Solicitud completada</span>
@@ -119,6 +200,39 @@
                     <option value="">Cargando solicitudes elegibles...</option>
                 </select>
             </label>
+
+            <div id="paymentRequestSummary" class="payment-request-summary">
+                <div class="payment-inline-note">
+                    Selecciona una solicitud para ver el monto que el sistema tomará automáticamente.
+                </div>
+
+                <div class="payment-request-summary__grid">
+                    <article class="payment-request-summary__item">
+                        <span>Folio</span>
+                        <strong id="paymentSummaryPublicId">Pendiente</strong>
+                    </article>
+
+                    <article class="payment-request-summary__item">
+                        <span>Servicio</span>
+                        <strong id="paymentSummaryService">Pendiente</strong>
+                    </article>
+
+                    <article class="payment-request-summary__item">
+                        <span>Vehículo</span>
+                        <strong id="paymentSummaryVehicle">Pendiente</strong>
+                    </article>
+
+                    <article class="payment-request-summary__item">
+                        <span>Estatus financiero actual</span>
+                        <strong id="paymentSummaryStatus">Pendiente</strong>
+                    </article>
+
+                    <article class="payment-request-summary__item" style="grid-column: 1 / -1;">
+                        <span>Total del sistema</span>
+                        <strong id="paymentSummaryAmount" class="payment-request-summary__total">—</strong>
+                    </article>
+                </div>
+            </div>
 
             <label class="form-field">
                 <span>Método de pago</span>
@@ -128,22 +242,220 @@
             </label>
 
             <label class="form-field">
-                <span>Monto</span>
+                <span>Referencia</span>
                 <input
-                    type="number"
-                    step="0.01"
-                    min="0.01"
-                    name="amount"
-                    id="paymentAmount"
-                    placeholder="850.00"
-                    required
+                    type="text"
+                    name="reference"
+                    id="paymentReference"
+                    placeholder="Obligatoria para transferencia"
                 >
             </label>
 
+            <label class="form-field form-field--full">
+                <span>Notas</span>
+                <textarea
+                    name="notes"
+                    id="paymentNotes"
+                    rows="4"
+                    placeholder="Ej. Pago liquidado en efectivo con el proveedor, transferencia realizada desde BBVA, etc."
+                ></textarea>
+            </label>
+
+            <div id="paymentMethodNote" class="payment-inline-note payment-inline-note--warning">
+                Si eliges transferencia, debes capturar una referencia válida. Ese pago quedará pendiente de validación.
+            </div>
+
             <div class="form-actions form-field--full">
-                <button type="submit" class="button button--primary">Registrar pago</button>
+                <button type="submit" id="paymentRegisterSubmit" class="button button--primary">
+                    Registrar pago
+                </button>
             </div>
         </form>
     </article>
 </section>
 @endsection
+
+@push('page_scripts')
+<script>
+(function () {
+    function boot() {
+        const form = document.getElementById('paymentRegisterForm');
+        const requestSelect = document.getElementById('paymentRequestId');
+        const methodSelect = document.getElementById('paymentRegisterMethod');
+        const referenceInput = document.getElementById('paymentReference');
+        const submitButton = document.getElementById('paymentRegisterSubmit');
+
+        if (!form || !requestSelect || !methodSelect || !referenceInput || !submitButton) {
+            return;
+        }
+
+        const app = window.ZYGA_CLIENT_APP || {};
+        const requestMap = new Map();
+
+        function normalize(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        function statusLabel(value) {
+            const map = {
+                pending: 'Pendiente',
+                pending_validation: 'Pendiente de validación',
+                paid: 'Pagado',
+                completed: 'Completado',
+                failed: 'Fallido',
+                rejected: 'Rechazado',
+            };
+
+            const key = normalize(value);
+            return map[key] || (value || 'Sin estado');
+        }
+
+        function vehicleLabel(vehicle) {
+            if (!vehicle || typeof vehicle !== 'object') {
+                return 'Vehículo no identificado';
+            }
+
+            const brand = String(vehicle.brand || '').trim();
+            const model = String(vehicle.model || '').trim();
+            const plate = String(vehicle.plate || '').trim();
+            const base = (brand + ' ' + model).trim();
+
+            return plate ? (base ? (base + ' · ' + plate) : plate) : (base || 'Vehículo no identificado');
+        }
+
+        function money(value) {
+            const amount = Number(value || 0);
+
+            if (!Number.isFinite(amount)) {
+                return '—';
+            }
+
+            return new Intl.NumberFormat('es-MX', {
+                style: 'currency',
+                currency: 'MXN',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            }).format(amount);
+        }
+
+        async function api(path) {
+            const response = await fetch(app.apiBaseUrl + path, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + app.token,
+                },
+            });
+
+            const payload = await response.json().catch(function () {
+                return {};
+            });
+
+            if (!response.ok) {
+                throw new Error(payload.message || 'No fue posible consultar la API.');
+            }
+
+            return payload;
+        }
+
+        function setSummary(request) {
+            const publicId = document.getElementById('paymentSummaryPublicId');
+            const service = document.getElementById('paymentSummaryService');
+            const vehicle = document.getElementById('paymentSummaryVehicle');
+            const status = document.getElementById('paymentSummaryStatus');
+            const amount = document.getElementById('paymentSummaryAmount');
+
+            if (!request) {
+                if (publicId) publicId.textContent = 'Pendiente';
+                if (service) service.textContent = 'Pendiente';
+                if (vehicle) vehicle.textContent = 'Pendiente';
+                if (status) status.textContent = 'Pendiente';
+                if (amount) amount.textContent = '—';
+                return;
+            }
+
+            if (publicId) publicId.textContent = request.public_id || ('#' + request.id);
+            if (service) service.textContent = request.service && request.service.name ? request.service.name : 'Servicio';
+            if (vehicle) vehicle.textContent = vehicleLabel(request.vehicle || {});
+            if (status) status.textContent = statusLabel(request.payment_status || 'pending');
+            if (amount) amount.textContent = money(request.final_amount || request.quoted_amount || 0);
+        }
+
+        function fillEligibleRequests(requests, payments) {
+            requestMap.clear();
+
+            const blockedIds = new Set(
+                (payments || [])
+                    .filter(function (payment) {
+                        return ['pending', 'pending_validation', 'completed'].includes(normalize(payment.status));
+                    })
+                    .map(function (payment) {
+                        return String(
+                            payment.assistance_request_id ||
+                            (payment.assistanceRequest && payment.assistanceRequest.id) ||
+                            (payment.assistance_request && payment.assistance_request.id) ||
+                            ''
+                        );
+                    })
+            );
+
+            const eligible = (requests || []).filter(function (item) {
+                return normalize(item.status) === 'completed' && !blockedIds.has(String(item.id));
+            });
+
+            requestSelect.innerHTML = '<option value="">' + (eligible.length ? 'Selecciona solicitud' : 'No hay solicitudes pendientes de pago') + '</option>';
+
+            eligible.forEach(function (item) {
+                requestMap.set(String(item.id), item);
+
+                const option = document.createElement('option');
+                option.value = String(item.id);
+                option.textContent = (item.public_id || ('#' + item.id)) + ' · ' + ((item.service && item.service.name) ? item.service.name : 'Servicio');
+                requestSelect.appendChild(option);
+            });
+
+            submitButton.disabled = eligible.length === 0;
+            setSummary(null);
+        }
+
+        function syncTransferRule() {
+            const isTransfer = normalize(methodSelect.value) === 'transfer';
+            referenceInput.required = isTransfer;
+        }
+
+        async function refreshEligibleRequests() {
+            if (!app.apiBaseUrl || !app.token) {
+                return;
+            }
+
+            try {
+                const [requestsPayload, paymentsPayload] = await Promise.all([
+                    api('/api/v1/client/assistance-requests'),
+                    api('/api/v1/client/payments'),
+                ]);
+
+                const requests = Array.isArray(requestsPayload.data) ? requestsPayload.data : [];
+                const payments = Array.isArray(paymentsPayload.data) ? paymentsPayload.data : [];
+
+                fillEligibleRequests(requests, payments);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        requestSelect.addEventListener('change', function () {
+            const selected = requestMap.get(String(requestSelect.value || ''));
+            setSummary(selected || null);
+        });
+
+        methodSelect.addEventListener('change', syncTransferRule);
+        syncTransferRule();
+
+        refreshEligibleRequests();
+        setTimeout(refreshEligibleRequests, 900);
+    }
+
+    window.addEventListener('load', boot, { once: true });
+})();
+</script>
+@endpush

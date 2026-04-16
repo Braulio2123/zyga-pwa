@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Validation\Rule;
 
 class FinanceController extends BaseAdminController
 {
@@ -41,8 +42,11 @@ class FinanceController extends BaseAdminController
         }
 
         $response = $this->api('GET', "/api/v1/admin/finance/payments/{$id}");
+
         if (!$response['ok']) {
-            return redirect()->route('admin.finance.index')->with('error', $response['message']);
+            return redirect()
+                ->route('admin.finance.index')
+                ->with('error', $response['message']);
         }
 
         return view('admin.finance.show-payment', [
@@ -57,21 +61,31 @@ class FinanceController extends BaseAdminController
         }
 
         $request->validate([
-            'amount' => ['required', 'numeric', 'min:0'],
-            'payment_method' => ['required', 'string', 'max:255'],
+            'payment_method' => ['required', 'string', 'max:50'],
+            'reference' => ['nullable', 'string', 'max:120'],
+            'notes' => ['nullable', 'string', 'max:1000'],
             'transaction_id' => ['nullable', 'string', 'max:255'],
-            'status' => ['required', 'string'],
+            'status' => [
+                'required',
+                'string',
+                Rule::in(['pending', 'pending_validation', 'completed', 'failed', 'rejected']),
+            ],
         ]);
 
         $response = $this->api('PATCH', "/api/v1/admin/finance/payments/{$id}", [
-            'amount' => $request->amount,
             'payment_method' => $request->payment_method,
+            'reference' => $request->reference,
+            'notes' => $request->notes,
             'transaction_id' => $request->transaction_id,
             'status' => $request->status,
         ]);
 
         return $response['ok']
-            ? redirect()->route('admin.finance.show-payment', $id)->with('success', $response['message'])
-            : back()->withInput()->with('error', $response['message']);
+            ? redirect()
+                ->route('admin.finance.show-payment', $id)
+                ->with('success', $response['message'])
+            : back()
+                ->withInput()
+                ->with('error', $response['message']);
     }
 }

@@ -361,6 +361,8 @@ Route::prefix('user')
         // Historial de asistencias cerradas
         Route::get('/historial', [ClientPortalController::class, 'historial'])->name('historial');
 
+        Route::get('/notificaciones', [ClientPortalController::class, 'notificaciones'])->name('notificaciones');
+
         // Pagos y métodos de pago
         Route::get('/pagos', [ClientPortalController::class, 'pagos'])->name('pagos');
 

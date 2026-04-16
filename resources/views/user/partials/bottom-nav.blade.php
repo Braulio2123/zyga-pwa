@@ -11,7 +11,7 @@
         [
             'key' => 'request',
             'route' => route('user.solicitud'),
-            'label' => 'Solicitar',
+            'label' => 'Pedir ayuda',
             'icon' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M12 4v16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
         ],
         [
@@ -29,7 +29,7 @@
         [
             'key' => 'account',
             'route' => route('user.cuenta'),
-            'label' => 'Cuenta',
+            'label' => 'Mi perfil',
             'icon' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 20a7 7 0 1 0-14 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         ],
     ];
@@ -41,9 +41,9 @@
             <div class="client-nav__brand-mark">ZYGA</div>
 
             <div class="client-nav__brand-copy">
-                <strong class="client-nav__brand-title">Centro del cliente</strong>
+                <strong class="client-nav__brand-title">Tu espacio</strong>
                 <p class="client-nav__brand-text">
-                    Solicita asistencia, da seguimiento y administra tu cuenta desde un solo lugar.
+                    Pide ayuda, da seguimiento y revisa tu cuenta desde aquí.
                 </p>
             </div>
         </div>
@@ -65,7 +65,7 @@
 
     <div class="client-nav__footer desktop-only">
         <a href="{{ route('user.pagos') }}" class="client-nav__support-link">
-            Pagos y métodos
+            Pagos
         </a>
 
         <button

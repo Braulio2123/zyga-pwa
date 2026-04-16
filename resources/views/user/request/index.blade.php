@@ -7,49 +7,265 @@
 />
 
 <style>
-    .request-map-layout {
+    .request-hero {
         display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.9fr);
+        gap: 14px;
+    }
+
+    .request-hero__copy {
+        display: grid;
+        gap: 6px;
+    }
+
+    .request-hero__copy h2 {
+        margin: 0;
+        color: #0f172a;
+        line-height: 1.08;
+        font-size: clamp(1.35rem, 2vw, 1.9rem);
+    }
+
+    .request-hero__copy p {
+        margin: 0;
+        color: #475569;
+        line-height: 1.55;
+        font-size: 0.95rem;
+    }
+
+    .request-step-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .request-step-card {
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: #ffffff;
+        display: grid;
+        gap: 6px;
+    }
+
+    .request-step-card span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: rgba(249, 115, 22, 0.12);
+        color: #ea580c;
+        font-size: 0.8rem;
+        font-weight: 800;
+    }
+
+    .request-step-card strong {
+        color: #0f172a;
+        line-height: 1.35;
+        font-size: 0.95rem;
+    }
+
+    .request-step-card p {
+        margin: 0;
+        color: #64748b;
+        line-height: 1.5;
+        font-size: 0.86rem;
+    }
+
+    .request-state-card {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background:
+            radial-gradient(circle at top right, rgba(249, 115, 22, 0.12), transparent 40%),
+            radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.10), transparent 45%),
+            #ffffff;
+    }
+
+    .request-state-card__top {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .request-state-card__title {
+        display: grid;
+        gap: 4px;
+    }
+
+    .request-state-card__title h3 {
+        margin: 0;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+
+    .request-state-card__title p {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.45;
+    }
+
+    .request-state-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(245, 158, 11, 0.12);
+        color: #b45309;
+        font-size: 0.78rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .request-state-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .request-state-item {
+        padding: 13px 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: #f8fafc;
+        display: grid;
+        gap: 5px;
+    }
+
+    .request-state-item span {
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .request-state-item strong {
+        color: #0f172a;
+        line-height: 1.45;
+        word-break: break-word;
+        font-size: 0.94rem;
+    }
+
+    .request-form-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
         gap: 20px;
         align-items: start;
     }
 
-    .request-map-shell {
-        position: relative;
-        border-radius: 24px;
-        overflow: hidden;
+    .request-form-stack {
+        display: grid;
+        gap: 18px;
+    }
+
+    .request-quote-card {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 22px;
         border: 1px solid rgba(15, 23, 42, 0.08);
-        background: #e2e8f0;
+        background:
+            linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(37, 99, 235, 0.06)),
+            #ffffff;
     }
 
-    .request-map {
-        width: 100%;
-        min-height: 460px;
+    .request-quote-card[hidden] {
+        display: none;
     }
 
-    .request-map-overlay {
-        position: absolute;
-        inset: auto 16px 16px 16px;
-        z-index: 500;
-        background: rgba(15, 23, 42, 0.78);
-        color: #fff;
+    .request-quote-state {
         padding: 12px 14px;
         border-radius: 16px;
-        font-size: 0.92rem;
+        background: rgba(15, 23, 42, 0.05);
+        color: #334155;
         line-height: 1.5;
-        backdrop-filter: blur(8px);
+        font-weight: 700;
     }
 
-    .request-location-panel {
+    .request-quote-state--loading {
+        background: rgba(37, 99, 235, 0.10);
+        color: #1d4ed8;
+    }
+
+    .request-quote-state--success {
+        background: rgba(22, 163, 74, 0.10);
+        color: #15803d;
+    }
+
+    .request-quote-state--warning {
+        background: rgba(245, 158, 11, 0.12);
+        color: #b45309;
+    }
+
+    .request-quote-state--danger {
+        background: rgba(239, 68, 68, 0.10);
+        color: #b91c1c;
+    }
+
+    .request-quote-total {
+        padding: 16px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.14);
         display: grid;
-        gap: 16px;
+        gap: 6px;
     }
 
-    .request-map-toolbar {
-        display: flex;
-        flex-wrap: wrap;
+    .request-quote-total span {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .request-quote-total strong {
+        color: #0f172a;
+        line-height: 1.05;
+        font-size: 2rem;
+        letter-spacing: -0.04em;
+    }
+
+    .request-quote-total small {
+        color: #475569;
+        line-height: 1.45;
+        font-size: 0.86rem;
+    }
+
+    .request-quote-list {
+        display: grid;
         gap: 10px;
-        align-items: center;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .request-quote-list li {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: #ffffff;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #0f172a;
+        line-height: 1.45;
+    }
+
+    .request-quote-list li span:last-child {
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .request-quote-note {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.04);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        color: #475569;
+        line-height: 1.5;
+        font-size: 0.88rem;
     }
 
     .request-search-form {
@@ -83,43 +299,61 @@
 
     .request-search-result strong {
         display: block;
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         margin-bottom: 4px;
     }
 
     .request-search-result span {
         display: block;
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         color: #64748b;
         line-height: 1.45;
     }
 
-    .request-location-summary {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
+    .request-map-shell {
+        position: relative;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background: #e2e8f0;
     }
 
-    .request-location-chip {
-        padding: 14px 16px;
-        border-radius: 18px;
-        background: #f8fafc;
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+    .request-map {
+        width: 100%;
+        min-height: 420px;
     }
 
-    .request-location-chip span {
-        font-size: 0.8rem;
-        color: #64748b;
-    }
-
-    .request-location-chip strong {
-        color: #0f172a;
+    .request-map-overlay {
+        position: absolute;
+        inset: auto 14px 14px 14px;
+        z-index: 500;
+        background: rgba(15, 23, 42, 0.78);
+        color: #fff;
+        padding: 12px 14px;
+        border-radius: 16px;
+        font-size: 0.9rem;
         line-height: 1.5;
-        font-size: 0.96rem;
-        word-break: break-word;
+        backdrop-filter: blur(8px);
+    }
+
+    .request-map-pin-wrapper {
+        background: transparent;
+        border: 0;
+    }
+
+    .request-map-pin {
+        display: block;
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        background: #f97316;
+        border: 3px solid #fff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
+    }
+
+    .request-location-box {
+        display: grid;
+        gap: 12px;
     }
 
     .request-location-status {
@@ -128,7 +362,7 @@
         border: 1px solid rgba(15, 23, 42, 0.08);
         background: rgba(37, 99, 235, 0.08);
         color: #1d4ed8;
-        font-weight: 600;
+        font-weight: 700;
         line-height: 1.5;
     }
 
@@ -147,19 +381,31 @@
         color: #15803d;
     }
 
-    .request-map-pin {
-        display: block;
-        width: 22px;
-        height: 22px;
-        border-radius: 999px;
-        background: #f97316;
-        border: 3px solid #fff;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
+    .request-location-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
     }
 
-    .request-map-pin-wrapper {
-        background: transparent;
-        border: 0;
+    .request-location-item {
+        padding: 14px 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: #f8fafc;
+        display: grid;
+        gap: 6px;
+    }
+
+    .request-location-item span {
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .request-location-item strong {
+        color: #0f172a;
+        line-height: 1.45;
+        word-break: break-word;
+        font-size: 0.94rem;
     }
 
     .request-hidden-coordinates {
@@ -170,23 +416,59 @@
         background: #f8fafc;
     }
 
-    @media (max-width: 980px) {
-        .request-map-layout {
+    @media (max-width: 1024px) {
+        .request-step-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .request-form-layout {
             grid-template-columns: 1fr;
         }
     }
 
-    @media (max-width: 640px) {
-        .request-map {
-            min-height: 360px;
+    @media (max-width: 720px) {
+        .request-state-grid,
+        .request-location-grid {
+            grid-template-columns: 1fr;
         }
 
         .request-search-form {
             grid-template-columns: 1fr;
         }
 
-        .request-location-summary {
+        .request-map {
+            min-height: 340px;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .request-step-grid {
             grid-template-columns: 1fr;
+        }
+
+        .request-hero__copy h2 {
+            font-size: 1.25rem;
+        }
+
+        .request-hero__copy p,
+        .request-step-card p,
+        .request-quote-note {
+            font-size: 0.88rem;
+        }
+
+        .request-state-card,
+        .request-quote-card {
+            padding: 15px;
+        }
+
+        .request-quote-total strong {
+            font-size: 1.7rem;
+        }
+
+        .request-quote-list li,
+        .request-location-item,
+        .request-state-item {
+            padding: 12px;
         }
     }
 </style>
@@ -202,20 +484,21 @@
 
     $statusLabel = function (?string $status): string {
         $map = [
-            'created' => 'Creada',
-            'accepted' => 'Aceptada',
-            'assigned' => 'Asignada',
-            'in_progress' => 'En progreso',
-            'arrived' => 'En sitio',
-            'completed' => 'Completada',
-            'cancelled' => 'Cancelada',
-            'quoted' => 'Cotizada',
+            'created' => 'Solicitud enviada',
+            'accepted' => 'Solicitud aceptada',
+            'assigned' => 'Proveedor asignado',
+            'in_progress' => 'En camino',
+            'arrived' => 'Llegó al punto',
+            'completed' => 'Servicio completado',
+            'cancelled' => 'Servicio cancelado',
             'pending' => 'Pendiente',
+            'pending_validation' => 'Pago en revisión',
+            'paid' => 'Pago confirmado',
         ];
 
         $key = strtolower(trim((string) $status));
 
-        return $map[$key] ?? ($status ?: 'Sin estado');
+        return $map[$key] ?? ($status ?: 'En proceso');
     };
 
     $vehicleLabel = function (array $vehicle): string {
@@ -230,7 +513,7 @@
             : ($base !== '' ? $base : 'Vehículo sin datos');
     };
 
-    $activeServiceName = data_get($activeRequest, 'service.name', 'Servicio no identificado');
+    $activeServiceName = data_get($activeRequest, 'service.name', 'Servicio');
     $activeVehicleName = !empty($activeRequest['vehicle']) && is_array($activeRequest['vehicle'])
         ? $vehicleLabel($activeRequest['vehicle'])
         : 'Vehículo no identificado';
@@ -249,238 +532,282 @@
     if (empty($initialVehicles)) {
         $blockingMessages[] = [
             'tone' => 'warning',
-            'message' => 'No tienes vehículos disponibles. Debes registrar al menos uno antes de solicitar asistencia.',
+            'message' => 'Antes de pedir ayuda, agrega al menos un vehículo en tu perfil.',
         ];
     }
 
     if (empty($initialServices)) {
         $blockingMessages[] = [
             'tone' => 'warning',
-            'message' => 'No hay servicios activos disponibles para generar una solicitud en este momento.',
+            'message' => 'En este momento no hay servicios disponibles.',
         ];
     }
 
     if (!empty($activeRequest)) {
         $blockingMessages[] = [
             'tone' => 'warning',
-            'message' => 'Ya existe una solicitud activa para este cliente. Debes darle seguimiento o cancelarla antes de crear otra.',
+            'message' => 'Ya tienes una solicitud en proceso. Primero revisa su seguimiento.',
         ];
     }
-
-    $formHelperMessage = $requestCanCreate
-        ? 'Selecciona la ubicación en el mapa. La dirección base se llenará automáticamente y la referencia manual quedará separada para orientar mejor al proveedor.'
-        : 'El formulario está bloqueado hasta que el flujo cumpla las condiciones mínimas de operación.';
 @endphp
 
-<section class="panel hero-panel hero-panel--compact">
-    <div>
-        <p class="hero-panel__eyebrow">Nueva asistencia</p>
-        <h2>Selecciona el punto exacto y añade una referencia útil.</h2>
-        <p>
-            El mapa definirá la dirección base de la solicitud. Después podrás agregar una referencia manual
-            como fachada, negocio cercano, acceso o punto visible para que el proveedor llegue con más precisión.
-        </p>
+<section class="panel request-hero">
+    <div class="request-hero__copy">
+        <p class="hero-panel__eyebrow">Pedir ayuda</p>
+        <h2>Solicita apoyo para tu vehículo</h2>
+        <p>Elige el servicio, revisa el costo y marca el punto donde necesitas ayuda.</p>
+    </div>
+
+    <div class="actions-inline">
+        @if(!empty($activeRequest))
+            <a href="{{ route('user.activo') }}" class="button button--primary">Ver seguimiento</a>
+        @else
+            <a href="{{ route('user.cuenta') }}" class="button button--secondary">Mis vehículos</a>
+        @endif
+
+        <a href="{{ route('user.historial') }}" class="button button--ghost">Historial</a>
     </div>
 </section>
 
-<section id="requestBlockingState" class="stack-list">
-    @forelse($blockingMessages as $message)
-        @php
-            $isDanger = ($message['tone'] ?? 'warning') === 'danger';
-        @endphp
-
-        <article
-            class="notice-card"
-            style="border-color: {{ $isDanger ? 'rgba(220,38,38,0.18)' : 'rgba(161,98,7,0.18)' }}; background: {{ $isDanger ? 'rgba(220,38,38,0.05)' : 'rgba(161,98,7,0.06)' }}; color: {{ $isDanger ? '#b91c1c' : '#92400e' }};"
-        >
-            {{ $message['message'] }}
-        </article>
-    @empty
-        <article
-            class="notice-card"
-            style="border-color: rgba(22,163,74,0.18); background: rgba(22,163,74,0.05); color: #166534;"
-        >
-            El flujo está listo para crear una nueva asistencia.
-        </article>
-    @endforelse
-</section>
-
-<section class="grid-two">
-    <article class="panel">
-        <div class="section-head">
-            <h3>Antes de solicitar</h3>
-            <span class="section-pill">Revisión</span>
-        </div>
-
-        <div class="stack-list">
-            <article class="card-row">
-                <h4 class="card-row__title">1. Verifica tu vehículo</h4>
-                <p class="card-row__meta">
-                    Debes tener al menos un vehículo registrado en tu cuenta para poder continuar.
-                </p>
-            </article>
-
-            <article class="card-row">
-                <h4 class="card-row__title">2. Marca el punto real</h4>
-                <p class="card-row__meta">
-                    Usa el mapa para ubicar el lugar exacto de atención. Puedes buscar una dirección, tocar el mapa o usar tu ubicación actual.
-                </p>
-            </article>
-
-            <article class="card-row">
-                <h4 class="card-row__title">3. Escribe una referencia útil</h4>
-                <p class="card-row__meta">
-                    Ejemplos: “frente al Oxxo”, “portón gris”, “subiendo el puente peatonal”, “carril lateral”.
-                </p>
-            </article>
-        </div>
-
-        <div class="actions-inline" style="margin-top: 1rem;">
-            @if(empty($initialVehicles))
-                <a href="{{ route('user.cuenta') }}" class="button button--secondary">Ir a Cuenta</a>
-            @endif
-
-            @if(!empty($activeRequest))
-                <a href="{{ route('user.activo') }}" class="button button--primary">Abrir servicio activo</a>
-            @endif
-        </div>
+<section class="request-step-grid">
+    <article class="request-step-card">
+        <span>1</span>
+        <strong>Elige el servicio</strong>
+        <p>Selecciona el tipo de ayuda que necesitas.</p>
     </article>
 
-    <article class="panel">
-        <div class="section-head">
-            <h3>Estado del flujo</h3>
-            <span class="section-pill">MVP</span>
-        </div>
+    <article class="request-step-card">
+        <span>2</span>
+        <strong>Elige tu vehículo</strong>
+        <p>Usa el vehículo correcto para obtener el costo.</p>
+    </article>
 
-        @if(!empty($activeRequest))
-            <div class="stack-list">
-                <article class="card-row">
-                    <h4 class="card-row__title">Solicitud activa detectada</h4>
-                    <p class="card-row__meta">Folio: {{ $activePublicId }}</p>
-                    <p class="card-row__meta">Servicio: {{ $activeServiceName }}</p>
-                    <p class="card-row__meta">Vehículo: {{ $activeVehicleName }}</p>
-                    <p class="card-row__meta">Estado: {{ $statusLabel(data_get($activeRequest, 'status')) }}</p>
-                </article>
-            </div>
-        @else
-            <div class="helper-note">
-                Si ya tienes una solicitud activa, el sistema bloqueará la creación de otra hasta que la actual
-                termine o sea cancelada.
-            </div>
+    <article class="request-step-card">
+        <span>3</span>
+        <strong>Revisa el costo</strong>
+        <p>El sistema calcula el monto automáticamente.</p>
+    </article>
 
-            <div class="stack-list">
-                <article class="card-row">
-                    <h4 class="card-row__title">Solicitud única activa</h4>
-                    <p class="card-row__meta">
-                        Esto evita duplicidades y mantiene ordenado el proceso entre cliente, proveedor y administración.
-                    </p>
-                </article>
-
-                <article class="card-row">
-                    <h4 class="card-row__title">Seguimiento posterior</h4>
-                    <p class="card-row__meta">
-                        Después de crear la asistencia, el control principal pasa a la vista de servicio activo.
-                    </p>
-                </article>
-
-                <article class="card-row">
-                    <h4 class="card-row__title">Servicios disponibles</h4>
-                    <p class="card-row__meta">
-                        {{ count($initialServices) }} servicio(s) activos detectados desde la API.
-                    </p>
-                </article>
-
-                <article class="card-row">
-                    <h4 class="card-row__title">Vehículos disponibles</h4>
-                    <p class="card-row__meta">
-                        {{ count($initialVehicles) }} vehículo(s) detectados para este cliente.
-                    </p>
-                </article>
-            </div>
-        @endif
+    <article class="request-step-card">
+        <span>4</span>
+        <strong>Marca tu ubicación</strong>
+        <p>Ubica el punto exacto donde necesitas ayuda.</p>
     </article>
 </section>
+
+@if(!empty($blockingMessages))
+    <section class="stack-list">
+        @foreach($blockingMessages as $message)
+            @php
+                $isDanger = ($message['tone'] ?? 'warning') === 'danger';
+            @endphp
+
+            <article
+                class="notice-card"
+                style="border-color: {{ $isDanger ? 'rgba(220,38,38,0.18)' : 'rgba(161,98,7,0.18)' }}; background: {{ $isDanger ? 'rgba(220,38,38,0.05)' : 'rgba(161,98,7,0.06)' }}; color: {{ $isDanger ? '#b91c1c' : '#92400e' }};"
+            >
+                {{ $message['message'] }}
+            </article>
+        @endforeach
+    </section>
+@endif
+
+@if(!empty($activeRequest))
+    <section class="panel">
+        <div class="section-head">
+            <h3>Tienes una solicitud en proceso</h3>
+            <span class="section-pill">Activa</span>
+        </div>
+
+        <div class="request-state-card">
+            <div class="request-state-card__top">
+                <div class="request-state-card__title">
+                    <h3>{{ $activeServiceName }}</h3>
+                    <p>Folio {{ $activePublicId }}</p>
+                </div>
+
+                <span class="request-state-pill">
+                    {{ $statusLabel(data_get($activeRequest, 'status')) }}
+                </span>
+            </div>
+
+            <div class="request-state-grid">
+                <article class="request-state-item">
+                    <span>Vehículo</span>
+                    <strong>{{ $activeVehicleName }}</strong>
+                </article>
+
+                <article class="request-state-item">
+                    <span>Dirección</span>
+                    <strong>{{ data_get($activeRequest, 'pickup_address', 'Sin dirección registrada') }}</strong>
+                </article>
+
+                <article class="request-state-item">
+                    <span>Pago</span>
+                    <strong>{{ $statusLabel(data_get($activeRequest, 'payment_status', 'pending')) }}</strong>
+                </article>
+
+                <article class="request-state-item">
+                    <span>Monto</span>
+                    <strong>${{ number_format((float) data_get($activeRequest, 'final_amount', data_get($activeRequest, 'quoted_amount', 0)), 2) }}</strong>
+                </article>
+            </div>
+
+            <div class="actions-inline">
+                <a href="{{ route('user.activo') }}" class="button button--primary">Abrir seguimiento</a>
+            </div>
+        </div>
+    </section>
+@endif
 
 <section class="panel">
     <div class="section-head">
-        <h3>Formulario de solicitud</h3>
-        <span class="section-pill">Ubicación</span>
-    </div>
-
-    <div class="helper-note">
-        {{ $formHelperMessage }}
+        <h3>Nueva solicitud</h3>
+        <span class="section-pill">Formulario</span>
     </div>
 
     <form id="assistanceRequestForm" class="form-grid" autocomplete="off">
-        <label class="form-field form-field--full">
-            <span>Servicio</span>
-            <select id="requestServiceId" name="service_id" required @disabled(!$requestCanCreate)>
-                <option value="">
-                    {{ count($initialServices) ? 'Selecciona un servicio' : 'No hay servicios disponibles' }}
-                </option>
-                @foreach($initialServices as $service)
-                    <option value="{{ $service['id'] }}" @selected(old('service_id') == ($service['id'] ?? null))>
-                        {{ $service['name'] ?? 'Servicio' }}
-                    </option>
-                @endforeach
-            </select>
-        </label>
+        <div class="request-form-layout">
+            <div class="request-form-stack">
+                <label class="form-field form-field--full">
+                    <span>Servicio</span>
+                    <select id="requestServiceId" name="service_id" required @disabled(!$requestCanCreate)>
+                        <option value="">
+                            {{ count($initialServices) ? 'Selecciona un servicio' : 'No hay servicios disponibles' }}
+                        </option>
+                        @foreach($initialServices as $service)
+                            <option value="{{ $service['id'] }}" @selected(old('service_id') == ($service['id'] ?? null))>
+                                {{ $service['name'] ?? 'Servicio' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </label>
 
-        <label class="form-field form-field--full">
-            <span>Vehículo</span>
-            <select id="requestVehicleId" name="vehicle_id" required @disabled(!$requestCanCreate)>
-                <option value="">
-                    {{ count($initialVehicles) ? 'Selecciona un vehículo' : 'No hay vehículos disponibles' }}
-                </option>
-                @foreach($initialVehicles as $vehicle)
-                    <option value="{{ $vehicle['id'] }}" @selected(old('vehicle_id') == ($vehicle['id'] ?? null))>
-                        {{ $vehicleLabel($vehicle) }}
-                    </option>
-                @endforeach
-            </select>
-        </label>
+                <label class="form-field form-field--full">
+                    <span>Vehículo</span>
+                    <select id="requestVehicleId" name="vehicle_id" required @disabled(!$requestCanCreate)>
+                        <option value="">
+                            {{ count($initialVehicles) ? 'Selecciona un vehículo' : 'No hay vehículos disponibles' }}
+                        </option>
+                        @foreach($initialVehicles as $vehicle)
+                            <option value="{{ $vehicle['id'] }}" @selected(old('vehicle_id') == ($vehicle['id'] ?? null))>
+                                {{ $vehicleLabel($vehicle) }}
+                            </option>
+                        @endforeach
+                    </select>
+                </label>
 
-        <div class="form-field form-field--full">
-            <span>Buscar ubicación</span>
+                <div id="requestQuoteCard" class="request-quote-card" @if(!$requestCanCreate) hidden @endif>
+                    <div id="requestQuoteState" class="request-quote-state">
+                        Selecciona un servicio y un vehículo para ver el costo.
+                    </div>
 
-            <div class="request-search-form">
-                <input
-                    type="text"
-                    id="requestSearchQuery"
-                    placeholder="Ej. Av. Juárez 123, Guadalajara"
-                    @disabled(!$requestCanCreate)
-                >
+                    <div class="request-quote-total">
+                        <span>Total</span>
+                        <strong id="requestQuoteAmount">—</strong>
+                        <small id="requestQuoteCurrencyNote">El costo se calcula automáticamente.</small>
+                    </div>
 
-                <button
-                    type="button"
-                    id="requestSearchButton"
-                    class="button button--ghost"
-                    @disabled(!$requestCanCreate)
-                >
-                    Buscar
-                </button>
-            </div>
+                    <ul id="requestQuoteBreakdown" class="request-quote-list">
+                        <li>
+                            <span>Sin datos todavía</span>
+                            <span>—</span>
+                        </li>
+                    </ul>
 
-            <div id="requestSearchResults" class="request-search-results"></div>
-        </div>
-
-        <div class="form-field form-field--full">
-            <span>Selecciona el punto en el mapa</span>
-
-            <div class="request-map-layout">
-                <div class="request-map-shell">
-                    <div id="requestMap" class="request-map"></div>
-                    <div id="requestMapOverlay" class="request-map-overlay">
-                        Toca el mapa o usa “Mi ubicación” para fijar el punto exacto donde necesitas apoyo.
+                    <div id="requestQuoteNotes">
+                        <div class="request-quote-note">
+                            El costo final se volverá a confirmar cuando envíes tu solicitud.
+                        </div>
                     </div>
                 </div>
 
-                <div class="request-location-panel">
-                    <div id="requestLocationStatus" class="request-location-status">
-                        Aún no se ha fijado una ubicación para la solicitud.
+                <label class="form-field form-field--full">
+                    <span>Buscar dirección</span>
+
+                    <div class="request-search-form">
+                        <input
+                            type="text"
+                            id="requestSearchQuery"
+                            placeholder="Ej. Av. Juárez 123, Guadalajara"
+                            @disabled(!$requestCanCreate)
+                        >
+
+                        <button
+                            type="button"
+                            id="requestSearchButton"
+                            class="button button--ghost"
+                            @disabled(!$requestCanCreate)
+                        >
+                            Buscar
+                        </button>
                     </div>
 
-                    <div class="request-map-toolbar">
+                    <div id="requestSearchResults" class="request-search-results"></div>
+                </label>
+
+                <label class="form-field form-field--full">
+                    <span>Dirección</span>
+                    <textarea
+                        id="requestPickupAddress"
+                        name="pickup_address"
+                        rows="3"
+                        class="request-readonly-field"
+                        placeholder="El mapa llenará esta dirección automáticamente."
+                        required
+                        readonly
+                        @disabled(!$requestCanCreate)
+                    >{{ old('pickup_address') }}</textarea>
+                </label>
+
+                <label class="form-field form-field--full">
+                    <span>Referencia</span>
+                    <textarea
+                        id="requestPickupReference"
+                        name="pickup_reference"
+                        rows="4"
+                        placeholder="Ej. Frente a la farmacia, al lado del portón gris"
+                        @disabled(!$requestCanCreate)
+                    >{{ old('pickup_reference') }}</textarea>
+                </label>
+
+                <div class="request-hidden-coordinates">
+                    <input
+                        type="hidden"
+                        id="requestLat"
+                        name="lat"
+                        value="{{ old('lat') }}"
+                        required
+                    >
+
+                    <input
+                        type="hidden"
+                        id="requestLng"
+                        name="lng"
+                        value="{{ old('lng') }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-actions form-field--full">
+                    <button
+                        type="submit"
+                        id="requestSubmitButton"
+                        class="button button--primary"
+                        @disabled(!$requestCanCreate)
+                    >
+                        Enviar solicitud
+                    </button>
+                </div>
+            </div>
+
+            <div class="request-form-stack">
+                <div class="request-location-box">
+                    <div id="requestLocationStatus" class="request-location-status">
+                        Marca el punto exacto donde necesitas ayuda.
+                    </div>
+
+                    <div class="actions-inline">
                         <button
                             type="button"
                             id="requestMapLocateButton"
@@ -491,78 +818,31 @@
                         </button>
                     </div>
 
-                    <div class="request-location-summary">
-                        <article class="request-location-chip">
+                    <div class="request-map-shell">
+                        <div id="requestMap" class="request-map"></div>
+                        <div id="requestMapOverlay" class="request-map-overlay">
+                            Toca el mapa para marcar tu ubicación o usa el botón de ubicación actual.
+                        </div>
+                    </div>
+
+                    <div class="request-location-grid">
+                        <article class="request-location-item">
                             <span>Latitud</span>
                             <strong id="requestLatPreview">{{ old('lat') ?: 'Pendiente' }}</strong>
                         </article>
 
-                        <article class="request-location-chip">
+                        <article class="request-location-item">
                             <span>Longitud</span>
                             <strong id="requestLngPreview">{{ old('lng') ?: 'Pendiente' }}</strong>
                         </article>
 
-                        <article class="request-location-chip" style="grid-column: 1 / -1;">
-                            <span>Dirección detectada desde el mapa</span>
+                        <article class="request-location-item" style="grid-column: 1 / -1;">
+                            <span>Ubicación detectada</span>
                             <strong id="requestDetectedAddress">{{ old('pickup_address') ?: 'Pendiente de seleccionar ubicación' }}</strong>
                         </article>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <label class="form-field form-field--full">
-            <span>Dirección base detectada</span>
-            <textarea
-                id="requestPickupAddress"
-                name="pickup_address"
-                rows="3"
-                class="request-readonly-field"
-                placeholder="El mapa llenará automáticamente esta dirección."
-                required
-                readonly
-                @disabled(!$requestCanCreate)
-            >{{ old('pickup_address') }}</textarea>
-        </label>
-
-        <label class="form-field form-field--full">
-            <span>Referencia manual para el proveedor</span>
-            <textarea
-                id="requestPickupReference"
-                name="pickup_reference"
-                rows="4"
-                placeholder="Ej. Frente al Oxxo, a un lado del portón gris, carril lateral, subiendo el puente peatonal"
-                @disabled(!$requestCanCreate)
-            >{{ old('pickup_reference') }}</textarea>
-        </label>
-
-        <div class="request-hidden-coordinates">
-            <input
-                type="hidden"
-                id="requestLat"
-                name="lat"
-                value="{{ old('lat') }}"
-                required
-            >
-
-            <input
-                type="hidden"
-                id="requestLng"
-                name="lng"
-                value="{{ old('lng') }}"
-                required
-            >
-        </div>
-
-        <div class="form-actions form-field--full">
-            <button
-                type="submit"
-                id="requestSubmitButton"
-                class="button button--primary"
-                @disabled(!$requestCanCreate)
-            >
-                Crear asistencia
-            </button>
         </div>
     </form>
 </section>
@@ -580,6 +860,8 @@
     let marker = null;
     let latestDetectedAddress = '';
     let searchAbortController = null;
+    let quoteAbortController = null;
+    let latestQuote = null;
 
     function boot() {
         const app = window.ZYGA_CLIENT_APP || {};
@@ -589,25 +871,23 @@
         }
 
         if (!window.L) {
-            updateStatus('No fue posible cargar el mapa.', 'danger');
+            updateLocationStatus('No pudimos cargar el mapa.', 'danger');
             return;
         }
 
         initializeMap();
         bindUi();
         hydrateInitialState();
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', boot, { once: true });
-    } else {
-        boot();
+        hydrateQuoteState();
+        bindFormSubmit();
     }
 
     function bindUi() {
         const locateButton = document.getElementById('requestMapLocateButton');
         const searchButton = document.getElementById('requestSearchButton');
         const searchInput = document.getElementById('requestSearchQuery');
+        const serviceSelect = document.getElementById('requestServiceId');
+        const vehicleSelect = document.getElementById('requestVehicleId');
 
         if (locateButton) {
             locateButton.addEventListener('click', useCurrentLocation);
@@ -625,6 +905,97 @@
                 }
             });
         }
+
+        if (serviceSelect) {
+            serviceSelect.addEventListener('change', hydrateQuoteState);
+        }
+
+        if (vehicleSelect) {
+            vehicleSelect.addEventListener('change', hydrateQuoteState);
+        }
+    }
+
+    function bindFormSubmit() {
+        const form = document.getElementById('assistanceRequestForm');
+
+        if (!form) {
+            return;
+        }
+
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const app = window.ZYGA_CLIENT_APP || {};
+            const submitButton = document.getElementById('requestSubmitButton');
+            const serviceId = getValue('requestServiceId');
+            const vehicleId = getValue('requestVehicleId');
+            const lat = getValue('requestLat');
+            const lng = getValue('requestLng');
+            const pickupAddress = getValue('requestPickupAddress');
+            const pickupReference = getValue('requestPickupReference');
+
+            if (!app.apiBaseUrl || !app.token) {
+                alert('Tu sesión no está lista. Vuelve a iniciar sesión.');
+                return;
+            }
+
+            if (!serviceId || !vehicleId) {
+                alert('Primero elige el servicio y tu vehículo.');
+                return;
+            }
+
+            if (!latestQuote) {
+                alert('Espera a que se calcule el costo antes de continuar.');
+                return;
+            }
+
+            if (!lat || !lng || !pickupAddress) {
+                alert('Marca tu ubicación en el mapa antes de enviar la solicitud.');
+                return;
+            }
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Enviando...';
+            }
+
+            try {
+                const response = await fetch(app.apiBaseUrl + '/api/v1/client/assistance-requests', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + app.token
+                    },
+                    body: JSON.stringify({
+                        service_id: Number(serviceId),
+                        vehicle_id: Number(vehicleId),
+                        lat: Number(lat),
+                        lng: Number(lng),
+                        pickup_address: pickupAddress,
+                        pickup_reference: pickupReference || null
+                    })
+                });
+
+                const payload = await response.json().catch(function () {
+                    return {};
+                });
+
+                if (!response.ok) {
+                    throw new Error(readableApiMessage(payload.message || 'No pudimos enviar tu solicitud.'));
+                }
+
+                alert('Tu solicitud fue enviada correctamente.');
+                window.location.href = (app.routes && app.routes.active) ? app.routes.active : '/user/activo';
+            } catch (error) {
+                alert(error.message || 'No pudimos enviar tu solicitud.');
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Enviar solicitud';
+                }
+            }
+        });
     }
 
     function initializeMap() {
@@ -643,7 +1014,6 @@
 
         map.on('click', function (event) {
             setSelectedPoint(event.latlng.lat, event.latlng.lng, {
-                source: 'map',
                 recenter: false,
                 reverse: true
             });
@@ -657,112 +1027,252 @@
     }
 
     function hydrateInitialState() {
-        const latInput = document.getElementById('requestLat');
-        const lngInput = document.getElementById('requestLng');
-        const pickupAddress = document.getElementById('requestPickupAddress');
+        const lat = toNumber(getValue('requestLat'));
+        const lng = toNumber(getValue('requestLng'));
+        const pickupAddress = getValue('requestPickupAddress');
 
-        const lat = toNumber(latInput && latInput.value);
-        const lng = toNumber(lngInput && lngInput.value);
-
-        if (pickupAddress && pickupAddress.value.trim() !== '') {
-            latestDetectedAddress = pickupAddress.value.trim();
-            setDetectedAddress(latestDetectedAddress);
-            setPickupAddressField(latestDetectedAddress);
+        if (pickupAddress) {
+            latestDetectedAddress = pickupAddress;
+            setDetectedAddress(pickupAddress);
+            setPickupAddressField(pickupAddress);
         }
 
         if (lat !== null && lng !== null) {
             setSelectedPoint(lat, lng, {
-                source: 'initial',
                 recenter: true,
-                reverse: pickupAddress ? pickupAddress.value.trim() === '' : true
+                reverse: pickupAddress === ''
             });
             return;
         }
 
-        updateStatus('Selecciona un punto en el mapa, busca una dirección o usa tu ubicación actual.', 'warning');
+        updateLocationStatus('Marca el punto exacto donde necesitas ayuda.', 'warning');
     }
 
-    function createMarker(lat, lng) {
-        return L.marker([lat, lng], {
-            draggable: true,
-            icon: L.divIcon({
-                className: 'request-map-pin-wrapper',
-                html: '<span class="request-map-pin"></span>',
-                iconSize: [22, 22],
-                iconAnchor: [11, 11]
-            })
-        }).addTo(map);
-    }
+    function hydrateQuoteState() {
+        const card = document.getElementById('requestQuoteCard');
+        const submitButton = document.getElementById('requestSubmitButton');
+        const serviceId = getValue('requestServiceId');
+        const vehicleId = getValue('requestVehicleId');
 
-    function setSelectedPoint(lat, lng, options = {}) {
-        if (!map) {
+        if (!card) {
             return;
         }
 
-        if (!marker) {
-            marker = createMarker(lat, lng);
+        latestQuote = null;
+        card.hidden = false;
 
-            marker.on('dragend', function () {
-                const position = marker.getLatLng();
-
-                setSelectedPoint(position.lat, position.lng, {
-                    source: 'drag',
-                    recenter: false,
-                    reverse: true
-                });
-            });
-        } else {
-            marker.setLatLng([lat, lng]);
+        if (submitButton) {
+            submitButton.disabled = true;
         }
 
-        if (options.recenter !== false) {
-            map.setView([lat, lng], Math.max(map.getZoom(), DEFAULT_ZOOM));
+        if (!serviceId || !vehicleId) {
+            renderQuoteIdle('Selecciona un servicio y un vehículo para ver el costo.');
+            return;
         }
 
-        setCoordinateFields(lat, lng);
-
-        if (options.reverse !== false) {
-            reverseGeocode(lat, lng);
-        } else {
-            updateStatus('Ubicación cargada correctamente.', 'success');
-        }
-
-        hideMapOverlay();
+        fetchQuote(serviceId, vehicleId);
     }
 
-    function setCoordinateFields(lat, lng) {
-        const latValue = Number(lat).toFixed(6);
-        const lngValue = Number(lng).toFixed(6);
+    async function fetchQuote(serviceId, vehicleId) {
+        const app = window.ZYGA_CLIENT_APP || {};
 
-        const latInput = document.getElementById('requestLat');
-        const lngInput = document.getElementById('requestLng');
-        const latPreview = document.getElementById('requestLatPreview');
-        const lngPreview = document.getElementById('requestLngPreview');
+        if (!app.apiBaseUrl || !app.token) {
+            renderQuoteError('Tu sesión no está lista para calcular el costo.');
+            return;
+        }
 
-        if (latInput) latInput.value = latValue;
-        if (lngInput) lngInput.value = lngValue;
-        if (latPreview) latPreview.textContent = latValue;
-        if (lngPreview) lngPreview.textContent = lngValue;
+        renderQuoteLoading();
+
+        if (quoteAbortController) {
+            quoteAbortController.abort();
+        }
+
+        quoteAbortController = new AbortController();
+
+        try {
+            const response = await fetch(app.apiBaseUrl + '/api/v1/client/assistance-requests/quote', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + app.token
+                },
+                body: JSON.stringify({
+                    service_id: Number(serviceId),
+                    vehicle_id: Number(vehicleId)
+                }),
+                signal: quoteAbortController.signal
+            });
+
+            const payload = await response.json().catch(function () {
+                return {};
+            });
+
+            if (!response.ok) {
+                throw new Error(readableApiMessage(payload.message || 'No pudimos calcular el costo.'));
+            }
+
+            latestQuote = payload && payload.data ? payload.data : null;
+
+            if (!latestQuote) {
+                throw new Error('No pudimos calcular el costo en este momento.');
+            }
+
+            renderQuoteSuccess(latestQuote);
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                return;
+            }
+
+            latestQuote = null;
+            renderQuoteError(error.message || 'No pudimos calcular el costo.');
+        }
+    }
+
+    function renderQuoteIdle(message) {
+        setQuoteState(message, 'default');
+        setQuoteAmount('—');
+        setQuoteCurrencyNote('El costo aparecerá aquí.');
+        setQuoteBreakdown([
+            ['Costo base', '—'],
+            ['Recargo nocturno', '—'],
+            ['Recargo fin de semana', '—'],
+        ]);
+        setQuoteNotes([
+            'El costo se calcula automáticamente cuando eliges el servicio y el vehículo.',
+        ]);
+    }
+
+    function renderQuoteLoading() {
+        setQuoteState('Calculando costo...', 'loading');
+        setQuoteAmount('Calculando...');
+        setQuoteCurrencyNote('Espera un momento.');
+        setQuoteBreakdown([
+            ['Costo base', '...'],
+            ['Recargo nocturno', '...'],
+            ['Recargo fin de semana', '...'],
+        ]);
+        setQuoteNotes([
+            'Estamos revisando la tarifa disponible para tu solicitud.',
+        ]);
+    }
+
+    function renderQuoteSuccess(quote) {
+        const submitButton = document.getElementById('requestSubmitButton');
+        const currency = String(quote.currency || 'MXN').toUpperCase();
+
+        setQuoteState('Costo listo. Ya puedes continuar con tu ubicación.', 'success');
+        setQuoteAmount(formatMoney(quote.quoted_amount, currency));
+        setQuoteCurrencyNote(currency + ' · calculado automáticamente');
+        setQuoteBreakdown([
+            ['Costo base', formatMoney(quote.base_amount, currency)],
+            ['Recargo nocturno', formatMoney(quote.night_surcharge, currency)],
+            ['Recargo fin de semana', formatMoney(quote.weekend_surcharge, currency)],
+        ]);
+
+        const notes = [];
+
+        if (quote.conditions && quote.conditions.is_night) {
+            notes.push('Se aplicó recargo nocturno.');
+        } else {
+            notes.push('No se aplicó recargo nocturno.');
+        }
+
+        if (quote.conditions && quote.conditions.is_weekend) {
+            notes.push('Se aplicó recargo de fin de semana.');
+        } else {
+            notes.push('No se aplicó recargo de fin de semana.');
+        }
+
+        setQuoteNotes(notes);
+
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
+    }
+
+    function renderQuoteError(message) {
+        const submitButton = document.getElementById('requestSubmitButton');
+
+        setQuoteState(message, 'danger');
+        setQuoteAmount('No disponible');
+        setQuoteCurrencyNote('No fue posible calcular el costo.');
+        setQuoteBreakdown([
+            ['Costo base', '—'],
+            ['Recargo nocturno', '—'],
+            ['Recargo fin de semana', '—'],
+        ]);
+        setQuoteNotes([
+            'Verifica tu servicio, tu vehículo o intenta nuevamente en unos momentos.',
+        ]);
+
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
+    }
+
+    function setQuoteState(message, tone) {
+        const target = document.getElementById('requestQuoteState');
+
+        if (!target) return;
+
+        target.className = 'request-quote-state';
+
+        if (tone === 'loading') target.classList.add('request-quote-state--loading');
+        if (tone === 'success') target.classList.add('request-quote-state--success');
+        if (tone === 'warning') target.classList.add('request-quote-state--warning');
+        if (tone === 'danger') target.classList.add('request-quote-state--danger');
+
+        target.textContent = message;
+    }
+
+    function setQuoteAmount(value) {
+        const target = document.getElementById('requestQuoteAmount');
+        if (target) target.textContent = value;
+    }
+
+    function setQuoteCurrencyNote(value) {
+        const target = document.getElementById('requestQuoteCurrencyNote');
+        if (target) target.textContent = value;
+    }
+
+    function setQuoteBreakdown(items) {
+        const container = document.getElementById('requestQuoteBreakdown');
+
+        if (!container) return;
+
+        container.innerHTML = (items || []).map(function (item) {
+            return '<li><span>' + escapeHtml(item[0]) + '</span><span>' + escapeHtml(item[1]) + '</span></li>';
+        }).join('');
+    }
+
+    function setQuoteNotes(items) {
+        const container = document.getElementById('requestQuoteNotes');
+
+        if (!container) return;
+
+        container.innerHTML = (items || []).map(function (item) {
+            return '<div class="request-quote-note">' + escapeHtml(item) + '</div>';
+        }).join('');
     }
 
     async function useCurrentLocation() {
         if (!navigator.geolocation) {
-            updateStatus('Tu navegador no soporta geolocalización.', 'danger');
+            updateLocationStatus('Tu celular no permite obtener la ubicación desde aquí.', 'danger');
             return;
         }
 
-        updateStatus('Obteniendo ubicación actual del dispositivo...', 'info');
+        updateLocationStatus('Buscando tu ubicación...', 'info');
 
         navigator.geolocation.getCurrentPosition(
             function (position) {
                 setSelectedPoint(position.coords.latitude, position.coords.longitude, {
-                    source: 'geolocation',
                     recenter: true,
                     reverse: true
                 });
             },
             function () {
-                updateStatus('No fue posible obtener la ubicación del dispositivo.', 'danger');
+                updateLocationStatus('No pudimos obtener tu ubicación.', 'danger');
             },
             {
                 enableHighAccuracy: true,
@@ -773,15 +1283,14 @@
     }
 
     async function runSearch() {
-        const queryInput = document.getElementById('requestSearchQuery');
-        const query = (queryInput && queryInput.value ? queryInput.value : '').trim();
+        const query = String(getValue('requestSearchQuery') || '').trim();
 
         if (!query) {
-            updateStatus('Escribe una dirección o referencia para buscarla en el mapa.', 'warning');
+            updateLocationStatus('Escribe una dirección para buscarla.', 'warning');
             return;
         }
 
-        updateStatus('Buscando dirección en el mapa...', 'info');
+        updateLocationStatus('Buscando dirección...', 'info');
         renderSearchResults([]);
 
         if (searchAbortController) {
@@ -810,27 +1319,25 @@
             const results = await response.json();
 
             if (!Array.isArray(results) || !results.length) {
-                updateStatus('No se encontraron resultados para esa búsqueda.', 'warning');
+                updateLocationStatus('No encontramos resultados para esa dirección.', 'warning');
                 return;
             }
 
             renderSearchResults(results);
-            updateStatus('Selecciona uno de los resultados para fijar la ubicación.', 'success');
+            updateLocationStatus('Selecciona una opción para marcar la ubicación.', 'success');
         } catch (error) {
             if (error.name === 'AbortError') {
                 return;
             }
 
-            updateStatus('No fue posible buscar la dirección en este momento.', 'danger');
+            updateLocationStatus('No pudimos buscar la dirección.', 'danger');
         }
     }
 
     function renderSearchResults(results) {
         const container = document.getElementById('requestSearchResults');
 
-        if (!container) {
-            return;
-        }
+        if (!container) return;
 
         if (!results.length) {
             container.innerHTML = '';
@@ -855,7 +1362,6 @@
                 const address = button.dataset.address || '';
 
                 setSelectedPoint(lat, lng, {
-                    source: 'search',
                     recenter: true,
                     reverse: false
                 });
@@ -863,14 +1369,55 @@
                 latestDetectedAddress = address;
                 setDetectedAddress(address);
                 setPickupAddressField(address);
-                updateStatus('Ubicación fijada desde la búsqueda.', 'success');
+                updateLocationStatus('Ubicación guardada correctamente.', 'success');
                 container.innerHTML = '';
             });
         });
     }
 
+    function setSelectedPoint(lat, lng, options) {
+        if (!map) return;
+
+        if (!marker) {
+            marker = L.marker([lat, lng], {
+                draggable: true,
+                icon: L.divIcon({
+                    className: 'request-map-pin-wrapper',
+                    html: '<span class="request-map-pin"></span>',
+                    iconSize: [22, 22],
+                    iconAnchor: [11, 11]
+                })
+            }).addTo(map);
+
+            marker.on('dragend', function () {
+                const position = marker.getLatLng();
+
+                setSelectedPoint(position.lat, position.lng, {
+                    recenter: false,
+                    reverse: true
+                });
+            });
+        } else {
+            marker.setLatLng([lat, lng]);
+        }
+
+        if (!options || options.recenter !== false) {
+            map.setView([lat, lng], Math.max(map.getZoom(), DEFAULT_ZOOM));
+        }
+
+        setCoordinateFields(lat, lng);
+
+        if (!options || options.reverse !== false) {
+            reverseGeocode(lat, lng);
+        } else {
+            updateLocationStatus('Ubicación guardada correctamente.', 'success');
+        }
+
+        hideMapOverlay();
+    }
+
     async function reverseGeocode(lat, lng) {
-        updateStatus('Obteniendo dirección del punto seleccionado...', 'info');
+        updateLocationStatus('Obteniendo dirección…', 'info');
 
         try {
             const params = new URLSearchParams({
@@ -892,53 +1439,47 @@
             const address = (data && data.display_name ? data.display_name : '').trim();
 
             if (!address) {
-                updateStatus('Se fijó la ubicación, pero no se pudo resolver una dirección útil.', 'warning');
+                updateLocationStatus('La ubicación fue guardada, pero no pudimos obtener la dirección.', 'warning');
                 return;
             }
 
             latestDetectedAddress = address;
             setDetectedAddress(address);
             setPickupAddressField(address);
-            updateStatus('Ubicación fijada correctamente.', 'success');
+            updateLocationStatus('Ubicación guardada correctamente.', 'success');
         } catch (error) {
-            updateStatus('Se fijó la ubicación, pero falló la obtención de la dirección.', 'warning');
+            updateLocationStatus('La ubicación fue guardada, pero no pudimos obtener la dirección.', 'warning');
         }
+    }
+
+    function setCoordinateFields(lat, lng) {
+        const latValue = Number(lat).toFixed(6);
+        const lngValue = Number(lng).toFixed(6);
+
+        setInputValue('requestLat', latValue);
+        setInputValue('requestLng', lngValue);
+        setText('requestLatPreview', latValue);
+        setText('requestLngPreview', lngValue);
     }
 
     function setDetectedAddress(address) {
-        const target = document.getElementById('requestDetectedAddress');
-
-        if (target) {
-            target.textContent = address || 'Pendiente de seleccionar ubicación';
-        }
+        setText('requestDetectedAddress', address || 'Pendiente de seleccionar ubicación');
     }
 
     function setPickupAddressField(address) {
-        const pickupAddress = document.getElementById('requestPickupAddress');
-
-        if (!pickupAddress) {
-            return;
-        }
-
-        pickupAddress.value = address || '';
+        setInputValue('requestPickupAddress', address || '');
     }
 
-    function updateStatus(message, tone) {
+    function updateLocationStatus(message, tone) {
         const target = document.getElementById('requestLocationStatus');
 
-        if (!target) {
-            return;
-        }
+        if (!target) return;
 
         target.className = 'request-location-status';
 
-        if (tone === 'warning') {
-            target.classList.add('request-location-status--warning');
-        } else if (tone === 'danger') {
-            target.classList.add('request-location-status--danger');
-        } else if (tone === 'success') {
-            target.classList.add('request-location-status--success');
-        }
+        if (tone === 'warning') target.classList.add('request-location-status--warning');
+        if (tone === 'danger') target.classList.add('request-location-status--danger');
+        if (tone === 'success') target.classList.add('request-location-status--success');
 
         target.textContent = message;
     }
@@ -946,12 +1487,67 @@
     function hideMapOverlay() {
         const overlay = document.getElementById('requestMapOverlay');
 
-        if (!overlay) {
-            return;
-        }
+        if (!overlay) return;
 
         overlay.hidden = true;
         overlay.textContent = '';
+    }
+
+    function getValue(id) {
+        const node = document.getElementById(id);
+        return node ? String(node.value || '').trim() : '';
+    }
+
+    function setInputValue(id, value) {
+        const node = document.getElementById(id);
+        if (node) node.value = value;
+    }
+
+    function setText(id, value) {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value;
+    }
+
+    function readableApiMessage(message) {
+        const text = String(message || '').trim();
+        const normalized = text.toLowerCase();
+
+        if (!text) {
+            return 'Ocurrió un problema. Intenta nuevamente.';
+        }
+
+        if (normalized.includes('ya existe una solicitud activa')) {
+            return 'Ya tienes una solicitud en proceso. Abre el seguimiento para continuar.';
+        }
+
+        if (normalized.includes('vehículo seleccionado no pertenece')) {
+            return 'No pudimos usar ese vehículo. Intenta nuevamente desde tu cuenta.';
+        }
+
+        if (normalized.includes('no existe una tarifa activa')) {
+            return 'No hay costo disponible para esa combinación de servicio y vehículo.';
+        }
+
+        return text;
+    }
+
+    function formatMoney(value, currency) {
+        const amount = Number(value);
+
+        if (!Number.isFinite(amount)) {
+            return '—';
+        }
+
+        try {
+            return new Intl.NumberFormat('es-MX', {
+                style: 'currency',
+                currency: currency || 'MXN',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        } catch (error) {
+            return '$' + amount.toFixed(2);
+        }
     }
 
     function toNumber(value) {
@@ -967,6 +1563,13 @@
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
     }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+        boot();
+    }
 })();
 </script>
 @endpush
+
