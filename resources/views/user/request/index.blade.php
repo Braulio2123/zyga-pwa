@@ -554,8 +554,8 @@
 <section class="panel request-hero">
     <div class="request-hero__copy">
         <p class="hero-panel__eyebrow">Pedir ayuda</p>
-        <h2>Solicita ayuda para tu vehículo</h2>
-        <p>Selecciona el servicio, revisa el costo y marca el lugar donde necesitas apoyo.</p>
+        <h2>Solicita apoyo para tu vehículo</h2>
+        <p>Elige el servicio, revisa el costo y marca el punto donde necesitas ayuda.</p>
     </div>
 
     <div class="actions-inline">
@@ -579,13 +579,13 @@
     <article class="request-step-card">
         <span>2</span>
         <strong>Elige tu vehículo</strong>
-        <p>Selecciona el vehículo para calcular el costo correctamente.</p>
+        <p>Usa el vehículo correcto para obtener el costo.</p>
     </article>
 
     <article class="request-step-card">
         <span>3</span>
         <strong>Revisa el costo</strong>
-        <p>El total se calcula automáticamente antes de enviar la solicitud.</p>
+        <p>El sistema calcula el monto automáticamente.</p>
     </article>
 
     <article class="request-step-card">
@@ -699,13 +699,13 @@
 
                 <div id="requestQuoteCard" class="request-quote-card" @if(!$requestCanCreate) hidden @endif>
                     <div id="requestQuoteState" class="request-quote-state">
-                        Selecciona un servicio y un vehículo para conocer el costo.
+                        Selecciona un servicio y un vehículo para ver el costo.
                     </div>
 
                     <div class="request-quote-total">
                         <span>Total</span>
                         <strong id="requestQuoteAmount">—</strong>
-                        <small id="requestQuoteCurrencyNote">El total aparecerá automáticamente aquí.</small>
+                        <small id="requestQuoteCurrencyNote">El costo se calcula automáticamente.</small>
                     </div>
 
                     <ul id="requestQuoteBreakdown" class="request-quote-list">
@@ -717,7 +717,7 @@
 
                     <div id="requestQuoteNotes">
                         <div class="request-quote-note">
-                            El importe mostrado será el mismo que se usará al registrar tu solicitud.
+                            El costo final se volverá a confirmar cuando envíes tu solicitud.
                         </div>
                     </div>
                 </div>
@@ -940,7 +940,7 @@
             }
 
             if (!serviceId || !vehicleId) {
-                alert('Selecciona primero el servicio y el vehículo.');
+                alert('Primero elige el servicio y tu vehículo.');
                 return;
             }
 
@@ -950,7 +950,7 @@
             }
 
             if (!lat || !lng || !pickupAddress) {
-                alert('Marca en el mapa el lugar donde necesitas ayuda antes de enviar la solicitud.');
+                alert('Marca tu ubicación en el mapa antes de enviar la solicitud.');
                 return;
             }
 
@@ -985,7 +985,7 @@
                     throw new Error(readableApiMessage(payload.message || 'No pudimos enviar tu solicitud.'));
                 }
 
-                alert('Tu solicitud fue enviada con éxito.');
+                alert('Tu solicitud fue enviada correctamente.');
                 window.location.href = (app.routes && app.routes.active) ? app.routes.active : '/user/activo';
             } catch (error) {
                 alert(error.message || 'No pudimos enviar tu solicitud.');
@@ -1066,7 +1066,7 @@
         }
 
         if (!serviceId || !vehicleId) {
-            renderQuoteIdle('Selecciona un servicio y un vehículo para conocer el costo.');
+            renderQuoteIdle('Selecciona un servicio y un vehículo para ver el costo.');
             return;
         }
 
@@ -1132,19 +1132,19 @@
     function renderQuoteIdle(message) {
         setQuoteState(message, 'default');
         setQuoteAmount('—');
-        setQuoteCurrencyNote('Aquí verás el total estimado.');
+        setQuoteCurrencyNote('El costo aparecerá aquí.');
         setQuoteBreakdown([
             ['Costo base', '—'],
             ['Recargo nocturno', '—'],
             ['Recargo fin de semana', '—'],
         ]);
         setQuoteNotes([
-            'El total se calcula automáticamente al elegir el servicio y el vehículo.',
+            'El costo se calcula automáticamente cuando eliges el servicio y el vehículo.',
         ]);
     }
 
     function renderQuoteLoading() {
-        setQuoteState('Calculando el costo...', 'loading');
+        setQuoteState('Calculando costo...', 'loading');
         setQuoteAmount('Calculando...');
         setQuoteCurrencyNote('Espera un momento.');
         setQuoteBreakdown([
@@ -1153,7 +1153,7 @@
             ['Recargo fin de semana', '...'],
         ]);
         setQuoteNotes([
-            'Estamos calculando el costo disponible para este servicio.',
+            'Estamos revisando la tarifa disponible para tu solicitud.',
         ]);
     }
 
@@ -1196,14 +1196,14 @@
 
         setQuoteState(message, 'danger');
         setQuoteAmount('No disponible');
-        setQuoteCurrencyNote('No pudimos calcular el costo en este momento.');
+        setQuoteCurrencyNote('No fue posible calcular el costo.');
         setQuoteBreakdown([
             ['Costo base', '—'],
             ['Recargo nocturno', '—'],
             ['Recargo fin de semana', '—'],
         ]);
         setQuoteNotes([
-            'Revisa tu servicio, tu vehículo o inténtalo nuevamente en unos momentos.',
+            'Verifica tu servicio, tu vehículo o intenta nuevamente en unos momentos.',
         ]);
 
         if (submitButton) {
@@ -1517,7 +1517,7 @@
         }
 
         if (normalized.includes('ya existe una solicitud activa')) {
-            return 'Ya tienes una solicitud activa. Revisa el seguimiento para continuar.';
+            return 'Ya tienes una solicitud en proceso. Abre el seguimiento para continuar.';
         }
 
         if (normalized.includes('vehículo seleccionado no pertenece')) {

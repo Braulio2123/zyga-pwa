@@ -2,229 +2,171 @@
 
 @push('page_styles')
 <style>
-    .account-hero {
+    .history-hero {
         display: grid;
         gap: 14px;
     }
 
-    .account-hero__copy {
+    .history-hero__copy {
         display: grid;
         gap: 6px;
     }
 
-    .account-hero__copy h2 {
+    .history-hero__copy h2 {
         margin: 0;
         color: #0f172a;
         line-height: 1.08;
         font-size: clamp(1.35rem, 2vw, 1.9rem);
     }
 
-    .account-hero__copy p {
+    .history-hero__copy p {
         margin: 0;
         color: #475569;
         line-height: 1.55;
         font-size: 0.95rem;
     }
 
-    .account-error-card {
-        border-color: rgba(220, 38, 38, 0.18);
-        background: rgba(220, 38, 38, 0.05);
-        color: #b91c1c;
-    }
-
-    .account-ready-grid {
+    .history-stats {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 12px;
     }
 
-    .account-ready-card {
-        padding: 16px;
-        border-radius: 20px;
-        border: 1px solid rgba(148, 163, 184, 0.16);
+    .history-card {
+        padding: 18px;
+        border-radius: 22px;
+        border: 1px solid rgba(15, 23, 42, 0.08);
         background: #ffffff;
         display: grid;
-        gap: 6px;
-    }
-
-    .account-ready-card.is-ready {
-        border-color: rgba(22, 163, 74, 0.18);
-        background: rgba(22, 163, 74, 0.05);
-    }
-
-    .account-ready-card span {
-        color: #64748b;
-        font-size: 0.8rem;
-    }
-
-    .account-ready-card strong {
-        color: #0f172a;
-        line-height: 1.45;
-        font-size: 1rem;
-    }
-
-    .account-profile-card {
-        display: grid;
         gap: 14px;
-        padding: 18px;
-        border-radius: 24px;
-        border: 1px solid rgba(15, 23, 42, 0.08);
-        background:
-            radial-gradient(circle at top right, rgba(249, 115, 22, 0.10), transparent 38%),
-            radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.10), transparent 45%),
-            #ffffff;
     }
 
-    .account-profile-card__top {
+    .history-card__top {
         display: flex;
+        justify-content: space-between;
+        gap: 12px;
         align-items: center;
-        gap: 14px;
+        flex-wrap: wrap;
     }
 
-    .account-profile-card__avatar {
-        width: 58px;
-        height: 58px;
-        border-radius: 18px;
+    .history-card__title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 1rem;
+        line-height: 1.3;
+    }
+
+    .history-card__meta {
+        margin: 0;
+        color: #64748b;
+        font-size: 0.86rem;
+        line-height: 1.45;
+    }
+
+    .history-status {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        padding: 7px 10px;
+        border-radius: 999px;
+        font-size: 0.76rem;
         font-weight: 800;
-        font-size: 1.2rem;
-        color: #fff;
-        background: linear-gradient(135deg, #f97316, #ea580c);
-        box-shadow: 0 12px 26px rgba(249, 115, 22, 0.22);
-        flex: 0 0 auto;
+        white-space: nowrap;
     }
 
-    .account-profile-card__copy {
-        min-width: 0;
-        display: grid;
-        gap: 4px;
+    .history-status--success {
+        background: rgba(22, 163, 74, 0.10);
+        color: #15803d;
     }
 
-    .account-profile-card__copy h3 {
-        margin: 0;
-        color: #0f172a;
-        line-height: 1.2;
+    .history-status--warning {
+        background: rgba(245, 158, 11, 0.12);
+        color: #b45309;
     }
 
-    .account-profile-card__copy p {
-        margin: 0;
-        color: #64748b;
-        line-height: 1.45;
-        word-break: break-word;
+    .history-status--danger {
+        background: rgba(239, 68, 68, 0.10);
+        color: #b91c1c;
     }
 
-    .account-profile-grid {
+    .history-status--info {
+        background: rgba(37, 99, 235, 0.10);
+        color: #1d4ed8;
+    }
+
+    .history-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
     }
 
-    .account-profile-item {
-        padding: 14px 16px;
-        border-radius: 18px;
-        border: 1px solid rgba(148, 163, 184, 0.16);
+    .history-grid__item {
+        padding: 13px 14px;
+        border-radius: 16px;
         background: #f8fafc;
+        border: 1px solid rgba(148, 163, 184, 0.14);
         display: grid;
-        gap: 6px;
+        gap: 5px;
     }
 
-    .account-profile-item span {
+    .history-grid__item span {
         color: #64748b;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
     }
 
-    .account-profile-item strong {
+    .history-grid__item strong {
         color: #0f172a;
         line-height: 1.45;
         word-break: break-word;
+        font-size: 0.94rem;
     }
 
-    .account-vehicles-head {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .account-vehicles-grid {
+    .history-list {
         display: grid;
         gap: 12px;
     }
 
-    .account-vehicles-grid--spaced,
-    .account-form-grid--spaced,
-    .account-note--spaced {
-        margin-top: 14px;
-    }
-
-    .account-section-head--compact {
-        margin-bottom: 0;
-    }
-
-    .account-vehicle-card {
-        padding: 16px;
-        border-radius: 20px;
-        border: 1px solid rgba(148, 163, 184, 0.16);
-        background: #ffffff;
-        display: grid;
-        gap: 8px;
-    }
-
-    .account-vehicle-card__title {
-        margin: 0;
-        color: #0f172a;
-        line-height: 1.3;
-        font-size: 1rem;
-    }
-
-    .account-vehicle-card__meta {
-        margin: 0;
-        color: #64748b;
-        line-height: 1.5;
-        font-size: 0.9rem;
-    }
-
-    .account-note {
-        padding: 14px 16px;
+    .history-empty {
+        padding: 18px;
         border-radius: 18px;
-        background: rgba(15, 23, 42, 0.04);
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        color: #475569;
+        border: 1px dashed rgba(148, 163, 184, 0.24);
+        background: rgba(248, 250, 252, 0.92);
+        color: #64748b;
+        text-align: center;
         line-height: 1.55;
-        font-size: 0.92rem;
+    }
+
+    .history-loading {
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(37, 99, 235, 0.06);
+        color: #1d4ed8;
+        text-align: center;
+        line-height: 1.55;
     }
 
     @media (max-width: 900px) {
-        .account-ready-grid,
-        .account-profile-grid {
+        .history-stats,
+        .history-grid {
             grid-template-columns: 1fr;
         }
     }
 
     @media (max-width: 560px) {
-        .account-profile-card,
-        .account-ready-card,
-        .account-vehicle-card {
-            padding: 14px;
+        .history-card {
+            padding: 15px;
         }
 
-        .account-profile-card__avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 16px;
-            font-size: 1.05rem;
+        .history-grid__item {
+            padding: 12px;
         }
 
-        .account-hero__copy h2 {
+        .history-hero__copy h2 {
             font-size: 1.25rem;
         }
 
-        .account-hero__copy p,
-        .account-note,
-        .account-vehicle-card__meta {
+        .history-hero__copy p,
+        .history-card__meta {
             font-size: 0.88rem;
         }
     }
@@ -232,298 +174,395 @@
 @endpush
 
 @section('content')
-@php
-    $initialProfile = is_array($accountProfile ?? null) ? $accountProfile : [];
-    $initialUser = is_array($initialProfile['user'] ?? null) ? $initialProfile['user'] : [];
-    $initialRoles = collect($initialProfile['roles'] ?? [])
-        ->map(fn ($role) => $role['name'] ?? $role['code'] ?? null)
-        ->filter()
-        ->implode(', ');
+<section class="panel history-hero">
+    <div class="history-hero__copy">
+        <p class="hero-panel__eyebrow">Historial</p>
+        <h2>Tus servicios y pagos anteriores</h2>
+        <p>Aquí puedes revisar servicios terminados o cancelados y ver cómo quedó cada pago.</p>
+    </div>
 
-    $initialVehicles = is_array($accountVehicles ?? null) ? $accountVehicles : [];
-    $accountError = trim((string) ($accountLoadError ?? ''));
-
-    $resolveVehicleTypeName = function (array $vehicle): string {
-        $vehicleTypeName = data_get($vehicle, 'vehicle_type.name')
-            ?? data_get($vehicle, 'vehicleType.name');
-
-        if ($vehicleTypeName) {
-            return (string) $vehicleTypeName;
-        }
-
-        $vehicleTypeId = data_get($vehicle, 'vehicle_type_id');
-
-        return $vehicleTypeId ? 'Tipo #' . $vehicleTypeId : 'Sin tipo';
-    };
-
-    $vehicleLabel = function (array $vehicle): string {
-        $brand = trim((string) ($vehicle['brand'] ?? ''));
-        $model = trim((string) ($vehicle['model'] ?? ''));
-        $plate = trim((string) ($vehicle['plate'] ?? ''));
-
-        $base = trim($brand . ' ' . $model);
-
-        return $plate !== ''
-            ? trim($base . ' · ' . $plate)
-            : ($base !== '' ? $base : 'Vehículo sin datos');
-    };
-
-    $userEmail = trim((string) ($initialUser['email'] ?? ''));
-    $userName = trim((string) ($initialUser['name'] ?? 'Cliente'));
-    $avatarLetter = strtoupper(substr($userName !== '' ? $userName : ($userEmail !== '' ? $userEmail : 'C'), 0, 1));
-
-    $profileReady = $userEmail !== '';
-    $hasVehicle = !empty($initialVehicles);
-    $rolesLabel = $initialRoles !== '' ? $initialRoles : 'Cliente';
-@endphp
-
-<section class="panel account-hero">
-    <div class="account-hero__copy">
-        <p class="hero-panel__eyebrow">Mi cuenta</p>
-        <h2>Tu cuenta y tus vehículos</h2>
-        <p>Desde aquí puedes revisar tu información, actualizar tus datos de acceso y dejar listo tu vehículo para pedir ayuda cuando lo necesites.</p>
+    <div class="actions-inline">
+        <a href="{{ route('user.pagos') }}" class="button button--secondary">Ver pagos</a>
+        <a href="{{ route('user.notificaciones') }}" class="button button--ghost">Notificaciones</a>
     </div>
 </section>
 
-@if($accountError !== '')
-    <section class="stack-list">
-        <article class="notice-card account-error-card">
-            {{ $accountError }}
-        </article>
-    </section>
-@endif
-
-<section class="account-ready-grid">
-    <article class="account-ready-card {{ $profileReady ? 'is-ready' : '' }}">
-        <span>Correo</span>
-        <strong>{{ $profileReady ? 'Listo' : 'Falta revisar' }}</strong>
+<section class="history-stats">
+    <article class="stat-card">
+        <span class="stat-card__label">Servicios cerrados</span>
+        <strong id="historyClosedCount">—</strong>
     </article>
 
-    <article class="account-ready-card {{ $hasVehicle ? 'is-ready' : '' }}">
-        <span>Vehículo</span>
-        <strong>{{ $hasVehicle ? 'Ya registrado' : 'Agrega uno' }}</strong>
+    <article class="stat-card">
+        <span class="stat-card__label">Servicios completados</span>
+        <strong id="historyCompletedCount">—</strong>
     </article>
 
-    <article class="account-ready-card is-ready">
-        <span>Acceso</span>
-        <strong>{{ $rolesLabel }}</strong>
+    <article class="stat-card">
+        <span class="stat-card__label">Pagos registrados</span>
+        <strong id="historyPaymentsCount">—</strong>
     </article>
 </section>
 
 <section class="grid-two">
     <article class="panel">
         <div class="section-head">
-            <h3>Tu información</h3>
-            <span class="section-pill">Cuenta</span>
+            <h3>Servicios anteriores</h3>
+            <span class="section-pill">Cerrados</span>
         </div>
 
-        <div id="accountProfileCard">
-            @if(!empty($initialUser))
-                <article class="account-profile-card">
-                    <div class="account-profile-card__top">
-                        <div class="account-profile-card__avatar">{{ $avatarLetter }}</div>
-
-                        <div class="account-profile-card__copy">
-                            <h3>{{ $userName !== '' ? $userName : 'Cliente' }}</h3>
-                            <p>{{ $userEmail !== '' ? $userEmail : 'Sin correo disponible' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="account-profile-grid">
-                        <article class="account-profile-item">
-                            <span>Correo</span>
-                            <strong>{{ $userEmail !== '' ? $userEmail : 'Sin correo disponible' }}</strong>
-                        </article>
-
-                        <article class="account-profile-item">
-                            <span>Tipo de cuenta</span>
-                            <strong>{{ $rolesLabel }}</strong>
-                        </article>
-
-                        <article class="account-profile-item">
-                            <span>ID de usuario</span>
-                            <strong>{{ $initialUser['id'] ?? 'No disponible' }}</strong>
-                        </article>
-
-                        <article class="account-profile-item">
-                            <span>Estado</span>
-                            <strong>{{ $profileReady ? 'Cuenta lista para usarse' : 'Requiere revisión' }}</strong>
-                        </article>
-                    </div>
-                </article>
-            @else
-                <article class="empty-state">
-                    No pudimos cargar tu información en este momento.
-                </article>
-            @endif
+        <div id="historyRequestsList" class="history-list">
+            <article class="history-loading">Cargando tus servicios…</article>
         </div>
     </article>
 
     <article class="panel">
         <div class="section-head">
-            <h3>Mis vehículos</h3>
-            <span class="section-pill">Importante</span>
+            <h3>Pagos</h3>
+            <span class="section-pill">Resumen</span>
         </div>
 
-        <div class="account-note">
-            Para pedir ayuda necesitas tener al menos un vehículo registrado. Puedes agregarlo abajo o editar uno existente.
-        </div>
-
-        <div id="accountVehiclesList" class="account-vehicles-grid account-vehicles-grid--spaced">
-            @forelse($initialVehicles as $vehicle)
-                <article class="account-vehicle-card">
-                    <h4 class="account-vehicle-card__title">{{ $vehicleLabel($vehicle) }}</h4>
-                    <p class="account-vehicle-card__meta">Tipo: {{ $resolveVehicleTypeName($vehicle) }}</p>
-                    <p class="account-vehicle-card__meta">Año: {{ $vehicle['year'] ?? 'No disponible' }}</p>
-
-                    <div class="actions-inline">
-                        <button type="button" class="button button--ghost" data-edit-vehicle="{{ $vehicle['id'] }}">Editar</button>
-                        <button type="button" class="button button--danger" data-delete-vehicle="{{ $vehicle['id'] }}">Eliminar</button>
-                    </div>
-                </article>
-            @empty
-                <article class="empty-state">
-                    Aún no registras vehículos.
-                </article>
-            @endforelse
+        <div id="historyPaymentsList" class="history-list">
+            <article class="history-loading">Cargando tus pagos…</article>
         </div>
     </article>
-</section>
-
-<section class="grid-two">
-    <article class="panel">
-        <div class="section-head">
-            <h3>Cambiar correo</h3>
-            <span class="section-pill">Acceso</span>
-        </div>
-
-        <div class="account-note">
-            Usa un correo que revises con frecuencia para no perder información importante de tu cuenta.
-        </div>
-
-        <form id="accountEmailForm" class="form-grid account-form-grid--spaced" autocomplete="off">
-            <label class="form-field form-field--full">
-                <span>Correo electrónico</span>
-                <input
-                    type="email"
-                    id="accountEmailInput"
-                    name="email"
-                    value="{{ $initialUser['email'] ?? '' }}"
-                    placeholder="cliente@zyga.com"
-                    required
-                >
-            </label>
-
-            <div class="form-actions form-field--full">
-                <button type="submit" class="button button--primary">Guardar correo</button>
-            </div>
-        </form>
-    </article>
-
-    <article class="panel">
-        <div class="section-head">
-            <h3>Cambiar contraseña</h3>
-            <span class="section-pill">Seguridad</span>
-        </div>
-
-        <div class="account-note">
-            Elige una contraseña segura que puedas recordar y no compartas con otras personas.
-        </div>
-
-        <form id="accountPasswordForm" class="form-grid account-form-grid--spaced" autocomplete="off">
-            <label class="form-field form-field--full">
-                <span>Nueva contraseña</span>
-                <input
-                    type="password"
-                    name="password"
-                    id="accountPasswordInput"
-                    minlength="8"
-                    placeholder="Mínimo 8 caracteres"
-                    required
-                >
-            </label>
-
-            <div class="form-actions form-field--full">
-                <button type="submit" class="button button--secondary">Actualizar contraseña</button>
-            </div>
-        </form>
-    </article>
-</section>
-
-<section class="panel">
-    <div class="account-vehicles-head">
-        <div class="section-head account-section-head--compact">
-            <h3>Agregar o editar vehículo</h3>
-            <span class="section-pill">Formulario</span>
-        </div>
-
-        <button type="button" id="vehicleFormReset" class="button button--ghost">Nuevo</button>
-    </div>
-
-    <div class="account-note account-note--spaced">
-        Si tocas “Editar” en uno de tus vehículos, este formulario se llenará automáticamente.
-    </div>
-
-    <form id="vehicleForm" class="form-grid account-form-grid--spaced" autocomplete="off">
-        <input type="hidden" name="vehicle_id" id="vehicleIdInput">
-
-        <label class="form-field">
-            <span>Tipo de vehículo</span>
-            <select name="vehicle_type_id" id="vehicleTypeInput" required>
-                <option value="">Selecciona tipo</option>
-            </select>
-        </label>
-
-        <label class="form-field">
-            <span>Placas</span>
-            <input
-                type="text"
-                name="plate"
-                id="vehiclePlateInput"
-                placeholder="JAL-458-B"
-                required
-            >
-        </label>
-
-        <label class="form-field">
-            <span>Marca</span>
-            <input
-                type="text"
-                name="brand"
-                id="vehicleBrandInput"
-                placeholder="Nissan"
-                required
-            >
-        </label>
-
-        <label class="form-field">
-            <span>Modelo</span>
-            <input
-                type="text"
-                name="model"
-                id="vehicleModelInput"
-                placeholder="Versa"
-                required
-            >
-        </label>
-
-        <label class="form-field form-field--full">
-            <span>Año</span>
-            <input
-                type="number"
-                name="year"
-                id="vehicleYearInput"
-                min="1900"
-                max="2100"
-                placeholder="2021"
-            >
-        </label>
-
-        <div class="form-actions form-field--full">
-            <button type="submit" id="vehicleSubmitButton" class="button button--primary">
-                Guardar vehículo
-            </button>
-        </div>
-    </form>
 </section>
 @endsection
+
+@push('page_scripts')
+<script>
+(function () {
+    function boot() {
+        const app = window.ZYGA_CLIENT_APP || {};
+
+        if ((app.page || '') !== 'history') {
+            return;
+        }
+
+        loadHistory();
+    }
+
+    async function loadHistory() {
+        const app = window.ZYGA_CLIENT_APP || {};
+        const requestsContainer = document.getElementById('historyRequestsList');
+        const paymentsContainer = document.getElementById('historyPaymentsList');
+
+        if (!app.apiBaseUrl || !app.token) {
+            renderErrorState('No pudimos abrir tu historial. Vuelve a iniciar sesión.');
+            return;
+        }
+
+        try {
+            const [requestsPayload, paymentsPayload] = await Promise.all([
+                api(app, '/api/v1/client/assistance-requests'),
+                api(app, '/api/v1/client/payments'),
+            ]);
+
+            const allRequests = extractList(requestsPayload && requestsPayload.data, ['requests', 'items']);
+            const allPayments = extractList(paymentsPayload && paymentsPayload.data, ['payments', 'items']);
+
+            const closedRequests = allRequests.filter(function (item) {
+                const status = normalize(item && item.status);
+                return status === 'completed' || status === 'cancelled';
+            });
+
+            const completedRequests = closedRequests.filter(function (item) {
+                return normalize(item && item.status) === 'completed';
+            });
+
+            const sortedRequests = closedRequests.sort(function (a, b) {
+                return String(b.created_at || b.updated_at || '').localeCompare(String(a.created_at || a.updated_at || ''));
+            });
+
+            const sortedPayments = allPayments.sort(function (a, b) {
+                return String(b.created_at || '').localeCompare(String(a.created_at || ''));
+            });
+
+            setText('historyClosedCount', String(closedRequests.length));
+            setText('historyCompletedCount', String(completedRequests.length));
+            setText('historyPaymentsCount', String(sortedPayments.length));
+
+            renderRequests(sortedRequests, requestsContainer);
+            renderPayments(sortedPayments, paymentsContainer);
+        } catch (error) {
+            renderErrorState(error.message || 'No pudimos cargar tu historial.');
+        }
+    }
+
+    function renderRequests(items, container) {
+        if (!container) return;
+
+        if (!items.length) {
+            container.innerHTML = '<article class="history-empty">Aún no tienes servicios cerrados para mostrar.</article>';
+            return;
+        }
+
+        container.innerHTML = items.map(function (item) {
+            const status = normalize(item.status);
+            const serviceName = (item.service && item.service.name) ? item.service.name : 'Servicio';
+            const folio = item.public_id || ('#' + (item.id || '—'));
+
+            return `
+                <article class="history-card">
+                    <div class="history-card__top">
+                        <div>
+                            <h4 class="history-card__title">${escapeHtml(serviceName)}</h4>
+                            <p class="history-card__meta">Folio ${escapeHtml(folio)}</p>
+                        </div>
+
+                        <span class="history-status ${statusClass(status)}">
+                            ${escapeHtml(statusLabel(status))}
+                        </span>
+                    </div>
+
+                    <div class="history-grid">
+                        <article class="history-grid__item">
+                            <span>Dirección</span>
+                            <strong>${escapeHtml(item.pickup_address || 'Sin dirección registrada')}</strong>
+                        </article>
+
+                        <article class="history-grid__item">
+                            <span>Referencia</span>
+                            <strong>${escapeHtml(item.pickup_reference || 'Sin referencia')}</strong>
+                        </article>
+
+                        <article class="history-grid__item">
+                            <span>Monto</span>
+                            <strong>${escapeHtml(formatMoney(item.final_amount || item.quoted_amount || 0))}</strong>
+                        </article>
+
+                        <article class="history-grid__item">
+                            <span>Pago</span>
+                            <strong>${escapeHtml(paymentStatusLabel(item.payment_status || 'pending'))}</strong>
+                        </article>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    function renderPayments(items, container) {
+        if (!container) return;
+
+        if (!items.length) {
+            container.innerHTML = '<article class="history-empty">Aún no tienes pagos registrados.</article>';
+            return;
+        }
+
+        container.innerHTML = items.map(function (item) {
+            const request = item.assistanceRequest || item.assistance_request || {};
+            const serviceName = (request.service && request.service.name) ? request.service.name : 'Servicio';
+            const paymentStatus = normalize(item.status);
+
+            return `
+                <article class="history-card">
+                    <div class="history-card__top">
+                        <div>
+                            <h4 class="history-card__title">${escapeHtml(serviceName)}</h4>
+                            <p class="history-card__meta">${escapeHtml((request.public_id || ('#' + (request.id || '—'))))}</p>
+                        </div>
+
+                        <span class="history-status ${statusClass(paymentStatus)}">
+                            ${escapeHtml(paymentStatusLabel(paymentStatus))}
+                        </span>
+                    </div>
+
+                    <div class="history-grid">
+                        <article class="history-grid__item">
+                            <span>Monto</span>
+                            <strong>${escapeHtml(formatMoney(item.amount || 0))}</strong>
+                        </article>
+
+                        <article class="history-grid__item">
+                            <span>Método</span>
+                            <strong>${escapeHtml(paymentMethodLabel(item.payment_method || ''))}</strong>
+                        </article>
+
+                        <article class="history-grid__item">
+                            <span>Referencia</span>
+                            <strong>${escapeHtml(item.reference || 'Sin referencia')}</strong>
+                        </article>
+
+                        <article class="history-grid__item">
+                            <span>Fecha</span>
+                            <strong>${escapeHtml(formatDateTime(item.created_at))}</strong>
+                        </article>
+                    </div>
+                </article>
+            `;
+        }).join('');
+    }
+
+    function renderErrorState(message) {
+        const requestsContainer = document.getElementById('historyRequestsList');
+        const paymentsContainer = document.getElementById('historyPaymentsList');
+
+        if (requestsContainer) {
+            requestsContainer.innerHTML = '<article class="history-empty">' + escapeHtml(message) + '</article>';
+        }
+
+        if (paymentsContainer) {
+            paymentsContainer.innerHTML = '<article class="history-empty">' + escapeHtml(message) + '</article>';
+        }
+
+        setText('historyClosedCount', '0');
+        setText('historyCompletedCount', '0');
+        setText('historyPaymentsCount', '0');
+    }
+
+    async function api(app, path) {
+        const response = await fetch(app.apiBaseUrl + path, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': 'Bearer ' + app.token
+            }
+        });
+
+        const payload = await response.json().catch(function () {
+            return {};
+        });
+
+        if (!response.ok) {
+            throw new Error(readableApiMessage(payload.message || 'No pudimos consultar tu historial.'));
+        }
+
+        return payload;
+    }
+
+    function extractList(data, preferredKeys) {
+        if (Array.isArray(data)) {
+            return data;
+        }
+
+        if (!data || typeof data !== 'object') {
+            return [];
+        }
+
+        for (const key of preferredKeys || []) {
+            if (Array.isArray(data[key])) {
+                return data[key];
+            }
+        }
+
+        for (const key of ['items', 'requests', 'payments', 'data']) {
+            if (Array.isArray(data[key])) {
+                return data[key];
+            }
+        }
+
+        return [];
+    }
+
+    function normalize(value) {
+        return String(value || '').trim().toLowerCase();
+    }
+
+    function statusLabel(status) {
+        return {
+            completed: 'Completado',
+            cancelled: 'Cancelado',
+            pending: 'Pendiente',
+            pending_validation: 'En revisión',
+            paid: 'Confirmado',
+            failed: 'Fallido',
+            rejected: 'Rechazado'
+        }[normalize(status)] || 'En proceso';
+    }
+
+    function paymentStatusLabel(status) {
+        return {
+            pending: 'Pendiente',
+            pending_validation: 'En revisión',
+            paid: 'Confirmado',
+            completed: 'Confirmado',
+            failed: 'Fallido',
+            rejected: 'Rechazado'
+        }[normalize(status)] || 'Pendiente';
+    }
+
+    function paymentMethodLabel(value) {
+        return {
+            cash: 'Efectivo',
+            transfer: 'Transferencia'
+        }[normalize(value)] || (value ? String(value) : 'No definido');
+    }
+
+    function statusClass(status) {
+        const value = normalize(status);
+
+        if (value === 'completed' || value === 'paid') return 'history-status--success';
+        if (value === 'pending' || value === 'pending_validation') return 'history-status--warning';
+        if (value === 'cancelled' || value === 'failed' || value === 'rejected') return 'history-status--danger';
+        return 'history-status--info';
+    }
+
+    function formatMoney(value) {
+        const amount = Number(value || 0);
+
+        if (!Number.isFinite(amount)) {
+            return '—';
+        }
+
+        return new Intl.NumberFormat('es-MX', {
+            style: 'currency',
+            currency: 'MXN',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(amount);
+    }
+
+    function formatDateTime(value) {
+        if (!value) return 'Sin fecha';
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return 'Sin fecha';
+        }
+
+        return new Intl.DateTimeFormat('es-MX', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    }
+
+    function readableApiMessage(message) {
+        const text = String(message || '').trim();
+
+        if (!text) {
+            return 'No pudimos cargar tu historial.';
+        }
+
+        if (text.toLowerCase().includes('token')) {
+            return 'Tu sesión ya no es válida. Vuelve a iniciar sesión.';
+        }
+
+        return text;
+    }
+
+    function setText(id, value) {
+        const node = document.getElementById(id);
+        if (node) node.textContent = value;
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
+    } else {
+        boot();
+    }
+})();
+</script>
+@endpush

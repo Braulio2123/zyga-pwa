@@ -26,12 +26,6 @@
         font-size: 0.95rem;
     }
 
-    .account-error-card {
-        border-color: rgba(220, 38, 38, 0.18);
-        background: rgba(220, 38, 38, 0.05);
-        color: #b91c1c;
-    }
-
     .account-ready-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -154,16 +148,6 @@
         gap: 12px;
     }
 
-    .account-vehicles-grid--spaced,
-    .account-form-grid--spaced,
-    .account-note--spaced {
-        margin-top: 14px;
-    }
-
-    .account-section-head--compact {
-        margin-bottom: 0;
-    }
-
     .account-vehicle-card {
         padding: 16px;
         border-radius: 20px;
@@ -279,15 +263,15 @@
 
 <section class="panel account-hero">
     <div class="account-hero__copy">
-        <p class="hero-panel__eyebrow">Mi cuenta</p>
+        <p class="hero-panel__eyebrow">Mi perfil</p>
         <h2>Tu cuenta y tus vehículos</h2>
-        <p>Desde aquí puedes revisar tu información, actualizar tus datos de acceso y dejar listo tu vehículo para pedir ayuda cuando lo necesites.</p>
+        <p>Desde aquí puedes revisar tu información, cambiar tu correo o contraseña y dejar listo tu vehículo para pedir ayuda cuando lo necesites.</p>
     </div>
 </section>
 
 @if($accountError !== '')
     <section class="stack-list">
-        <article class="notice-card account-error-card">
+        <article class="notice-card" style="border-color: rgba(220,38,38,0.18); background: rgba(220,38,38,0.05); color: #b91c1c;">
             {{ $accountError }}
         </article>
     </section>
@@ -369,7 +353,7 @@
             Para pedir ayuda necesitas tener al menos un vehículo registrado. Puedes agregarlo abajo o editar uno existente.
         </div>
 
-        <div id="accountVehiclesList" class="account-vehicles-grid account-vehicles-grid--spaced">
+        <div id="accountVehiclesList" class="account-vehicles-grid" style="margin-top: 14px;">
             @forelse($initialVehicles as $vehicle)
                 <article class="account-vehicle-card">
                     <h4 class="account-vehicle-card__title">{{ $vehicleLabel($vehicle) }}</h4>
@@ -398,10 +382,10 @@
         </div>
 
         <div class="account-note">
-            Usa un correo que revises con frecuencia para no perder información importante de tu cuenta.
+            Usa un correo que revises con frecuencia para que no pierdas información importante de tu cuenta.
         </div>
 
-        <form id="accountEmailForm" class="form-grid account-form-grid--spaced" autocomplete="off">
+        <form id="accountEmailForm" class="form-grid" autocomplete="off" style="margin-top: 14px;">
             <label class="form-field form-field--full">
                 <span>Correo electrónico</span>
                 <input
@@ -427,10 +411,10 @@
         </div>
 
         <div class="account-note">
-            Elige una contraseña segura que puedas recordar y no compartas con otras personas.
+            Elige una contraseña que puedas recordar y que no compartas con otras personas.
         </div>
 
-        <form id="accountPasswordForm" class="form-grid account-form-grid--spaced" autocomplete="off">
+        <form id="accountPasswordForm" class="form-grid" autocomplete="off" style="margin-top: 14px;">
             <label class="form-field form-field--full">
                 <span>Nueva contraseña</span>
                 <input
@@ -452,7 +436,7 @@
 
 <section class="panel">
     <div class="account-vehicles-head">
-        <div class="section-head account-section-head--compact">
+        <div class="section-head" style="margin-bottom: 0;">
             <h3>Agregar o editar vehículo</h3>
             <span class="section-pill">Formulario</span>
         </div>
@@ -460,11 +444,11 @@
         <button type="button" id="vehicleFormReset" class="button button--ghost">Nuevo</button>
     </div>
 
-    <div class="account-note account-note--spaced">
+    <div class="account-note" style="margin-top: 14px;">
         Si tocas “Editar” en uno de tus vehículos, este formulario se llenará automáticamente.
     </div>
 
-    <form id="vehicleForm" class="form-grid account-form-grid--spaced" autocomplete="off">
+    <form id="vehicleForm" class="form-grid" autocomplete="off" style="margin-top: 14px;">
         <input type="hidden" name="vehicle_id" id="vehicleIdInput">
 
         <label class="form-field">

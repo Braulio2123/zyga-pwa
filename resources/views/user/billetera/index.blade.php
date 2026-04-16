@@ -81,25 +81,25 @@
 <section class="panel hero-panel hero-panel--compact">
     <div>
         <p class="hero-panel__eyebrow">Pagos y métodos</p>
-        <h2>Registra tu pago con el importe final de la asistencia, sin volver a capturarlo.</h2>
+        <h2>Registra el pago usando el monto definido por la solicitud, sin capturas manuales.</h2>
         <p>
-            El sistema toma automáticamente el total de la asistencia completada. Por ahora puedes registrar
-            pagos en efectivo o por transferencia de forma simple y ordenada.
+            El sistema toma automáticamente el importe desde la asistencia completada. En esta fase
+            solo se permiten pagos en efectivo o por transferencia para mantener el flujo simple y consistente.
         </p>
     </div>
 </section>
 
 <section class="panel">
     <div class="section-head">
-        <h3>Cómo funciona esta sección</h3>
-        <span class="section-pill">Resumen</span>
+        <h3>Cómo funciona esta sección ahora</h3>
+        <span class="section-pill">Bloque 2</span>
     </div>
 
     <div class="stack-list">
         <article class="card-row">
-            <h4 class="card-row__title">Monto definido automáticamente</h4>
+            <h4 class="card-row__title">Monto protegido por backend</h4>
             <p class="card-row__meta">
-                Ya no necesitas escribir el total manualmente. El sistema usa el importe final de la asistencia completada.
+                Ya no se captura el monto manualmente. El pago usa el valor guardado en la solicitud completada.
             </p>
         </article>
 
@@ -127,7 +127,7 @@
         </div>
 
         <div class="helper-note">
-            Actualmente puedes registrar pagos en efectivo o por transferencia.
+            En esta etapa los métodos disponibles para operación real están limitados a efectivo y transferencia.
         </div>
 
         <div id="paymentMethodsList" class="stack-list">
@@ -190,7 +190,7 @@
         </div>
 
         <div class="helper-note">
-            Selecciona una asistencia completada y el sistema mostrará automáticamente el importe correspondiente.
+            Selecciona una asistencia completada. El importe se mostrará abajo y será el mismo que el backend registrará.
         </div>
 
         <form id="paymentRegisterForm" class="form-grid" autocomplete="off">
@@ -228,7 +228,7 @@
                     </article>
 
                     <article class="payment-request-summary__item" style="grid-column: 1 / -1;">
-                        <span>Total a registrar</span>
+                        <span>Total del sistema</span>
                         <strong id="paymentSummaryAmount" class="payment-request-summary__total">—</strong>
                     </article>
                 </div>
@@ -352,7 +352,7 @@
             });
 
             if (!response.ok) {
-                throw new Error(payload.message || 'No fue posible cargar la información de pagos.');
+                throw new Error(payload.message || 'No fue posible consultar la API.');
             }
 
             return payload;
