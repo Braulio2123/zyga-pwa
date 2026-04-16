@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Zyga</title>
 
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <style>
         :root {
             --zyga-orange: #ff6a00;
@@ -293,14 +295,22 @@
 
         .service-box {
             border-radius: 16px;
-            padding: 12px 8px;
+            padding: 12px 6px;
             text-align: center;
-            font-size: .74rem;
+            font-size: .75rem;
             font-weight: 700;
-            line-height: 1.35;
+            line-height: 1.2;
             color: #555;
             background: #fff;
             border: 1px solid var(--zyga-border);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            /* 🔥 CLAVES */
+            word-wrap: break-word;
+            overflow: hidden;
         }
 
         .service-box:nth-child(1),
@@ -321,8 +331,8 @@
             margin: 10px 16px 0;
             border-radius: 18px;
             background:
-                linear-gradient(rgba(255,255,255,.16), rgba(255,255,255,.16)),
-                url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+                linear-gradient(rgba(255, 255, 255, .16), rgba(255, 255, 255, .16)),
+                url('/images/Google-Maps.jpeg') center/cover no-repeat;
             position: relative;
         }
 
@@ -490,11 +500,15 @@
         }
 
         .step-card__image {
-            height: 220px;
+            width: 100%;
+            height: 200px;
+            /* o el alto que uses */
+
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
+
 
         .step-card__body {
             padding: 26px;
@@ -562,11 +576,11 @@
         }
 
         .highlight__image {
-            min-height: 430px;
+            min-height: 510px;
             border-radius: 28px;
             background:
-                linear-gradient(rgba(255, 106, 0, 0.06), rgba(255, 106, 0, 0.06)),
-                url('https://ahorraseguros.mx/wp-content/uploads/2025/08/asistencia-vial.jpg') center/cover no-repeat;
+                url('/images/servicio-grua.jpeg') center/contain no-repeat;
+            background-color: #fff;
             box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
         }
 
@@ -590,7 +604,7 @@
 
         .download-copy p {
             margin: 0;
-            color: rgba(255,255,255,.78);
+            color: rgba(255, 255, 255, .78);
             line-height: 1.8;
             max-width: 620px;
         }
@@ -617,8 +631,8 @@
             background: #1c1c1c;
             border-radius: 30px;
             padding: 24px;
-            border: 1px solid rgba(255,255,255,.08);
-            box-shadow: 0 20px 40px rgba(0,0,0,.20);
+            border: 1px solid rgba(255, 255, 255, .08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, .20);
         }
 
         .download-phone {
@@ -634,7 +648,7 @@
             border-radius: 22px;
             overflow: hidden;
             background:
-                linear-gradient(rgba(255,255,255,.68), rgba(255,255,255,.82)),
+                linear-gradient(rgba(255, 255, 255, .68), rgba(255, 255, 255, .82)),
                 url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
             padding: 16px;
             display: grid;
@@ -643,7 +657,7 @@
         }
 
         .download-mini-card {
-            background: rgba(255,255,255,.95);
+            background: rgba(255, 255, 255, .95);
             border-radius: 18px;
             padding: 14px;
             box-shadow: var(--zyga-shadow);
@@ -679,6 +693,7 @@
         }
 
         @media (max-width: 1100px) {
+
             .hero__grid,
             .highlight,
             .download-grid,
@@ -763,7 +778,7 @@
 </head>
 
 <body>
-   
+
     <header class="site-header">
         <div class="container site-header__inner">
             <div class="brand">
@@ -933,7 +948,7 @@
                     <div class="step-card__image"
                         style="background-image:
                         linear-gradient(rgba(255,255,255,.10), rgba(255,255,255,.10)),
-                        url('https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=1200&q=80');">
+                        url('/images/seleccion-servicio.jpeg');">
                     </div>
                     <div class="step-card__body">
                         <div class="step-card__number">1</div>
@@ -949,7 +964,7 @@
                     <div class="step-card__image"
                         style="background-image:
                         linear-gradient(rgba(255,255,255,.10), rgba(255,255,255,.10)),
-                        url('https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=1200&q=80');">
+                        url('/images/Google-Maps.jpeg');">
                     </div>
                     <div class="step-card__body">
                         <div class="step-card__number">2</div>
@@ -965,7 +980,7 @@
                     <div class="step-card__image"
                         style="background-image:
                         linear-gradient(rgba(255,255,255,.10), rgba(255,255,255,.10)),
-                        url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1200&q=80');">
+                        url('/images/asistencia-vial.jpeg');">
                     </div>
                     <div class="step-card__body">
                         <div class="step-card__number">3</div>
@@ -1056,9 +1071,7 @@
     <footer class="footer">
         © {{ date('Y') }} Zyga · Plataforma digital de asistencia vial
     </footer>
- )
+
 </body>
-
-
 
 </html>
