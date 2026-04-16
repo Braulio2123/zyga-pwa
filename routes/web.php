@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\ProviderController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ExportController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -297,6 +298,25 @@ Route::prefix('admin')
 
             // Actualizar información de una solicitud
             Route::patch('/{id}', [AssistanceController::class, 'update'])->name('update');
+        });
+        
+        /**
+         * ---------------------------------------------------------------------
+         * Exportaciones administrativas
+         * ---------------------------------------------------------------------
+         */
+        Route::prefix('exportaciones')->name('exportaciones.')->group(function () {
+            Route::get('/users/excel', [ExportController::class, 'usersExcel'])->name('users.excel');
+            Route::get('/users/pdf', [ExportController::class, 'usersPdf'])->name('users.pdf');
+
+            Route::get('/providers/excel', [ExportController::class, 'providersExcel'])->name('providers.excel');
+            Route::get('/providers/pdf', [ExportController::class, 'providersPdf'])->name('providers.pdf');
+
+            Route::get('/assistance-requests/excel', [ExportController::class, 'assistanceRequestsExcel'])->name('assistance.excel');
+            Route::get('/assistance-requests/pdf', [ExportController::class, 'assistanceRequestsPdf'])->name('assistance.pdf');
+
+            Route::get('/payments/excel', [ExportController::class, 'paymentsExcel'])->name('payments.excel');
+            Route::get('/payments/pdf', [ExportController::class, 'paymentsPdf'])->name('payments.pdf');
         });
 
         /**

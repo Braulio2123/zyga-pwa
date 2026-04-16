@@ -135,6 +135,12 @@
 
                 <button class="btn btn-primary">Filtrar</button>
                 <a href="{{ route('admin.finance.index') }}" class="btn btn-light">Limpiar</a>
+                <a href="{{ route('admin.exportaciones.payments.excel', request()->query()) }}" class="btn btn-success">
+                    <i class="fas fa-file-excel mr-1"></i>Exportar Excel
+                </a>
+                <a href="{{ route('admin.exportaciones.payments.pdf', request()->query()) }}" class="btn btn-danger">
+                    <i class="fas fa-file-pdf mr-1"></i>Exportar PDF
+                </a>
             </form>
         </div>
     </div>
