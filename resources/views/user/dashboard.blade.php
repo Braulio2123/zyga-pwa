@@ -202,6 +202,30 @@
         line-height: 1.55;
     }
 
+    .client-home-inline-heading {
+        margin: 0 0 4px;
+        color: #0f172a;
+    }
+
+    .client-home-inline-copy {
+        margin: 0;
+        color: #475569;
+    }
+
+    .client-home-actions-row {
+        margin-top: 16px;
+    }
+
+    .client-home-note--spaced {
+        margin-bottom: 14px;
+    }
+
+    .notice-card--danger {
+        border-color: rgba(220, 38, 38, 0.18);
+        background: rgba(220, 38, 38, 0.05);
+        color: #b91c1c;
+    }
+
     @media (max-width: 1024px) {
         .client-home-actions {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -320,7 +344,7 @@
 @if(!empty($errors))
     <section class="stack-list">
         @foreach($errors as $error)
-            <article class="notice-card" style="border-color: rgba(220,38,38,0.18); background: rgba(220,38,38,0.05); color: #b91c1c;">
+            <article class="notice-card notice-card--danger">
                 {{ $error }}
             </article>
         @endforeach
@@ -332,15 +356,15 @@
         @if(!empty($activeRequest))
             <p class="hero-panel__eyebrow">Servicio en curso</p>
             <h2>Tienes ayuda en proceso</h2>
-            <p>Abre el seguimiento para ver el estado de tu solicitud.</p>
+            <p>Consulta el seguimiento para revisar el avance de tu solicitud.</p>
         @elseif($canRequest)
             <p class="hero-panel__eyebrow">Inicio</p>
-            <h2>¿Necesitas ayuda?</h2>
-            <p>Pide apoyo en unos cuantos pasos.</p>
+            <h2>Hola, {{ $firstName }}</h2>
+            <p>Tu cuenta está lista para pedir ayuda cuando la necesites.</p>
         @else
             <p class="hero-panel__eyebrow">Inicio</p>
             <h2>Deja tu cuenta lista</h2>
-            <p>Completa tus datos y agrega un vehículo para continuar.</p>
+            <p>Completa tus datos y registra un vehículo para poder solicitar ayuda.</p>
         @endif
     </div>
 
@@ -365,7 +389,7 @@
     </article>
 
     <article class="stat-card">
-        <span class="stat-card__label">Notificaciones</span>
+        <span class="stat-card__label">Notificaciones nuevas</span>
         <strong>{{ count($unreadNotifications) }}</strong>
     </article>
 
@@ -385,8 +409,8 @@
         <div class="client-service-card">
             <div class="client-service-card__top">
                 <div>
-                    <h3 style="margin: 0 0 4px; color: #0f172a;">{{ $activeServiceName }}</h3>
-                    <p style="margin: 0; color: #475569;">Folio {{ $activePublicId }}</p>
+                    <h3 class="client-home-inline-heading">{{ $activeServiceName }}</h3>
+                    <p class="client-home-inline-copy">Folio {{ $activePublicId }}</p>
                 </div>
 
                 <span class="client-service-card__status">
@@ -406,12 +430,12 @@
                 </article>
 
                 <article class="client-service-item">
-                    <span>Monto</span>
+                    <span>Total</span>
                     <strong>${{ number_format((float) data_get($activeRequest, 'final_amount', data_get($activeRequest, 'quoted_amount', 0)), 2) }}</strong>
                 </article>
 
                 <article class="client-service-item">
-                    <span>Pago</span>
+                    <span>Estado del pago</span>
                     <strong>{{ $statusLabel(data_get($activeRequest, 'payment_status', 'pending')) }}</strong>
                 </article>
             </div>
@@ -449,11 +473,11 @@
 
             <article class="client-check-item {{ !empty($history) ? 'is-ready' : '' }}">
                 <span>Uso del sistema</span>
-                <strong>{{ !empty($history) ? 'Ya usaste el sistema' : 'Aún no haces una solicitud' }}</strong>
+                <strong>{{ !empty($history) ? 'Ya usaste el sistema' : 'Aún no has hecho una solicitud' }}</strong>
             </article>
         </div>
 
-        <div class="actions-inline" style="margin-top: 16px;">
+        <div class="actions-inline client-home-actions-row">
             <a href="{{ route('user.cuenta') }}" class="button button--secondary">Ir a mi perfil</a>
 
             @if($canRequest)
@@ -480,7 +504,7 @@
         <article class="client-home-action">
             <span class="client-home-action__label">Seguimiento</span>
             <h4>Ver estado</h4>
-            <p>Consulta si ya aceptaron tu solicitud y cómo va el servicio.</p>
+            <p>Consulta si ya aceptaron tu solicitud y cómo avanza el servicio.</p>
             <a href="{{ route('user.activo') }}" class="button button--secondary button--compact">Abrir</a>
         </article>
 
@@ -531,7 +555,7 @@
             @endforelse
         </div>
 
-        <div class="actions-inline" style="margin-top: 16px;">
+        <div class="actions-inline client-home-actions-row">
             <a href="{{ route('user.notificaciones') }}" class="button button--ghost">Ver todas</a>
         </div>
     </article>
@@ -543,7 +567,7 @@
         </div>
 
         @if(!empty($pendingPayments))
-            <div class="client-home-note" style="margin-bottom: 14px;">
+            <div class="client-home-note client-home-note--spaced">
                 Tienes {{ count($pendingPayments) }} pago(s) pendiente(s) de revisión o confirmación.
             </div>
         @endif
@@ -573,7 +597,7 @@
             @endforelse
         </div>
 
-        <div class="actions-inline" style="margin-top: 16px;">
+        <div class="actions-inline client-home-actions-row">
             <a href="{{ route('user.historial') }}" class="button button--ghost">Ver historial</a>
             <a href="{{ route('user.pagos') }}" class="button button--secondary">Ver pagos</a>
         </div>
