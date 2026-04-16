@@ -139,7 +139,7 @@
     <div class="notifications-hero__copy">
         <p class="hero-panel__eyebrow">Notificaciones</p>
         <h2>Tus avisos recientes</h2>
-        <p>Aquí puedes revisar cambios de tu solicitud, tu servicio y tus pagos.</p>
+        <p>Aquí puedes revisar cambios de tu solicitud, del servicio y de tus pagos.</p>
     </div>
 
     <div class="actions-inline">

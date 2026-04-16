@@ -29,19 +29,22 @@ class ClientMiddleware
         $roleCodes = $roles
             ->map(function ($role) {
                 if (is_array($role)) {
-                    return $role['code'] ?? null;
+                    return $role['code'] ?? $role['name'] ?? null;
                 }
 
                 if (is_object($role)) {
-                    return $role->code ?? null;
+                    return $role->code ?? $role->name ?? null;
                 }
 
                 return $role;
             })
             ->filter()
+            ->map(fn ($role) => strtolower((string) $role))
             ->values();
 
-        if (! $roleCodes->contains('client')) {
+        $primaryRole = strtolower((string) data_get(session('user'), 'role', ''));
+
+        if ($primaryRole !== 'client' && ! $roleCodes->contains('client')) {
             abort(403, 'Acceso solo para clientes.');
         }
 

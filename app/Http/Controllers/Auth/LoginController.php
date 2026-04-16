@@ -48,7 +48,7 @@ class LoginController extends Controller
             $roles = $payload['roles'] ?? [];
             $token = $payload['token'] ?? null;
             $roleCodes = $this->normalizeRoleCodes($roles);
-            $primaryRole = $roleCodes->first() ?? 'client';
+            $primaryRole = strtolower((string) ($user['role'] ?? ($roleCodes->first() ?? 'client')));
 
             if (! $token) {
                 return back()
