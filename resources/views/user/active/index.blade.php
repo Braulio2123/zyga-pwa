@@ -62,6 +62,7 @@
         font-size: 0.98rem;
         color: #0f172a;
         line-height: 1.5;
+        word-break: break-word;
     }
 
     .active-tracking-map-shell {
@@ -127,7 +128,7 @@
         <h2>Da seguimiento a tu asistencia en tiempo real.</h2>
         <p>
             Aquí podrás consultar el estado actual de tu solicitud, revisar el timeline del servicio,
-            ver el mapa de seguimiento y cancelar únicamente cuando el flujo todavía lo permita.
+            ver el mapa del proveedor en camino y confirmar la dirección base junto con la referencia manual registrada.
         </p>
     </div>
 </section>
@@ -139,8 +140,8 @@
     </div>
 
     <div class="helper-note">
-        Este bloque consulta la solicitud activa del cliente y usa el endpoint de tracking para mostrar
-        la ubicación registrada de la asistencia y, cuando exista, la última posición enviada por el proveedor.
+        Este bloque consulta la solicitud activa del cliente y consume el endpoint de tracking para mostrar
+        la ubicación del punto de atención, la referencia operativa y la última posición registrada del proveedor.
     </div>
 
     <div id="activeTrackingStatus" class="active-tracking-status active-tracking-status--info">
@@ -188,16 +189,16 @@
             </article>
 
             <article class="card-row">
-                <h4 class="card-row__title">Actualización periódica</h4>
+                <h4 class="card-row__title">Actualización automática</h4>
                 <p class="card-row__meta">
                     El mapa consulta cambios automáticamente cada pocos segundos y además puedes refrescar manualmente.
                 </p>
             </article>
 
             <article class="card-row">
-                <h4 class="card-row__title">Cancelación controlada</h4>
+                <h4 class="card-row__title">Dirección + referencia</h4>
                 <p class="card-row__meta">
-                    La cancelación solo debe usarse cuando el estado actual de la solicitud todavía lo permita.
+                    La dirección base proviene del mapa y la referencia manual ayuda a ubicar mejor el punto exacto de atención.
                 </p>
             </article>
         </div>
@@ -357,6 +358,7 @@
                 renderTrackingStatus('No hay una asistencia activa para mostrar en el mapa.', 'warning');
                 renderTrackingMeta([]);
                 setMapOverlay('Crea o recupera una solicitud activa para habilitar el seguimiento.');
+                resetProviderMarker();
                 return;
             }
 
@@ -366,6 +368,7 @@
             renderTrackingStatus(error.message || 'No fue posible cargar el seguimiento del servicio.', 'danger');
             renderTrackingMeta([]);
             setMapOverlay(error.message || 'Ocurrió un error al consultar el seguimiento.');
+            resetProviderMarker();
         } finally {
             requestInFlight = false;
         }
@@ -391,17 +394,19 @@
                     ? formatDateTime(providerLocation.recorded_at)
                     : 'Sin ubicación del proveedor todavía'
             },
-            { label: 'Dirección', value: request.pickup_address || 'Sin dirección capturada' }
+            { label: 'Dirección base', value: request.pickup_address || 'Sin dirección capturada' },
+            { label: 'Referencia manual', value: request.pickup_reference || 'Sin referencia adicional' }
         ]);
 
         if (requestLat === null || requestLng === null) {
             renderTrackingStatus('La solicitud existe, pero no tiene coordenadas válidas del cliente.', 'danger');
             setMapOverlay('La asistencia activa no tiene latitud y longitud válidas.');
+            resetProviderMarker();
             return;
         }
 
         ensureMap([requestLat, requestLng]);
-        updateClientMarker(requestLat, requestLng, request.pickup_address);
+        updateClientMarker(requestLat, requestLng, request.pickup_address, request.pickup_reference);
 
         if (provider && providerLat !== null && providerLng !== null) {
             updateProviderMarker(providerLat, providerLng, provider);
@@ -417,6 +422,8 @@
         if (map) {
             map.setView([requestLat, requestLng], 15);
         }
+
+        resetProviderMarker();
 
         if (provider) {
             renderTrackingStatus(
@@ -441,7 +448,7 @@
         if (!map) {
             map = L.map(mapElement).setView(center, 15);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
@@ -454,7 +461,7 @@
         }, 250);
     }
 
-    function updateClientMarker(lat, lng, address) {
+    function updateClientMarker(lat, lng, address, reference) {
         if (!map) {
             return;
         }
@@ -463,6 +470,7 @@
             <div>
                 <strong>Tu ubicación registrada</strong><br>
                 <span>${escapeHtml(address || 'Sin dirección capturada')}</span><br>
+                <small>${escapeHtml(reference || 'Sin referencia adicional')}</small><br>
                 <small>${escapeHtml(lat.toFixed(6) + ', ' + lng.toFixed(6))}</small>
             </div>
         `;
@@ -500,6 +508,13 @@
         }
 
         providerMarker.bindPopup(popup);
+    }
+
+    function resetProviderMarker() {
+        if (map && providerMarker) {
+            map.removeLayer(providerMarker);
+            providerMarker = null;
+        }
     }
 
     function fitMapToMarkers(requestLat, requestLng, providerLat, providerLng) {
@@ -658,8 +673,10 @@
 
         const labels = {
             created: 'Creada',
+            accepted: 'Aceptada',
             assigned: 'Asignada',
             in_progress: 'En proceso',
+            arrived: 'En sitio',
             completed: 'Completada',
             cancelled: 'Cancelada'
         };

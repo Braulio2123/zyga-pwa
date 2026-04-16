@@ -18,12 +18,17 @@ class AssistanceController extends BaseAdminController
             'status' => $request->query('status'),
             'public_id' => $request->query('public_id'),
             'user_id' => $request->query('user_id'),
+            'provider_id' => $request->query('provider_id'),
         ];
 
-        $response = $this->api('GET', '/api/v1/admin/assistance-requests', [], $filters);
+        $response = $this->api('GET', '/api/v1/admin/assistance-requests', [], array_filter($filters, function ($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        $requests = $response['ok'] ? $this->toList($response['data']) : [];
 
         return view('admin.assistance.index', [
-            'requests' => $response['ok'] ? $this->toList($response['data']) : [],
+            'requests' => $requests,
             'apiError' => $response['ok'] ? null : $response['message'],
             'filters' => $filters,
         ]);
@@ -36,6 +41,7 @@ class AssistanceController extends BaseAdminController
         }
 
         $response = $this->api('GET', "/api/v1/admin/assistance-requests/{$id}");
+
         if (!$response['ok']) {
             return redirect()->route('admin.assistance.index')->with('error', $response['message']);
         }

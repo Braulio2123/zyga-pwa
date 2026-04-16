@@ -166,6 +166,10 @@
         display: none;
     }
 
+    .request-readonly-field {
+        background: #f8fafc;
+    }
+
     @media (max-width: 980px) {
         .request-map-layout {
             grid-template-columns: 1fr;
@@ -264,17 +268,17 @@
     }
 
     $formHelperMessage = $requestCanCreate
-        ? 'Selecciona la ubicación en el mapa, usa tu ubicación actual o busca una dirección. El sistema guardará latitud, longitud y una dirección base para la solicitud.'
+        ? 'Selecciona la ubicación en el mapa. La dirección base se llenará automáticamente y la referencia manual quedará separada para orientar mejor al proveedor.'
         : 'El formulario está bloqueado hasta que el flujo cumpla las condiciones mínimas de operación.';
 @endphp
 
 <section class="panel hero-panel hero-panel--compact">
     <div>
         <p class="hero-panel__eyebrow">Nueva asistencia</p>
-        <h2>Selecciona el punto exacto donde necesitas apoyo.</h2>
+        <h2>Selecciona el punto exacto y añade una referencia útil.</h2>
         <p>
-            Elige el servicio, el vehículo involucrado y marca la ubicación en el mapa.
-            La solicitud guardará las coordenadas y la dirección base del punto seleccionado.
+            El mapa definirá la dirección base de la solicitud. Después podrás agregar una referencia manual
+            como fachada, negocio cercano, acceso o punto visible para que el proveedor llegue con más precisión.
         </p>
     </div>
 </section>
@@ -324,9 +328,9 @@
             </article>
 
             <article class="card-row">
-                <h4 class="card-row__title">3. Complementa con referencia</h4>
+                <h4 class="card-row__title">3. Escribe una referencia útil</h4>
                 <p class="card-row__meta">
-                    La dirección base se llenará automáticamente. Puedes agregar detalles como “frente a la gasolinera” o “portón gris”.
+                    Ejemplos: “frente al Oxxo”, “portón gris”, “subiendo el puente peatonal”, “carril lateral”.
                 </p>
             </article>
         </div>
@@ -485,15 +489,6 @@
                         >
                             Usar mi ubicación
                         </button>
-
-                        <button
-                            type="button"
-                            id="requestMapResetAddressButton"
-                            class="button button--ghost"
-                            @disabled(!$requestCanCreate)
-                        >
-                            Usar dirección detectada
-                        </button>
                     </div>
 
                     <div class="request-location-summary">
@@ -517,15 +512,28 @@
         </div>
 
         <label class="form-field form-field--full">
-            <span>Dirección y referencia final</span>
+            <span>Dirección base detectada</span>
             <textarea
                 id="requestPickupAddress"
                 name="pickup_address"
-                rows="4"
-                placeholder="La dirección detectada se llenará aquí. Puedes agregar detalles como fachada, negocio cercano o punto exacto."
+                rows="3"
+                class="request-readonly-field"
+                placeholder="El mapa llenará automáticamente esta dirección."
                 required
+                readonly
                 @disabled(!$requestCanCreate)
             >{{ old('pickup_address') }}</textarea>
+        </label>
+
+        <label class="form-field form-field--full">
+            <span>Referencia manual para el proveedor</span>
+            <textarea
+                id="requestPickupReference"
+                name="pickup_reference"
+                rows="4"
+                placeholder="Ej. Frente al Oxxo, a un lado del portón gris, carril lateral, subiendo el puente peatonal"
+                @disabled(!$requestCanCreate)
+            >{{ old('pickup_reference') }}</textarea>
         </label>
 
         <div class="request-hidden-coordinates">
@@ -600,8 +608,6 @@
         const locateButton = document.getElementById('requestMapLocateButton');
         const searchButton = document.getElementById('requestSearchButton');
         const searchInput = document.getElementById('requestSearchQuery');
-        const resetAddressButton = document.getElementById('requestMapResetAddressButton');
-        const pickupAddress = document.getElementById('requestPickupAddress');
 
         if (locateButton) {
             locateButton.addEventListener('click', useCurrentLocation);
@@ -617,28 +623,6 @@
                     event.preventDefault();
                     runSearch();
                 }
-            });
-        }
-
-        if (resetAddressButton) {
-            resetAddressButton.addEventListener('click', function () {
-                if (!latestDetectedAddress) {
-                    updateStatus('Primero selecciona un punto válido en el mapa.', 'warning');
-                    return;
-                }
-
-                if (pickupAddress) {
-                    pickupAddress.value = latestDetectedAddress;
-                    pickupAddress.dataset.autofilled = '1';
-                }
-
-                updateStatus('La dirección detectada fue copiada al campo final.', 'success');
-            });
-        }
-
-        if (pickupAddress) {
-            pickupAddress.addEventListener('input', function () {
-                pickupAddress.dataset.autofilled = '0';
             });
         }
     }
@@ -683,6 +667,7 @@
         if (pickupAddress && pickupAddress.value.trim() !== '') {
             latestDetectedAddress = pickupAddress.value.trim();
             setDetectedAddress(latestDetectedAddress);
+            setPickupAddressField(latestDetectedAddress);
         }
 
         if (lat !== null && lng !== null) {
@@ -877,7 +862,7 @@
 
                 latestDetectedAddress = address;
                 setDetectedAddress(address);
-                autofillFinalAddress(address);
+                setPickupAddressField(address);
                 updateStatus('Ubicación fijada desde la búsqueda.', 'success');
                 container.innerHTML = '';
             });
@@ -913,7 +898,7 @@
 
             latestDetectedAddress = address;
             setDetectedAddress(address);
-            autofillFinalAddress(address);
+            setPickupAddressField(address);
             updateStatus('Ubicación fijada correctamente.', 'success');
         } catch (error) {
             updateStatus('Se fijó la ubicación, pero falló la obtención de la dirección.', 'warning');
@@ -928,20 +913,14 @@
         }
     }
 
-    function autofillFinalAddress(address) {
+    function setPickupAddressField(address) {
         const pickupAddress = document.getElementById('requestPickupAddress');
 
         if (!pickupAddress) {
             return;
         }
 
-        const currentValue = pickupAddress.value.trim();
-        const isAutofilled = pickupAddress.dataset.autofilled === '1';
-
-        if (currentValue === '' || isAutofilled) {
-            pickupAddress.value = address;
-            pickupAddress.dataset.autofilled = '1';
-        }
+        pickupAddress.value = address || '';
     }
 
     function updateStatus(message, tone) {

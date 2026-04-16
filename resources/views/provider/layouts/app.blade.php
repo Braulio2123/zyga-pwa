@@ -324,6 +324,7 @@
             .bottom-nav { grid-template-columns: repeat(3, 1fr); }
         }
     </style>
+    @stack('page_styles')
 </head>
 <body>
     @php
@@ -379,5 +380,16 @@
     </div>
 
     @include('provider.partials.bottom-nav')
+    <script>
+        window.ZYGA_PROVIDER_APP = {
+            page: @json(trim($__env->yieldContent('page-key')) !== '' ? $__env->yieldContent('page-key') : 'dashboard'),
+            apiBaseUrl: @json(rtrim((string) env('URL_BASE_API', 'http://127.0.0.1:8000'), '/')),
+            token: @json(session('api_token', '')),
+            csrfToken: @json(csrf_token()),
+            sessionUser: @json($sessionUser),
+        };
+    </script>
+
+    @stack('page_scripts')
 </body>
 </html>

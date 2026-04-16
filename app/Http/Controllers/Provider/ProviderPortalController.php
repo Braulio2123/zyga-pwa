@@ -301,6 +301,7 @@ class ProviderPortalController extends Controller
             'status_label' => $this->statusLabel($request['status'] ?? null),
             'status_tone' => $this->statusTone($request['status'] ?? null),
             'pickup_address' => $request['pickup_address'] ?? $request['address'] ?? 'Sin dirección de referencia',
+            'pickup_reference' => $request['pickup_reference'] ?? null,
             'lat' => $request['lat'] ?? null,
             'lng' => $request['lng'] ?? null,
             'service_name' => data_get($request, 'service.name') ?? ($request['service_name'] ?? 'Servicio'),
